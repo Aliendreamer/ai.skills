@@ -87,6 +87,28 @@ public class AdaptersInstallerTests
         Assert.Equal("body\n", File.ReadAllText(cursorDest));
     }
 
+    [Fact]
+    public async Task ExtractSubpath_RejectsPathTraversal()
+    {
+        const string topDir = "ai.skills-main";
+        var tarball = Path.Combine(Directory.CreateTempSubdirectory("tar-").FullName, "evil.tar.gz");
+        await using (var fs = File.Create(tarball))
+        await using (var gz = new GZipStream(fs, CompressionMode.Compress))
+        await using (var writer = new TarWriter(gz))
+        {
+            var entry = new PaxTarEntry(TarEntryType.RegularFile, "ai.skills-main/skills/my-skill/../../../escape.txt")
+            {
+                DataStream = new MemoryStream("pwned"u8.ToArray()),
+            };
+            await writer.WriteEntryAsync(entry);
+        }
+
+        var dest = Directory.CreateTempSubdirectory("dest-").FullName;
+        await Assert.ThrowsAnyAsync<IOException>(
+            () => Installer.ExtractSubpathAsync(tarball, topDir, "skills/my-skill", dest));
+        Assert.False(File.Exists(Path.Combine(dest, "..", "..", "..", "escape.txt")));
+    }
+
     private static void Write(string path, string contents)
     {
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);

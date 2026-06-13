@@ -16,6 +16,7 @@ public static class Installer
     {
         var prefix = $"{topDir}/{subpath}/";
         Directory.CreateDirectory(destDir);
+        var destRoot = Path.GetFullPath(destDir + Path.DirectorySeparatorChar);
 
         await using var fs = File.OpenRead(tarballPath);
         await using var gz = new GZipStream(fs, CompressionMode.Decompress);
@@ -23,6 +24,7 @@ public static class Installer
 
         while (await reader.GetNextEntryAsync() is { } entry)
         {
+            // Only extract regular files; symlinks/hardlinks are skipped (Tar Slip defense).
             if (entry.EntryType is not (TarEntryType.RegularFile or TarEntryType.V7RegularFile))
             {
                 continue;
@@ -33,8 +35,20 @@ public static class Installer
                 continue;
             }
 
-            var relative = entry.Name[prefix.Length..].Replace('/', Path.DirectorySeparatorChar);
-            var outPath = Path.Combine(destDir, relative);
+            var relative = entry.Name[prefix.Length..];
+            if (relative.Length == 0 || Path.IsPathRooted(relative) ||
+                relative.Split('/').Any(segment => segment == ".."))
+            {
+                throw new IOException($"Refusing to extract unsafe tar entry: {entry.Name}");
+            }
+
+            var outPath = Path.GetFullPath(
+                Path.Combine(destDir, relative.Replace('/', Path.DirectorySeparatorChar)));
+            if (!outPath.StartsWith(destRoot, StringComparison.Ordinal))
+            {
+                throw new IOException($"Refusing to extract outside destination: {entry.Name}");
+            }
+
             Directory.CreateDirectory(Path.GetDirectoryName(outPath)!);
             await entry.ExtractToFileAsync(outPath, overwrite: true);
         }
