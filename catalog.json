@@ -1,0 +1,44 @@
+{
+  "entries": [
+    {
+      "id": "conventional-commits",
+      "type": "skill",
+      "description": "Write commit messages that follow the Conventional Commits specification so tooling can derive versions and changelogs.",
+      "tags": [
+        "git",
+        "commits",
+        "conventions"
+      ],
+      "agents": [
+        "claude",
+        "codex",
+        "cursor",
+        "gemini",
+        "copilot"
+      ],
+      "version": "0.1.0",
+      "path": "skills/conventional-commits"
+    },
+    {
+      "id": "dotnet-webapi",
+      "type": "prompt",
+      "description": "Starter prompt for scaffolding a clean ASP.NET Core minimal-API web service with tests.",
+      "tags": [
+        "dotnet",
+        "aspnetcore",
+        "webapi",
+        "starter"
+      ],
+      "agents": [
+        "claude",
+        "codex",
+        "cursor",
+        "gemini",
+        "copilot"
+      ],
+      "version": "0.1.0",
+      "appPattern": "dotnet-webapi",
+      "path": "prompts/dotnet-webapi"
+    }
+  ]
+}
