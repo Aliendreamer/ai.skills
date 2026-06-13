@@ -43,6 +43,13 @@
 - [x] 8.2 Add `validate` target: run `validateCatalog` AND fail if regenerating `catalog.json` would change it (up-to-date check)
 - [x] 8.3 Run `generate-catalog`; `catalog.json` produced (commit pending user go-ahead)
 
+## 10. Release tooling (changelog + versioning)
+
+- [x] 10.1 Configure Nx Release in `nx.json` (conventional commits, fixed version across the workspace, `releaseTagPattern` `v{version}`)
+- [x] 10.2 Add `@nx/js` (required to version JS packages) and `release` / `release:dry` scripts
+- [x] 10.3 Add a root `CHANGELOG.md` maintained by Nx Release
+- [x] 10.4 Verify `nx release --dry-run --first-release` computes `v0.1.0` and a changelog entry (needs an initial commit; output seen)
+
 ## 9. Done gate
 
 - [x] 9.1 `nx run-many -t lint test build typecheck` green — output seen
