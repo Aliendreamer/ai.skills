@@ -1,0 +1,19 @@
+{
+  "name": "cli-dotnet",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": { "command": "dotnet build AiSkills.slnx", "cwd": "apps/cli-dotnet" }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": { "command": "dotnet test AiSkills.slnx", "cwd": "apps/cli-dotnet" }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": { "command": "dotnet format AiSkills.slnx --verify-no-changes", "cwd": "apps/cli-dotnet" }
+    }
+  }
+}

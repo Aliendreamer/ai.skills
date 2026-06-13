@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="AiSkills.Cli.Tests/AiSkills.Cli.Tests.csproj" />
+  <Project Path="AiSkills.Cli/AiSkills.Cli.csproj" />
+</Solution>

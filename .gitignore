@@ -5,6 +5,10 @@ coverage/
 *.tsbuildinfo
 .DS_Store
 
+# .NET build output
+bin/
+obj/
+
 # Local, personal overrides — not shared
 .claude/settings.local.json
 .remember/
