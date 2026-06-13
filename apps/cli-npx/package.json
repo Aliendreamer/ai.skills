@@ -1,0 +1,16 @@
+{
+  "name": "ai-skills",
+  "version": "0.0.0",
+  "type": "module",
+  "bin": {
+    "ai-skills": "./dist/main.js"
+  },
+  "files": ["dist"],
+  "dependencies": {
+    "@ai-skills/catalog": "workspace:*",
+    "@ai-skills/install": "workspace:*",
+    "@inquirer/prompts": "^7.2.0",
+    "commander": "^12.1.0",
+    "picocolors": "^1.1.1"
+  }
+}

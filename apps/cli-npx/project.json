@@ -1,0 +1,26 @@
+{
+  "name": "cli-npx",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/cli-npx/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["^build"],
+      "options": { "command": "tsc -p apps/cli-npx/tsconfig.json" }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["^build"],
+      "options": { "command": "tsc -p apps/cli-npx/tsconfig.json --noEmit" }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": { "command": "vitest run", "cwd": "apps/cli-npx" }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": { "command": "eslint apps/cli-npx/src" }
+    }
+  }
+}
