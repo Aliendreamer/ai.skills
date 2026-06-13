@@ -1,0 +1,109 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Bash(pnpm:*)",
+      "Bash(npm:*)",
+      "Bash(npx:*)",
+      "Bash(node:*)",
+      "Bash(nx:*)",
+      "Bash(dotnet:*)",
+      "Bash(openspec:*)",
+      "Bash(git status:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)",
+      "Bash(git checkout:*)",
+      "Bash(git switch:*)",
+      "Bash(git restore:*)",
+      "Bash(git stash:*)",
+      "Bash(git fetch:*)",
+      "Bash(git rev-parse:*)",
+      "mcp__plugin_serena_serena__read_file",
+      "mcp__plugin_serena_serena__search_for_pattern",
+      "mcp__plugin_serena_serena__activate_project",
+      "mcp__plugin_serena_serena__find_symbol",
+      "mcp__plugin_serena_serena__initial_instructions",
+      "mcp__plugin_serena_serena__find_file",
+      "mcp__plugin_serena_serena__get_symbols_overview",
+      "mcp__plugin_serena_serena__list_dir",
+      "mcp__plugin_serena_serena__get_current_config",
+      "mcp__plugin_serena_serena__find_referencing_symbols",
+      "mcp__plugin_serena_serena__find_implementations",
+      "mcp__plugin_serena_serena__find_declaration",
+      "mcp__plugin_serena_serena__list_memories",
+      "mcp__plugin_serena_serena__read_memory"
+    ],
+    "deny": [
+      "Bash(rm -rf*)",
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+      "Bash(git reset --hard*)",
+      "Bash(git branch -D*)",
+      "Bash(git branch --delete --force*)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "async": true,
+            "asyncRewake": true,
+            "rewakeSummary": "dev-flow gate failed",
+            "rewakeMessage": "Quality gates (nx lint/test) failed. Fix before claiming done:",
+            "statusMessage": "Running dev-flow gates (nx lint/test)...",
+            "timeout": 600,
+            "command": "D=\"${CLAUDE_PROJECT_DIR:-$PWD}\"; cd \"$D\" || exit 0; if [ -f nx.json ] && [ -x node_modules/.bin/nx ]; then o=$(node_modules/.bin/nx run-many -t lint test 2>&1); c=$?; if [ $c -ne 0 ]; then printf '%s\\n' \"$o\" | tail -n 40; exit 2; fi; fi"
+          }
+        ]
+      }
+    ]
+  },
+  "sandbox": {
+    "enabled": true,
+    "network": {
+      "allowedDomains": [
+        "localhost",
+        "127.0.0.1",
+        "registry.npmjs.org",
+        "*.npmjs.org",
+        "*.nuget.org",
+        "github.com",
+        "codeload.github.com",
+        "*.githubusercontent.com"
+      ]
+    },
+    "filesystem": {
+      "allowWrite": [
+        "/home/aliendreamer/projects/ai.skills",
+        "/tmp",
+        "/home/aliendreamer/.nuget",
+        "/home/aliendreamer/.dotnet",
+        "/home/aliendreamer/.local/share/pnpm",
+        "/home/aliendreamer/.cache"
+      ]
+    }
+  },
+  "mcpServers": {
+    "serena": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/oraios/serena",
+        "serena",
+        "start-mcp-server",
+        "--context",
+        "claude-code",
+        "--project-from-cwd",
+        "--open-web-dashboard",
+        "false"
+      ]
+    }
+  }
+}

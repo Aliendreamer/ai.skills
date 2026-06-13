@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.nx/
+coverage/
+*.tsbuildinfo
+.DS_Store
+
+# Local, personal overrides — not shared
+.claude/settings.local.json
+.remember/
