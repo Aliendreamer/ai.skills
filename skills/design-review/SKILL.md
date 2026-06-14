@@ -1,12 +1,16 @@
 ---
 name: design-review
-description: "Review implemented UI changes against the reference app (../SmartTVApp) as a TV designer — visual consistency, focus styles, colors, fonts, spacing, and TV-specific UI conventions. Use after a bug fix or UI change."
+description:
+  "Review implemented UI changes against the reference app (../SmartTVApp) as a TV designer — visual consistency, focus
+  styles, colors, fonts, spacing, and TV-specific UI conventions. Use after a bug fix or UI change."
 type: skill
 tags: [smarttv, design, ui, review, react]
 agents: [claude, codex, cursor, gemini, copilot]
 version: 0.1.0
 author: Aliendreamer
 ---
+
+# TV Design Review
 
 Act as a TV UI designer reviewing the implementation against the reference SmartTVApp at `../SmartTVApp`.
 
@@ -19,10 +23,13 @@ Act as a TV UI designer reviewing the implementation against the reference Smart
 1. **Identify changed files**
 
    If no paths provided, run:
+
    ```bash
    git diff --name-only HEAD
    ```
+
    Filter to UI files in `src/components/` and `src/app/`. If nothing, run:
+
    ```bash
    git diff --name-only
    ```
@@ -38,23 +45,27 @@ Act as a TV UI designer reviewing the implementation against the reference Smart
 3. **Visual comparison checklist**
 
    ### A. Colors & Theme
+
    - [ ] Focus style uses `var(--hot-red)` — NEVER white or default blue
    - [ ] Background colors use correct CSS custom properties (`--bg-primary`, `--bg-surface`, etc.)
    - [ ] Text colors match reference palette (light on dark)
    - [ ] Error states use appropriate contrast colors
 
    ### B. Typography
+
    - [ ] All visible text is ≥ 24px (TV minimum — no exceptions)
    - [ ] Font weights and families consistent with reference
    - [ ] Line-height and letter-spacing appropriate for 10-foot reading distance
 
    ### C. Spacing & Layout
+
    - [ ] Padding and margin values are proportional to 1920×1080 scale
    - [ ] Layout structure (flex/grid direction, alignment) matches reference intent
    - [ ] Element sizing meets minimum focus target: 80px height for interactive elements
    - [ ] Critical content respects 5% safe-area inset from screen edges
 
    ### D. Focus Styles (TV-critical)
+
    - [ ] Flow buttons: red background (`var(--hot-red)`) when focused — no outline on buttons
    - [ ] Credential inputs: `outline: 3px solid var(--hot-red)` when focused
    - [ ] VKB keys: `outline: 3px solid var(--hot-red)` when focused
@@ -63,12 +74,14 @@ Act as a TV UI designer reviewing the implementation against the reference Smart
    - [ ] No `:focus-visible` (unsupported in Chromium 70 — use `:focus`)
 
    ### E. Component Structure
+
    - [ ] Component sections and hierarchy match reference (header, body, footer zones)
    - [ ] Animations are present where reference has them (transitions, fades)
    - [ ] No layout shifts during state transitions (loading → loaded)
    - [ ] Overlay/modal positioning matches reference (centered, bottom-anchored, etc.)
 
    ### F. TV UI Conventions
+
    - [ ] High contrast between foreground and background elements
    - [ ] Focused element is unmistakably highlighted — no subtle focus indicators
    - [ ] VirtualKeyboard always anchors to bottom (position: fixed; bottom: 0) — never full-screen
@@ -78,7 +91,8 @@ Act as a TV UI designer reviewing the implementation against the reference Smart
 4. **Report findings**
 
    Format output as:
-   ```
+
+   ```text
    ## Designer Review: <component/screen name>
 
    ### Visual Match: <PASS | NEEDS WORK>
@@ -103,6 +117,7 @@ Act as a TV UI designer reviewing the implementation against the reference Smart
 5. **Offer to fix**
 
    After the report, if there are critical issues:
+
    > "Want me to fix the styling issues?"
 
    If yes: apply only the reported fixes — no surrounding refactors, no logic changes.
@@ -110,6 +125,7 @@ Act as a TV UI designer reviewing the implementation against the reference Smart
 ---
 
 ## Guardrails
+
 - Compare visual/styling only — never change logic, data fetching, or navigation behavior
 - Reference app (`../SmartTVApp`) is a SPA — do NOT adopt its routing, state, or data patterns
 - Focus styles MUST follow project convention: red (`var(--hot-red)`), never white or browser default

@@ -6,6 +6,8 @@
   "scripts": {
     "generate-catalog": "nx run catalog:generate-catalog",
     "validate": "nx run catalog:validate",
+    "lint:md": "markdownlint-cli2",
+    "lint:md:fix": "markdownlint-cli2 --fix",
     "release": "nx release && pnpm run publish:dotnet && git push --follow-tags",
     "release:first": "nx release --first-release && pnpm run publish:dotnet && git push --follow-tags",
     "release:dry": "nx release --dry-run",
@@ -16,6 +18,7 @@
     "@types/node": "^22.10.2",
     "@types/semver": "^7.5.8",
     "eslint": "^9.17.0",
+    "markdownlint-cli2": "^0.14.0",
     "nx": "^20.3.0",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",

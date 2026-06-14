@@ -56,10 +56,10 @@
             "async": true,
             "asyncRewake": true,
             "rewakeSummary": "dev-flow gate failed",
-            "rewakeMessage": "Quality gates (nx lint/test) failed. Fix before claiming done:",
-            "statusMessage": "Running dev-flow gates (nx lint/test)...",
+            "rewakeMessage": "Quality gates (nx lint/test, markdownlint) failed. Fix before claiming done:",
+            "statusMessage": "Running dev-flow gates (nx lint/test, markdownlint)...",
             "timeout": 600,
-            "command": "D=\"${CLAUDE_PROJECT_DIR:-$PWD}\"; cd \"$D\" || exit 0; if [ -f nx.json ] && [ -x node_modules/.bin/nx ]; then o=$(node_modules/.bin/nx run-many -t lint test 2>&1); c=$?; if [ $c -ne 0 ]; then printf '%s\\n' \"$o\" | tail -n 40; exit 2; fi; fi"
+            "command": "D=\"${CLAUDE_PROJECT_DIR:-$PWD}\"; cd \"$D\" || exit 0; [ -f nx.json ] && [ -x node_modules/.bin/nx ] || exit 0; o=$(node_modules/.bin/nx run-many -t lint test 2>&1); c=$?; m=''; mc=0; if [ -x node_modules/.bin/markdownlint-cli2 ]; then m=$(node_modules/.bin/markdownlint-cli2 2>&1); mc=$?; fi; if [ $c -ne 0 ] || [ $mc -ne 0 ]; then printf '%s\\n' \"$o\" | tail -n 30; printf '%s\\n' \"$m\" | tail -n 20; exit 2; fi"
           }
         ]
       }

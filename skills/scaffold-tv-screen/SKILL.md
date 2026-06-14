@@ -1,12 +1,16 @@
 ---
 name: scaffold-tv-screen
-description: "Scaffold a new TV screen with proper focus management, D-pad navigation, Magic Remote awareness, and RSC/client split. Use when the user wants to create a new screen or page for the TV app."
+description:
+  "Scaffold a new TV screen with proper focus management, D-pad navigation, Magic Remote awareness, and RSC/client
+  split. Use when the user wants to create a new screen or page for the TV app."
 type: skill
 tags: [smarttv, scaffold, react, focus]
 agents: [claude, codex, cursor, gemini, copilot]
 version: 0.1.0
 author: Aliendreamer
 ---
+
+# Scaffold a TV Screen
 
 Scaffold a new TV screen with all boilerplate for focus management, D-pad navigation, and LG Magic Remote support.
 
@@ -19,7 +23,9 @@ Scaffold a new TV screen with all boilerplate for focus management, D-pad naviga
 1. **Gather requirements**
 
    If not provided, use **AskUserQuestion** to ask:
+
    > "What screen do you want to create? Tell me:
+   >
    > 1. Screen name (e.g. 'HomeScreen', 'MovieDetail', 'SettingsMenu')
    > 2. Screen type: content-grid, content-detail, menu/settings, player, or other
    > 3. Does it need GraphQL data? If yes, what data roughly?
@@ -36,6 +42,7 @@ Scaffold a new TV screen with all boilerplate for focus management, D-pad naviga
 3. **Scaffold the files**
 
    ### Server Component Page (`page.tsx`)
+
    ```tsx
    // src/app/<route>/page.tsx
    import { <ScreenName> } from '@/components/screens/<ScreenName>'
@@ -48,6 +55,7 @@ Scaffold a new TV screen with all boilerplate for focus management, D-pad naviga
    ```
 
    ### Client Screen Component
+
    The main screen must be a Client Component and include:
 
    **Required hooks/utilities to include:**
@@ -57,6 +65,7 @@ Scaffold a new TV screen with all boilerplate for focus management, D-pad naviga
    - Back button handler (`Backspace` key)
 
    **Template structure:**
+
    ```tsx
    'use client'
 
@@ -154,7 +163,8 @@ Scaffold a new TV screen with all boilerplate for focus management, D-pad naviga
 6. **Summary**
 
    After scaffolding, output:
-   ```
+
+   ```text
    ## Scaffolded: <ScreenName>
 
    Files created:
@@ -177,6 +187,7 @@ Scaffold a new TV screen with all boilerplate for focus management, D-pad naviga
 ---
 
 ## Guardrails
+
 - Always include `useInputMode` for Magic Remote awareness
 - Always set initial focus explicitly - never rely on browser default
 - Always have a back button handler

@@ -1,0 +1,27 @@
+{
+  // All markdownlint defaults are strict, except MD013 (line length):
+  // 120 cols, and code blocks + tables are exempt (unwrappable content).
+  "config": {
+    "default": true,
+    "MD013": {
+      "line_length": 120,
+      "code_blocks": false,
+      "tables": false
+    }
+  },
+  // Authored docs only.
+  "globs": [
+    "skills/**/*.md",
+    "prompts/**/*.md",
+    "openspec/specs/**/*.md",
+    "CLAUDE.md"
+  ],
+  // Vendored content, historical records, and build output.
+  "ignores": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/.nx/**",
+    ".claude/**",
+    "openspec/changes/**"
+  ]
+}

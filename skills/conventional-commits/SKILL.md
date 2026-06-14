@@ -1,6 +1,8 @@
 ---
 name: conventional-commits
-description: Write commit messages that follow the Conventional Commits specification so tooling can derive versions and changelogs.
+description:
+  Write commit messages that follow the Conventional Commits specification so tooling can derive versions and
+  changelogs.
 type: skill
 tags: [git, commits, conventions]
 agents: [claude, codex, cursor, gemini, copilot]
@@ -13,7 +15,7 @@ Use Conventional Commits so release tooling can compute semver bumps and changel
 
 ## Format
 
-```
+```text
 <type>(<optional scope>): <description>
 
 <optional body>
@@ -35,7 +37,7 @@ Use Conventional Commits so release tooling can compute semver bumps and changel
 
 Add `!` after the type/scope or a `BREAKING CHANGE:` footer → major bump.
 
-```
+```text
 feat(api)!: drop support for legacy auth header
 ```
 
