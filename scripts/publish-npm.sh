@@ -20,6 +20,13 @@ echo "→ building bundled package…"
 npx nx run cli-npx:build
 
 VERSION="$(node -p "require('./apps/cli-npx/package.json').version")"
+
+# Guard: npm versions are immutable — refuse to re-publish an existing one.
+if npm view "@aliendreamer/ai-skills@${VERSION}" version >/dev/null 2>&1; then
+  echo "✗ @aliendreamer/ai-skills@${VERSION} is already published — bump first: pnpm release:version" >&2
+  exit 1
+fi
+
 echo "→ publishing @aliendreamer/ai-skills@${VERSION} to npm…"
 ( cd apps/cli-npx && npm publish )
 echo "✓ npm publish complete"

@@ -16,6 +16,14 @@ NUGET_KEY="$(conf nuget_key)"
 [ -n "$NUGET_KEY" ] || { echo "✗ nuget_key missing in config.conf (add: nuget_key=...)" >&2; exit 1; }
 
 VERSION="$(node -p "require('./apps/cli-npx/package.json').version")"
+
+# Guard: refuse to re-publish an existing version.
+if curl -fsSL "https://api.nuget.org/v3-flatcontainer/aiskills.cli/index.json" 2>/dev/null \
+     | grep -q "\"${VERSION}\""; then
+  echo "✗ AiSkills.Cli ${VERSION} is already on NuGet — bump first: pnpm release:version" >&2
+  exit 1
+fi
+
 echo "→ packing AiSkills.Cli@${VERSION}…"
 dotnet pack apps/cli-dotnet/AiSkills.slnx -c Release -p:Version="$VERSION" -o apps/cli-dotnet/dist
 echo "→ pushing to NuGet…"
