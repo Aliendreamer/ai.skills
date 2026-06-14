@@ -1,3 +1,13 @@
+## 0.5.0 (2026-06-14)
+
+### 🚀 Features
+
+- **cli:** default to the interactive wizard with back navigation ([a7eba69](https://github.com/Aliendreamer/ai.skills/commit/a7eba69))
+
+### ❤️ Thank You
+
+- Aliendreamer @Aliendreamer
+
 ## 0.4.0 (2026-06-14)
 
 ### 🚀 Features
