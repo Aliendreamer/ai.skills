@@ -111,6 +111,29 @@
       "path": "prompts/dotnet-webapi"
     },
     {
+      "id": "fe-ssr-tanstack",
+      "type": "prompt",
+      "description": "Build a TanStack Start SSR frontend that acts as the BFF — proxies the OIDC/auth dance and fetches page data server-to-server from an internal API, so the browser only ever talks to the app origin (no API host or token in the client).",
+      "tags": [
+        "frontend",
+        "tanstack",
+        "ssr",
+        "bff",
+        "typescript",
+        "auth"
+      ],
+      "agents": [
+        "claude",
+        "codex",
+        "cursor",
+        "gemini",
+        "copilot"
+      ],
+      "version": "0.1.0",
+      "appPattern": "fe-ssr-tanstack",
+      "path": "prompts/fe-ssr-tanstack"
+    },
+    {
       "id": "llm-setup-audit",
       "type": "skill",
       "description": "Use when reviewing or hardening the Claude Code agent configuration — .claude/settings.json (and settings.local.json): Bash/tool permissions, sandbox, hooks, MCP servers, plugins, and committed secrets — before committing config changes or onboarding a repo. This audits the agent harness, not the application; for application/infra security use web-security-audit.",
