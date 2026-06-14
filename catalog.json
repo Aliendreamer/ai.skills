@@ -1,6 +1,48 @@
 {
   "entries": [
     {
+      "id": "audit-tv-focus",
+      "type": "skill",
+      "description": "Audit a component or screen for TV D-pad focus completeness, Magic Remote compatibility, and navigation correctness. Use when the user wants to verify a component is TV-ready.",
+      "tags": [
+        "smarttv",
+        "focus",
+        "audit",
+        "react",
+        "accessibility"
+      ],
+      "agents": [
+        "claude",
+        "codex",
+        "cursor",
+        "gemini",
+        "copilot"
+      ],
+      "version": "0.1.0",
+      "path": "skills/audit-tv-focus"
+    },
+    {
+      "id": "compact-tv-check",
+      "type": "skill",
+      "description": "Check code for Chromium 70 and TV platform compatibility issues (CSS, JS, APIs). Use when the user wants to verify code will work on target TV platforms.",
+      "tags": [
+        "smarttv",
+        "compatibility",
+        "chromium",
+        "tizen",
+        "webos"
+      ],
+      "agents": [
+        "claude",
+        "codex",
+        "cursor",
+        "gemini",
+        "copilot"
+      ],
+      "version": "0.1.0",
+      "path": "skills/compact-tv-check"
+    },
+    {
       "id": "conventional-commits",
       "type": "skill",
       "description": "Write commit messages that follow the Conventional Commits specification so tooling can derive versions and changelogs.",
@@ -152,6 +194,46 @@
       ],
       "version": "0.1.0",
       "path": "skills/llm-setup-audit"
+    },
+    {
+      "id": "norigin-focus",
+      "type": "skill",
+      "description": "Audit Norigin useFocusable container calls for missing autoRestoreFocus, plus page-entry focus patterns, scroll-restoration timing, and StrictMode-safe guard refs in spatial-navigation TV apps.",
+      "tags": [
+        "smarttv",
+        "focus",
+        "norigin",
+        "react"
+      ],
+      "agents": [
+        "claude",
+        "codex",
+        "cursor",
+        "gemini",
+        "copilot"
+      ],
+      "version": "0.1.0",
+      "path": "skills/norigin-focus"
+    },
+    {
+      "id": "scaffold-tv-screen",
+      "type": "skill",
+      "description": "Scaffold a new TV screen with proper focus management, D-pad navigation, Magic Remote awareness, and RSC/client split. Use when the user wants to create a new screen or page for the TV app.",
+      "tags": [
+        "smarttv",
+        "scaffold",
+        "react",
+        "focus"
+      ],
+      "agents": [
+        "claude",
+        "codex",
+        "cursor",
+        "gemini",
+        "copilot"
+      ],
+      "version": "0.1.0",
+      "path": "skills/scaffold-tv-screen"
     },
     {
       "id": "web-security-audit",
