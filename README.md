@@ -133,23 +133,23 @@ One fixed version spans the workspace (Nx Release + Conventional Commits drive `
 | command | what it does |
 | --- | --- |
 | `pnpm release:dry` | preview the next version + changelog (no changes) |
-| `pnpm release:version` | bump version, write CHANGELOG, commit, tag (no publish / push) |
-| `pnpm publish:npm` | build + `npm publish` `@aliendreamer/ai-skills` |
-| `pnpm publish:nuget` | `dotnet pack` + push `AiSkills.Cli` |
-| `pnpm release:npm` | gates → publish npm → push commit & tags |
-| `pnpm release:nuget` | gates → publish nuget → push commit & tags |
+| `pnpm release:version` | manually bump version + CHANGELOG + tag (release:npm does this for you) |
+| `pnpm publish:npm` | build + `npm publish` `@aliendreamer/ai-skills` (guards against a duplicate) |
+| `pnpm publish:nuget` | `dotnet pack` + push `AiSkills.Cli` (guards against a duplicate) |
+| `pnpm release:npm` | gates → **auto-bump** (conventional commits) → publish npm → push commit & tags |
+| `pnpm release:nuget` | gates → publish nuget at the shared version → push commit & tags |
 
 Typical release:
 
 ```sh
-pnpm release:version    # once per release: shared version + tag
-pnpm release:npm        # gates → npm publish → git push --follow-tags
-pnpm release:nuget      # gates → nuget publish → git push --follow-tags (needs nuget_key)
+pnpm release:npm        # auto-bumps (e.g. 0.1.0 -> 0.2.0 for a feat), publishes npm, pushes tag
+pnpm release:nuget      # publishes that same version to NuGet, pushes (needs nuget_key)
 ```
 
-The first ever release needs `pnpm release:version --first-release` (no prior tag to diff from).
-Each `release:*` script runs the gates, publishes its registry, and pushes the commit + tags;
-pass `--skip-checks` to bypass the gates.
+`release:npm` derives the bump from Conventional Commits since the last tag and owns the single
+shared workspace version; `release:nuget` ships that version (no second bump). Pass `--no-bump` to
+`release:npm` to publish the current version as-is, or `--skip-checks` to skip the gates. The very
+first release used `pnpm release:version --first-release` (no prior tag to diff from).
 
 ### Credentials (git-crypt)
 

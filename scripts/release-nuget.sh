@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Release the dotnet tool: (gates) -> pack + push to NuGet -> push commit & tags.
 #
-# Version + CHANGELOG + tag are created separately by `pnpm release:version`
-# (one shared workspace version; the dotnet version is read from the npm package).
-# Run that first, then this. Requires nuget_key in config.conf.
+# This does NOT bump the version — it ships the single shared workspace version that
+# `release:npm` (or `pnpm release:version`) already set, read from the npm package.
+# So run `pnpm release:npm` (or `release:version`) first. Requires nuget_key in config.conf.
 #
 # Usage: scripts/release-nuget.sh [--skip-checks]
 set -euo pipefail
