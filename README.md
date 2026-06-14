@@ -12,18 +12,40 @@ content straight from GitHub — no clone required.
 
 ## Install the CLI
 
-npx (no install needed):
+Two interchangeable CLIs — same commands and flags. Pick whichever fits your stack.
+
+### npx (Node)
+
+No install needed; runs the published package on demand:
 
 ```sh
+npx @aliendreamer/ai-skills          # bare = interactive wizard
 npx @aliendreamer/ai-skills list
 ```
 
-dotnet tool:
+### dotnet (.NET global tool)
+
+Published to NuGet as [`AiSkills.Cli`](https://www.nuget.org/packages/AiSkills.Cli); installs the
+`ai-skills` command on your PATH:
 
 ```sh
-dotnet tool install -g AiSkills.Cli
+dotnet tool install -g AiSkills.Cli           # install globally
+ai-skills                                      # bare = interactive wizard
 ai-skills list
 ```
+
+Manage it with the usual dotnet-tool commands:
+
+```sh
+dotnet tool install -g AiSkills.Cli --version 0.5.0   # pin a specific version
+dotnet tool update    -g AiSkills.Cli                 # upgrade to latest
+dotnet tool uninstall -g AiSkills.Cli                 # remove
+```
+
+If `ai-skills` isn't found after a global install, add the tools directory to your PATH
+(`~/.dotnet/tools` on Linux/macOS, `%USERPROFILE%\.dotnet\tools` on Windows) — the installer prints a
+one-time hint. For a project-local install instead of global, run `dotnet new tool-manifest` once,
+then `dotnet tool install AiSkills.Cli` and invoke it as `dotnet ai-skills`.
 
 ## Usage
 
