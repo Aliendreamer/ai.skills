@@ -42,12 +42,14 @@
     {
       "id": "dotnet-webapi",
       "type": "prompt",
-      "description": "Starter prompt for scaffolding a clean ASP.NET Core minimal-API web service with tests.",
+      "description": "Build a production-shaped .NET backend in our house style — FastEndpoints + EF Core (Postgres), Keycloak JwtBearer with an opaque-cookie session store (server-side revocation), Serilog, FusionCache, xUnit/Moq with a coverage gate.",
       "tags": [
         "dotnet",
-        "aspnetcore",
-        "webapi",
-        "starter"
+        "fastendpoints",
+        "efcore",
+        "keycloak",
+        "backend",
+        "auth"
       ],
       "agents": [
         "claude",
@@ -57,20 +59,21 @@
         "copilot"
       ],
       "version": "0.1.0",
-      "appPattern": "dotnet-webapi",
+      "appPattern": "dotnet-backend",
       "path": "prompts/dotnet-webapi"
     },
     {
       "id": "fullstack",
       "type": "prompt",
-      "description": "Starter prompt to build a BFF cookie-session auth stack — TanStack Start frontend, .NET FastEndpoints backend, and Keycloak with a Postgres session store — in a dockerized *.localhost harness.",
+      "description": "Starter prompt to build an SSR BFF cookie-session auth stack — TanStack Start SSR as the public BFF proxying OIDC to a private .NET FastEndpoints API, with Keycloak and a Postgres session store in a dockerized *.localhost harness.",
       "tags": [
         "fullstack",
         "dotnet",
         "tanstack",
         "keycloak",
         "bff",
-        "auth"
+        "auth",
+        "ssr"
       ],
       "agents": [
         "claude",
