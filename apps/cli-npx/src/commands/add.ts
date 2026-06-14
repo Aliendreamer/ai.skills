@@ -2,10 +2,10 @@ import { homedir } from 'node:os';
 import { checkbox, select } from '@inquirer/prompts';
 import pc from 'picocolors';
 import type { Scope } from '@ai-skills/install';
-import { addSkills, requireYesFlags, resolveAddTargets, resolveScope } from '../core/add.js';
+import { addItems, requireYesFlags, resolveAddTargets, resolveScope } from '../core/add.js';
 import { getCatalog, type StoreOptions } from './shared.js';
 
-const SKILL_AGENTS = ['claude', 'codex', 'copilot', 'cursor'];
+const AGENTS = ['claude', 'codex', 'copilot', 'cursor', 'gemini'];
 
 export interface AddOptions extends StoreOptions {
   all?: boolean;
@@ -40,7 +40,7 @@ export async function addCommand(ids: string[], opts: AddOptions): Promise<void>
     opts.agent ??
     (await select({
       message: 'Target agent',
-      choices: SKILL_AGENTS.map((a) => ({ name: a, value: a })),
+      choices: AGENTS.map((a) => ({ name: a, value: a })),
     }));
 
   let scope: Scope;
@@ -56,13 +56,13 @@ export async function addCommand(ids: string[], opts: AddOptions): Promise<void>
     });
 
   const bases = { project: process.cwd(), home: homedir() };
-  const results = await addSkills(targets, { ...repoRef, agent, scope, bases });
+  const results = await addItems(targets, { ...repoRef, agent, scope, bases });
 
   for (const r of results) {
     if (r.status === 'installed') {
       console.log(pc.green(`✓ ${r.id} → ${r.dest}`));
     } else {
-      console.log(pc.yellow(`• ${r.id}: prompt installation isn't supported yet (coming later)`));
+      console.log(pc.red(`✗ ${r.id}: ${r.message}`));
     }
   }
 }

@@ -72,6 +72,23 @@ public static class Installer
         return Task.FromResult(dest);
     }
 
+
+    /// <summary>
+    /// Install a fetched prompt from <paramref name="sourceDir"/> (its <c>PROMPT.md</c>) into the
+    /// resolved destination, rendered to the agent's format. Description comes from the catalog.
+    /// </summary>
+    public static async Task<string> InstallPromptAsync(
+        string sourceDir, string agent, Scope scope, string id, string description, Bases bases)
+    {
+        var dest = Adapters.ResolvePromptDestination(agent, scope, id, bases);
+        var raw = await File.ReadAllTextAsync(Path.Combine(sourceDir, "PROMPT.md"));
+        var body = PromptRenderer.StripFrontmatter(raw);
+        var contents = PromptRenderer.Render(Adapters.PromptFormat(agent), description, body);
+        Directory.CreateDirectory(Path.GetDirectoryName(dest)!);
+        await File.WriteAllTextAsync(dest, contents);
+        return dest;
+    }
+
     private static void CopyDirectory(string source, string dest)
     {
         Directory.CreateDirectory(dest);

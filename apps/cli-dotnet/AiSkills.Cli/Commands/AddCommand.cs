@@ -7,7 +7,7 @@ namespace AiSkills.Cli.Commands;
 
 public sealed class AddCommand : AsyncCommand<AddSettings>
 {
-    private static readonly string[] SkillAgents = ["claude", "codex", "copilot", "cursor"];
+    private static readonly string[] Agents = ["claude", "codex", "copilot", "cursor", "gemini"];
 
     protected override async Task<int> ExecuteAsync(CommandContext context, AddSettings settings, CancellationToken cancellationToken)
     {
@@ -41,7 +41,7 @@ public sealed class AddCommand : AsyncCommand<AddSettings>
         }
 
         var agent = settings.Agent ?? AnsiConsole.Prompt(
-            new SelectionPrompt<string>().Title("Target agent").AddChoices(SkillAgents));
+            new SelectionPrompt<string>().Title("Target agent").AddChoices(Agents));
 
         Scope scope;
         if (settings.Project || settings.Global)
@@ -64,8 +64,9 @@ public sealed class AddCommand : AsyncCommand<AddSettings>
         var bases = new Bases(Directory.GetCurrentDirectory(),
             Environment.GetFolderPath(Environment.SpecialFolder.UserProfile));
 
-        var results = await AddService.AddSkillsAsync(
-            targets, repo, agent, scope, bases, new HttpItemFetcher(http), new FileSkillInstaller(),
+        var results = await AddService.AddItemsAsync(
+            targets, repo, agent, scope, bases,
+            new HttpItemFetcher(http), new FileSkillInstaller(), new FilePromptInstaller(),
             () => Directory.CreateTempSubdirectory("ai-skills-add-").FullName);
 
         foreach (var r in results)
@@ -76,8 +77,7 @@ public sealed class AddCommand : AsyncCommand<AddSettings>
             }
             else
             {
-                AnsiConsole.MarkupLineInterpolated(
-                    $"[yellow]• {r.Id}: prompt installation isn't supported yet (coming later)[/]");
+                AnsiConsole.MarkupLineInterpolated($"[red]✗ {r.Id}: {r.Message}[/]");
             }
         }
 

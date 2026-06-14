@@ -58,7 +58,7 @@ public sealed class AddSettings : StoreSettings
     public bool All { get; init; }
 
     [CommandOption("--agent <AGENT>")]
-    [Description("Target agent: claude, codex, copilot, cursor")]
+    [Description("Target agent: claude, codex, copilot, cursor, gemini")]
     public string? Agent { get; init; }
 
     [CommandOption("--project")]

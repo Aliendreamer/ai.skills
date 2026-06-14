@@ -5,6 +5,7 @@ import type { Catalog, CatalogEntry } from '@ai-skills/catalog';
 import {
   fetchItem as realFetchItem,
   installSkill as realInstallSkill,
+  installPrompt as realInstallPrompt,
   type Bases,
   type Scope,
 } from '@ai-skills/install';
@@ -48,8 +49,9 @@ export function requireYesFlags(flags: { agent?: string; yes?: boolean }): void 
 
 export interface AddResult {
   id: string;
-  status: 'installed' | 'deferred';
+  status: 'installed' | 'failed';
   dest?: string;
+  message?: string;
 }
 
 export interface AddDeps {
@@ -61,25 +63,30 @@ export interface AddDeps {
   bases: Bases;
   fetchItem?: typeof realFetchItem;
   installSkill?: typeof realInstallSkill;
+  installPrompt?: typeof realInstallPrompt;
   mkdtemp?: () => Promise<string>;
 }
 
-/** Install skill targets; prompt-type entries are deferred (not yet supported). */
-export async function addSkills(targets: CatalogEntry[], deps: AddDeps): Promise<AddResult[]> {
+/** Install skill and prompt targets; one item's failure does not abort the batch. */
+export async function addItems(targets: CatalogEntry[], deps: AddDeps): Promise<AddResult[]> {
   const fetchItem = deps.fetchItem ?? realFetchItem;
   const installSkill = deps.installSkill ?? realInstallSkill;
+  const installPrompt = deps.installPrompt ?? realInstallPrompt;
   const makeTmp = deps.mkdtemp ?? (() => mkdtemp(join(tmpdir(), 'ai-skills-add-')));
 
   const results: AddResult[] = [];
   for (const entry of targets) {
-    if (entry.type !== 'skill') {
-      results.push({ id: entry.id, status: 'deferred' });
-      continue;
+    try {
+      const tmp = await makeTmp();
+      await fetchItem(deps.owner, deps.repo, deps.ref, entry.path, tmp);
+      const dest =
+        entry.type === 'prompt'
+          ? await installPrompt(tmp, deps.agent, deps.scope, entry.id, entry.description, deps.bases)
+          : await installSkill(tmp, deps.agent, deps.scope, entry.id, deps.bases);
+      results.push({ id: entry.id, status: 'installed', dest });
+    } catch (err) {
+      results.push({ id: entry.id, status: 'failed', message: (err as Error).message });
     }
-    const tmp = await makeTmp();
-    await fetchItem(deps.owner, deps.repo, deps.ref, entry.path, tmp);
-    const dest = await installSkill(tmp, deps.agent, deps.scope, entry.id, deps.bases);
-    results.push({ id: entry.id, status: 'installed', dest });
   }
   return results;
 }

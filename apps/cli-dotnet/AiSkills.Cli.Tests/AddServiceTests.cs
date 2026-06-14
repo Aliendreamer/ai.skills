@@ -53,7 +53,7 @@ public class AddServiceTests
         }
     }
 
-    private sealed class FakeInstaller : ISkillInstaller
+    private sealed class FakeSkillInstaller : ISkillInstaller
     {
         public List<string> Installed { get; } = new();
         public Task<string> InstallAsync(string sourceDir, string agent, Scope scope, string id, Bases bases)
@@ -63,20 +63,49 @@ public class AddServiceTests
         }
     }
 
-    [Fact]
-    public async Task AddSkills_InstallsSkills_DefersPrompts()
+    private sealed class FakePromptInstaller : IPromptInstaller
     {
-        var fetcher = new FakeFetcher();
-        var installer = new FakeInstaller();
-        var results = await AddService.AddSkillsAsync(
+        public List<string> Installed { get; } = new();
+        public Task<string> InstallAsync(string sourceDir, string agent, Scope scope, string id, string description, Bases bases)
+        {
+            Installed.Add(id);
+            return Task.FromResult($"/dest/{id}");
+        }
+    }
+
+    private sealed class ThrowingSkillInstaller : ISkillInstaller
+    {
+        public Task<string> InstallAsync(string sourceDir, string agent, Scope scope, string id, Bases bases) =>
+            throw new InvalidOperationException("boom");
+    }
+
+    [Fact]
+    public async Task AddItems_InstallsSkillsAndPrompts()
+    {
+        var skill = new FakeSkillInstaller();
+        var prompt = new FakePromptInstaller();
+        var results = await AddService.AddItemsAsync(
             AddService.ResolveTargets(Sample(), Array.Empty<string>(), all: true),
             new RepoRef("o", "r", "main"), "claude", Scope.Project, new Bases("/p", "/h"),
-            fetcher, installer, () => "/tmp/x");
+            new FakeFetcher(), skill, prompt, () => "/tmp/x");
 
         Assert.Collection(results,
-            r => { Assert.Equal("a-skill", r.Id); Assert.Equal("installed", r.Status); Assert.Equal("/dest/a-skill", r.Dest); },
-            r => { Assert.Equal("b-prompt", r.Id); Assert.Equal("deferred", r.Status); });
-        Assert.Contains("a-skill", installer.Installed);
-        Assert.DoesNotContain("b-prompt", installer.Installed);
+            r => { Assert.Equal("a-skill", r.Id); Assert.Equal("installed", r.Status); },
+            r => { Assert.Equal("b-prompt", r.Id); Assert.Equal("installed", r.Status); });
+        Assert.Contains("a-skill", skill.Installed);
+        Assert.Contains("b-prompt", prompt.Installed);
+    }
+
+    [Fact]
+    public async Task AddItems_ReportsPerItemFailure()
+    {
+        var results = await AddService.AddItemsAsync(
+            AddService.ResolveTargets(Sample(), Array.Empty<string>(), all: true),
+            new RepoRef("o", "r", "main"), "claude", Scope.Project, new Bases("/p", "/h"),
+            new FakeFetcher(), new ThrowingSkillInstaller(), new FakePromptInstaller(), () => "/tmp/x");
+
+        Assert.Equal("failed", results[0].Status);
+        Assert.Contains("boom", results[0].Message);
+        Assert.Equal("installed", results[1].Status);
     }
 }

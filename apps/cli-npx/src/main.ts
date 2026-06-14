@@ -37,7 +37,7 @@ program
   .description('Install skill(s) into an agent (interactive when no ids are given)')
   .argument('[ids...]', 'item ids to add')
   .option('--all', 'add every item')
-  .option('--agent <agent>', 'target agent: claude, codex, copilot, cursor')
+  .option('--agent <agent>', 'target agent: claude, codex, copilot, cursor, gemini')
   .option('--project', 'install into the current project (./)')
   .option('--global', 'install into the home directory (~/)')
   .option('-y, --yes', 'skip prompts (requires --agent)')

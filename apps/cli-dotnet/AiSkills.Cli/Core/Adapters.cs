@@ -32,4 +32,34 @@ public static class Adapters
             _ => throw new ArgumentException($"Agent \"{agent}\" does not support skills"),
         };
     }
+
+
+    /// <summary>Resolve the destination for a prompt, or throw if unsupported.</summary>
+    public static string ResolvePromptDestination(string agent, Scope scope, string id, Bases bases)
+    {
+        var baseDir = scope == Scope.Project ? bases.Project : bases.Home;
+
+        return agent switch
+        {
+            "claude" => Path.Combine(baseDir, ".claude", "commands", $"{id}.md"),
+            "codex" => scope == Scope.Global
+                ? Path.Combine(bases.Home, ".codex", "prompts", $"{id}.md")
+                : throw new ArgumentException("Agent \"codex\" supports global scope only for prompts"),
+            "cursor" => Path.Combine(baseDir, ".cursor", "commands", $"{id}.md"),
+            "copilot" => scope == Scope.Project
+                ? Path.Combine(bases.Project, ".github", "prompts", $"{id}.prompt.md")
+                : Path.Combine(bases.Home, ".copilot", "prompts", $"{id}.prompt.md"),
+            "gemini" => Path.Combine(baseDir, ".gemini", "commands", $"{id}.toml"),
+            _ => throw new ArgumentException($"Agent \"{agent}\" does not support prompts"),
+        };
+    }
+
+    /// <summary>The render format for an agent's prompts: "md", "copilot", or "toml".</summary>
+    public static string PromptFormat(string agent) => agent switch
+    {
+        "claude" or "codex" or "cursor" => "md",
+        "copilot" => "copilot",
+        "gemini" => "toml",
+        _ => throw new ArgumentException($"Agent \"{agent}\" does not support prompts"),
+    };
 }

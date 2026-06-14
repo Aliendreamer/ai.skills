@@ -1,6 +1,6 @@
 namespace AiSkills.Cli.Core;
 
-public record AddResult(string Id, string Status, string? Dest = null);
+public record AddResult(string Id, string Status, string? Dest = null, string? Message = null);
 
 public interface IItemFetcher
 {
@@ -10,6 +10,11 @@ public interface IItemFetcher
 public interface ISkillInstaller
 {
     Task<string> InstallAsync(string sourceDir, string agent, Scope scope, string id, Bases bases);
+}
+
+public interface IPromptInstaller
+{
+    Task<string> InstallAsync(string sourceDir, string agent, Scope scope, string id, string description, Bases bases);
 }
 
 public static class Options
@@ -70,29 +75,33 @@ public static class AddService
         return targets;
     }
 
-    public static async Task<IReadOnlyList<AddResult>> AddSkillsAsync(
+    public static async Task<IReadOnlyList<AddResult>> AddItemsAsync(
         IReadOnlyList<CatalogEntry> targets,
         RepoRef repo,
         string agent,
         Scope scope,
         Bases bases,
         IItemFetcher fetcher,
-        ISkillInstaller installer,
+        ISkillInstaller skillInstaller,
+        IPromptInstaller promptInstaller,
         Func<string> makeTmp)
     {
         var results = new List<AddResult>();
         foreach (var entry in targets)
         {
-            if (entry.Type != "skill")
+            try
             {
-                results.Add(new AddResult(entry.Id, "deferred"));
-                continue;
+                var tmp = makeTmp();
+                await fetcher.FetchAsync(repo.Owner, repo.Repo, repo.Ref, entry.Path, tmp);
+                var dest = entry.Type == "prompt"
+                    ? await promptInstaller.InstallAsync(tmp, agent, scope, entry.Id, entry.Description, bases)
+                    : await skillInstaller.InstallAsync(tmp, agent, scope, entry.Id, bases);
+                results.Add(new AddResult(entry.Id, "installed", dest));
             }
-
-            var tmp = makeTmp();
-            await fetcher.FetchAsync(repo.Owner, repo.Repo, repo.Ref, entry.Path, tmp);
-            var dest = await installer.InstallAsync(tmp, agent, scope, entry.Id, bases);
-            results.Add(new AddResult(entry.Id, "installed", dest));
+            catch (Exception ex)
+            {
+                results.Add(new AddResult(entry.Id, "failed", Message: ex.Message));
+            }
         }
 
         return results;

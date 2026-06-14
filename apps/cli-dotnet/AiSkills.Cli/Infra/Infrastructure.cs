@@ -48,3 +48,11 @@ public sealed class FileSkillInstaller : ISkillInstaller
     public Task<string> InstallAsync(string sourceDir, string agent, Scope scope, string id, Bases bases) =>
         Installer.InstallSkillAsync(sourceDir, agent, scope, id, bases);
 }
+
+
+/// <summary>Renders and installs a prompt onto disk using the shared rules.</summary>
+public sealed class FilePromptInstaller : IPromptInstaller
+{
+    public Task<string> InstallAsync(string sourceDir, string agent, Scope scope, string id, string description, Bases bases) =>
+        Installer.InstallPromptAsync(sourceDir, agent, scope, id, description, bases);
+}
