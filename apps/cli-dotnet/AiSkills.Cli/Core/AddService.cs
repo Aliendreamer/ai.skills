@@ -42,6 +42,15 @@ public static class AddService
 {
     public static readonly string[] Agents = ["claude", "codex", "copilot", "cursor", "gemini"];
 
+    public static readonly string[] WizardSteps = ["type", "items", "agents", "scope"];
+
+    /// <summary>The step to return to when going back, or null to cancel (back before the first step).</summary>
+    public static string? WizardBack(string step)
+    {
+        var i = Array.IndexOf(WizardSteps, step);
+        return i <= 0 ? null : WizardSteps[i - 1];
+    }
+
     public static IReadOnlyList<string> ResolveAgents(string? agent, bool allAgents)
     {
         if (allAgents)

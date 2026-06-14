@@ -35,6 +35,16 @@ export function resolveAddTargets(
 /** The agents the CLI can install into. */
 export const AGENTS = ['claude', 'codex', 'copilot', 'cursor', 'gemini'] as const;
 
+/** Ordered steps of the interactive `add` wizard. */
+export const WIZARD_STEPS = ['type', 'items', 'agents', 'scope'] as const;
+export type WizardStep = (typeof WIZARD_STEPS)[number];
+
+/** The step to return to when going back, or `null` to cancel (back before the first step). */
+export function wizardBack(step: WizardStep): WizardStep | null {
+  const i = WIZARD_STEPS.indexOf(step);
+  return i <= 0 ? null : (WIZARD_STEPS[i - 1] ?? null);
+}
+
 /** Resolve target agents from flags: --all-agents, or a comma-separated --agent list. */
 export function resolveAgents(flags: { agent?: string; allAgents?: boolean }): string[] {
   if (flags.allAgents) return [...AGENTS];

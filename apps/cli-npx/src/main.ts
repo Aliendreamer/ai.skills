@@ -33,8 +33,8 @@ program
   .action((id, opts, cmd) => infoCommand(id, cmd.optsWithGlobals()));
 
 program
-  .command('add')
-  .description('Install skill(s) into an agent (interactive when no ids are given)')
+  .command('add', { isDefault: true })
+  .description('Install skill(s) into agents (interactive when no ids are given; also the default command)')
   .argument('[ids...]', 'item ids to add')
   .option('--all', 'add every item')
   .option('--agent <agents>', 'target agent(s), comma-separated: claude, codex, copilot, cursor, gemini')

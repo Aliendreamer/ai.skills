@@ -27,18 +27,36 @@ ai-skills list
 
 ## Usage
 
+Below, `ai-skills` is the installed dotnet tool command. With npx, replace it with
+`npx @aliendreamer/ai-skills` (e.g. `npx @aliendreamer/ai-skills add web-security-audit`).
+
 ```sh
 ai-skills list [--type skill|prompt] [--agent <agent>]
 ai-skills search <query>
 ai-skills info <id>
-ai-skills add [ids...] [--all] [--agent <agent>] [--project|--global] [--yes]
+ai-skills add [ids...] [--all] [--agent <agents>] [--all-agents] [--project|--global] [--yes]
+```
+
+Examples (shown via npx — drop the prefix if you installed the dotnet tool):
+
+```sh
+npx @aliendreamer/ai-skills                                                # bare = the interactive wizard
+npx @aliendreamer/ai-skills add web-security-audit --agent claude,cursor   # one item, two agents
+npx @aliendreamer/ai-skills add --all --all-agents                         # everything, everywhere
 ```
 
 - **Skills** install for `claude`, `codex`, `copilot` (a `SKILL.md` folder) and `cursor` (a single
   `.mdc`). **Prompts** install for all five, rendered to each agent's format: a markdown command
   (claude/codex/cursor), a `.prompt.md` (copilot), or TOML (gemini).
-- `add` with no ids opens an interactive multi-select. `--project` (default) installs into the
-  current repo; `--global` into your home config.
+- Running the CLI with **no command** launches the interactive wizard directly (it's the default
+  command). `add` with no ids does the same: pick a type (skills / prompts / everything), multi-select
+  the items, multi-select the agents, then choose one scope — each chosen item is installed to
+  **every** chosen agent. A failure for one item/agent pair is reported without aborting the rest.
+- You can step **back** at any point: choose **← Back** on the type/scope menus, or submit an empty
+  selection on the item/agent menus to return to the previous step (back from the first step cancels).
+- Target agents non-interactively with `--agent claude,cursor` (comma-separated) or `--all-agents`.
+  `--project` (default) installs into the current repo; `--global` into your home config. `--yes`
+  skips prompts and requires `--agent` or `--all-agents`.
 - Point at a fork/branch with `--repo <owner/repo>` / `--ref <ref>` (or `AI_SKILLS_REPO` /
   `AI_SKILLS_REF`).
 
@@ -136,20 +154,25 @@ One fixed version spans the workspace (Nx Release + Conventional Commits drive `
 | `pnpm release:version` | manually bump version + CHANGELOG + tag (release:npm does this for you) |
 | `pnpm publish:npm` | build + `npm publish` `@aliendreamer/ai-skills` (guards against a duplicate) |
 | `pnpm publish:nuget` | `dotnet pack` + push `AiSkills.Cli` (guards against a duplicate) |
-| `pnpm release:npm` | gates → **auto-bump** (conventional commits) → publish npm → push commit & tags |
+| `pnpm release:npm` | gates → bump (minor by default) → publish npm → push commit & tags |
 | `pnpm release:nuget` | gates → publish nuget at the shared version → push commit & tags |
 
 Typical release:
 
 ```sh
-pnpm release:npm        # auto-bumps (e.g. 0.1.0 -> 0.2.0 for a feat), publishes npm, pushes tag
-pnpm release:nuget      # publishes that same version to NuGet, pushes (needs nuget_key)
+git commit -m "feat(cli): ..."   # commit first so the CHANGELOG + tag reflect the change
+pnpm release:npm                 # bumps minor (e.g. 0.3.0 -> 0.4.0), publishes npm, pushes tag
+pnpm release:nuget               # publishes that same version to NuGet, pushes (needs nuget_key)
 ```
 
-`release:npm` derives the bump from Conventional Commits since the last tag and owns the single
-shared workspace version; `release:nuget` ships that version (no second bump). Pass `--no-bump` to
-`release:npm` to publish the current version as-is, or `--skip-checks` to skip the gates. The very
-first release used `pnpm release:version --first-release` (no prior tag to diff from).
+`release:npm` bumps the single shared workspace version from its current value — **minor by
+default**; pass a level to change it (`pnpm release:npm -- --patch` or `-- --major`). `release:nuget`
+ships that version (no second bump). Pass `-- --no-bump` to publish the current version as-is, or
+`-- --skip-checks` to skip the gates.
+
+The bump itself does not need any commits, but the `CHANGELOG.md` entry is generated from
+Conventional Commits since the last tag — so **commit your work before releasing**, or the entry
+will read "version bump only, there were no code changes" and the tag won't contain the source.
 
 ### Credentials (git-crypt)
 

@@ -44,6 +44,16 @@ public class AddServiceTests
     }
 
     [Fact]
+    public void WizardBack_Navigation()
+    {
+        Assert.Equal(new[] { "type", "items", "agents", "scope" }, AddService.WizardSteps);
+        Assert.Equal("agents", AddService.WizardBack("scope"));
+        Assert.Equal("items", AddService.WizardBack("agents"));
+        Assert.Equal("type", AddService.WizardBack("items"));
+        Assert.Null(AddService.WizardBack("type"));
+    }
+
+    [Fact]
     public void Options_ScopeAndYes()
     {
         Assert.Equal(Scope.Project, Options.ResolveScope(false, false));

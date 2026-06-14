@@ -5,6 +5,8 @@ import {
   addItems,
   resolveScope,
   requireYesFlags,
+  wizardBack,
+  WIZARD_STEPS,
   AGENTS,
 } from './add.js';
 import type { Catalog } from '@ai-skills/catalog';
@@ -73,6 +75,20 @@ describe('resolveAgents', () => {
 
   it('throws on an unknown agent', () => {
     expect(() => resolveAgents({ agent: 'claude,bogus' })).toThrow(/bogus/);
+  });
+});
+
+describe('wizardBack', () => {
+  it('orders the steps type → items → agents → scope', () => {
+    expect(WIZARD_STEPS).toEqual(['type', 'items', 'agents', 'scope']);
+  });
+  it('returns the previous step', () => {
+    expect(wizardBack('scope')).toBe('agents');
+    expect(wizardBack('agents')).toBe('items');
+    expect(wizardBack('items')).toBe('type');
+  });
+  it('returns null (cancel) from the first step', () => {
+    expect(wizardBack('type')).toBeNull();
   });
 });
 
