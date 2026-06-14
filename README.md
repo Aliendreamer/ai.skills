@@ -181,7 +181,7 @@ your local working copy). The publish scripts read them by name without executin
 
 ```ini
 npm_token=<npm automation token>
-nuget_key=<nuget.org api key>
+nuget_token=<nuget.org api key>
 ```
 
 After cloning, unlock with your key (`git-crypt unlock <your-key>`); never commit the key itself.
