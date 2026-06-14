@@ -20,6 +20,26 @@
       "path": "skills/conventional-commits"
     },
     {
+      "id": "development-flow",
+      "type": "skill",
+      "description": "Use when starting, implementing, or completing any feature/change/plugin in an Nx + .NET + TanStack Start project (e.g. PersonalCommandCenter) — at feature start, before writing code, and before claiming any change done or green.",
+      "tags": [
+        "workflow",
+        "tdd",
+        "openspec",
+        "nx"
+      ],
+      "agents": [
+        "claude",
+        "codex",
+        "cursor",
+        "gemini",
+        "copilot"
+      ],
+      "version": "0.1.0",
+      "path": "skills/development-flow"
+    },
+    {
       "id": "dotnet-webapi",
       "type": "prompt",
       "description": "Starter prompt for scaffolding a clean ASP.NET Core minimal-API web service with tests.",
@@ -39,6 +59,69 @@
       "version": "0.1.0",
       "appPattern": "dotnet-webapi",
       "path": "prompts/dotnet-webapi"
+    },
+    {
+      "id": "fullstack",
+      "type": "prompt",
+      "description": "Starter prompt to build a BFF cookie-session auth stack — TanStack Start frontend, .NET FastEndpoints backend, and Keycloak with a Postgres session store — in a dockerized *.localhost harness.",
+      "tags": [
+        "fullstack",
+        "dotnet",
+        "tanstack",
+        "keycloak",
+        "bff",
+        "auth"
+      ],
+      "agents": [
+        "claude",
+        "codex",
+        "cursor",
+        "gemini",
+        "copilot"
+      ],
+      "version": "0.1.0",
+      "appPattern": "bff-cookie-auth",
+      "path": "prompts/fullstack"
+    },
+    {
+      "id": "llm-setup-audit",
+      "type": "skill",
+      "description": "Use when reviewing or hardening the Claude Code agent configuration — .claude/settings.json (and settings.local.json): Bash/tool permissions, sandbox, hooks, MCP servers, plugins, and committed secrets — before committing config changes or onboarding a repo. This audits the agent harness, not the application; for application/infra security use web-security-audit.",
+      "tags": [
+        "security",
+        "audit",
+        "claude-code",
+        "configuration"
+      ],
+      "agents": [
+        "claude",
+        "codex",
+        "cursor",
+        "gemini",
+        "copilot"
+      ],
+      "version": "0.1.0",
+      "path": "skills/llm-setup-audit"
+    },
+    {
+      "id": "web-security-audit",
+      "type": "skill",
+      "description": "Use when reviewing a change, PR, or repo for application security regressions before committing or merging — especially after touching auth, cookies, CORS, OIDC, endpoints, secrets/.env, dependencies, or reverse-proxy/compose. Built for BFF cookie-session apps (.NET + TanStack + Keycloak behind a proxy) but the checks generalize. For the Claude Code agent config itself (settings.json permissions/sandbox/hooks), use llm-setup-audit instead.",
+      "tags": [
+        "security",
+        "audit",
+        "web",
+        "dotnet"
+      ],
+      "agents": [
+        "claude",
+        "codex",
+        "cursor",
+        "gemini",
+        "copilot"
+      ],
+      "version": "0.1.0",
+      "path": "skills/web-security-audit"
     }
   ]
 }
