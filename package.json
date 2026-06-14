@@ -13,7 +13,8 @@
     "publish:npm": "bash scripts/publish-npm.sh",
     "publish:nuget": "bash scripts/publish-nuget.sh",
     "release:npm": "bash scripts/release-npm.sh",
-    "release:nuget": "bash scripts/release-nuget.sh"
+    "release:nuget": "bash scripts/release-nuget.sh",
+    "release:all": "bash scripts/release-all.sh"
   },
   "devDependencies": {
     "@nx/js": "20.8.4",
