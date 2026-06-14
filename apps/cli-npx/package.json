@@ -1,16 +1,21 @@
 {
-  "name": "ai-skills",
+  "name": "@aliendreamer/ai-skills",
   "version": "0.0.0",
+  "description": "Install AI agent skills and prompts from the ai.skills store",
   "type": "module",
   "bin": {
-    "ai-skills": "./dist/main.js"
+    "ai-skills": "dist/main.cjs"
   },
   "files": ["dist"],
-  "dependencies": {
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
     "@ai-skills/catalog": "workspace:*",
     "@ai-skills/install": "workspace:*",
     "@inquirer/prompts": "^7.2.0",
     "commander": "^12.1.0",
-    "picocolors": "^1.1.1"
+    "picocolors": "^1.1.1",
+    "tsup": "^8.3.5"
   }
 }

@@ -27,6 +27,7 @@
     }
   },
   "release": {
+    "projects": ["cli-npx"],
     "projectsRelationship": "fixed",
     "releaseTagPattern": "v{version}",
     "version": {
