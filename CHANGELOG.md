@@ -1,3 +1,18 @@
+## 0.2.0 (2026-06-14)
+
+### 🚀 Features
+
+- **content:** add audit-package-version skill ([7e3ec42](https://github.com/Aliendreamer/ai.skills/commit/7e3ec42))
+
+### 🩹 Fixes
+
+- **release:** abort publish when the version is already published ([2426771](https://github.com/Aliendreamer/ai.skills/commit/2426771))
+- **release:** auto-bump version repo-wide in release:npm ([9bd6ffb](https://github.com/Aliendreamer/ai.skills/commit/9bd6ffb))
+
+### ❤️ Thank You
+
+- Aliendreamer @Aliendreamer
+
 ## 0.1.0 (2026-06-14)
 
 ### 🚀 Features
