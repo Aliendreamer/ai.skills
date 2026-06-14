@@ -1,5 +1,5 @@
 ---
-name: fullstack
+name: cookie-auth-ssr
 description: "Starter prompt to build an SSR BFF cookie-session auth stack — TanStack Start SSR as the public BFF proxying OIDC to a private .NET FastEndpoints API, with Keycloak and a Postgres session store in a dockerized *.localhost harness."
 type: prompt
 tags: [fullstack, dotnet, tanstack, keycloak, bff, auth, ssr]
@@ -22,7 +22,7 @@ Paste this whole file into a fresh Claude session. It is the spec **and** the
 recipe — follow it top to bottom.
 
 > **Two templates — pick one.** This is the **SSR BFF** variant. Its sibling
-> `bff-auth-direct-template.md` builds the **Direct BFF** variant (the browser calls
+> `cookie-auth-direct.md` builds the **Direct BFF** variant (the browser calls
 > `api.<slug>.localhost` directly; a client-side `AuthProvider` `/me` gate). Pick one
 > with the table below.
 
@@ -30,7 +30,7 @@ recipe — follow it top to bottom.
 
 ## SSR BFF vs Direct BFF — pick one before STEP 0
 
-| | **SSR BFF (this file)** | **Direct BFF (`bff-auth-direct-template.md`)** |
+| | **SSR BFF (this file)** | **Direct BFF (`cookie-auth-direct.md`)** |
 |---|---|---|
 | Public surface | only `app.` (+ `keycloak.`) | `app.` **and** `api.` |
 | Who calls the API | the SSR server, server-to-server | the **browser**, directly |
@@ -140,7 +140,7 @@ why the SSR variant can use the `__Host-` prefix in prod (single origin, `Path=/
 - **BE**: .NET (latest LTS) + FastEndpoints + EF Core (Npgsql) + Serilog +
   `Microsoft.AspNetCore.Authentication.JwtBearer` + FusionCache. xUnit + Moq +
   EF InMemory; treat-warnings-as-errors. All routes under `api/`. **Identical to the
-  Direct template's BE** — see `bff-auth-direct-template.md`'s "Exact dependencies" +
+  Direct template's BE** — see `cookie-auth-direct.md`'s "Exact dependencies" +
   "BE — components to build".
 - **Infra**: PostgreSQL + Keycloak + Traefik + Docker Compose. Only Traefik publishes
   a port; **no `api.` router**.
@@ -149,7 +149,7 @@ why the SSR variant can use the `__Host-` prefix in prod (single origin, `Path=/
 
 ## BE — same as the Direct template, with these deltas only
 
-Build the **entire** BE exactly as `bff-auth-direct-template.md` describes (data + migration →
+Build the **entire** BE exactly as `cookie-auth-direct.md` describes (data + migration →
 `SessionStore` → JwtBearer wiring with `OnMessageReceived` cookie resolver → endpoints
 `login/callback/logout` → `/me` → cleanup → JIT provisioning). **The C# does not
 change.** Only configuration and exposure change:

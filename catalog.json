@@ -20,6 +20,30 @@
       "path": "skills/conventional-commits"
     },
     {
+      "id": "cookie-auth-ssr",
+      "type": "prompt",
+      "description": "Starter prompt to build an SSR BFF cookie-session auth stack — TanStack Start SSR as the public BFF proxying OIDC to a private .NET FastEndpoints API, with Keycloak and a Postgres session store in a dockerized *.localhost harness.",
+      "tags": [
+        "fullstack",
+        "dotnet",
+        "tanstack",
+        "keycloak",
+        "bff",
+        "auth",
+        "ssr"
+      ],
+      "agents": [
+        "claude",
+        "codex",
+        "cursor",
+        "gemini",
+        "copilot"
+      ],
+      "version": "0.1.0",
+      "appPattern": "bff-cookie-auth",
+      "path": "prompts/cookie-auth-ssr"
+    },
+    {
       "id": "development-flow",
       "type": "skill",
       "description": "Use when starting, implementing, or completing any feature/change/plugin in an Nx + .NET + TanStack Start project (e.g. PersonalCommandCenter) — at feature start, before writing code, and before claiming any change done or green.",
@@ -61,30 +85,6 @@
       "version": "0.1.0",
       "appPattern": "dotnet-backend",
       "path": "prompts/dotnet-webapi"
-    },
-    {
-      "id": "fullstack",
-      "type": "prompt",
-      "description": "Starter prompt to build an SSR BFF cookie-session auth stack — TanStack Start SSR as the public BFF proxying OIDC to a private .NET FastEndpoints API, with Keycloak and a Postgres session store in a dockerized *.localhost harness.",
-      "tags": [
-        "fullstack",
-        "dotnet",
-        "tanstack",
-        "keycloak",
-        "bff",
-        "auth",
-        "ssr"
-      ],
-      "agents": [
-        "claude",
-        "codex",
-        "cursor",
-        "gemini",
-        "copilot"
-      ],
-      "version": "0.1.0",
-      "appPattern": "bff-cookie-auth",
-      "path": "prompts/fullstack"
     },
     {
       "id": "llm-setup-audit",
