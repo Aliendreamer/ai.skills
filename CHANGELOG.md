@@ -1,3 +1,13 @@
+## 0.4.0 (2026-06-14)
+
+### 🚀 Features
+
+- **cli:** install to multiple agents in one add run ([0555d12](https://github.com/Aliendreamer/ai.skills/commit/0555d12))
+
+### ❤️ Thank You
+
+- Aliendreamer @Aliendreamer
+
 ## 0.3.0 (2026-06-14)
 
 This was a version bump only, there were no code changes.
