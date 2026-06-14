@@ -21,11 +21,6 @@
     "lint": {
       "executor": "nx:run-commands",
       "options": { "command": "eslint apps/cli-npx/src" }
-    },
-    "nx-release-publish": {
-      "executor": "nx:run-commands",
-      "dependsOn": ["build"],
-      "options": { "command": "npm publish", "cwd": "apps/cli-npx" }
     }
   }
 }

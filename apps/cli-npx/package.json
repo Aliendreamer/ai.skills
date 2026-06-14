@@ -1,12 +1,14 @@
 {
   "name": "@aliendreamer/ai-skills",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Install AI agent skills and prompts from the ai.skills store",
   "type": "module",
   "bin": {
     "ai-skills": "dist/main.cjs"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "publishConfig": {
     "access": "public"
   },

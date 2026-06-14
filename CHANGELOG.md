@@ -1,3 +1,31 @@
+## 0.1.0 (2026-06-14)
+
+### 🚀 Features
+
+- **catalog:** add skill catalog library, reference content, and catalog.json ([f0d023a](https://github.com/Aliendreamer/ai.skills/commit/f0d023a))
+- **catalog:** add parseCatalog for validating an in-memory catalog ([c55dbe4](https://github.com/Aliendreamer/ai.skills/commit/c55dbe4))
+- **cli:** add npx ai-skills CLI (list/search/info/add) ([e0a2b06](https://github.com/Aliendreamer/ai.skills/commit/e0a2b06))
+- **cli:** add dotnet ai-skills tool mirroring the npx CLI ([5b3327c](https://github.com/Aliendreamer/ai.skills/commit/5b3327c))
+- **content:** add dev-flow, audit skills and the fullstack prompt ([6f39e0b](https://github.com/Aliendreamer/ai.skills/commit/6f39e0b))
+- **content:** SSR fullstack frontmatter + dotnet-webapi becomes the BE build ([ba3c171](https://github.com/Aliendreamer/ai.skills/commit/ba3c171))
+- **content:** add cookie-auth-direct prompt (Direct BFF flavour) ([4bd8d15](https://github.com/Aliendreamer/ai.skills/commit/4bd8d15))
+- **content:** add fe-ssr-tanstack prompt (SSR BFF frontend) ([f20da00](https://github.com/Aliendreamer/ai.skills/commit/f20da00))
+- **content:** add smart-tv skills (focus, compat, scaffold, norigin) ([f3087a7](https://github.com/Aliendreamer/ai.skills/commit/f3087a7))
+- **content:** add react-dev quality-gate skills ([23e7f77](https://github.com/Aliendreamer/ai.skills/commit/23e7f77))
+- **content:** add design-review and graphql-audit smart-tv skills ([3e47b05](https://github.com/Aliendreamer/ai.skills/commit/3e47b05))
+- **install:** add agent adapters, GitHub fetch, and skill install ([1883fee](https://github.com/Aliendreamer/ai.skills/commit/1883fee))
+- **install:** install prompts with per-agent rendering ([f57ebc7](https://github.com/Aliendreamer/ai.skills/commit/f57ebc7))
+- **markdown-quality:** add markdownlint config and make authored docs warning-free ([fbac39f](https://github.com/Aliendreamer/ai.skills/commit/fbac39f))
+
+### 🩹 Fixes
+
+- **cli:** prevent tar slip path traversal in dotnet extractor ([6f0f294](https://github.com/Aliendreamer/ai.skills/commit/6f0f294))
+- **cli:** render dotnet list/search markup instead of printing it literally ([2226c99](https://github.com/Aliendreamer/ai.skills/commit/2226c99))
+
+### ❤️ Thank You
+
+- Aliendreamer @Aliendreamer
+
 # Changelog
 
 All notable changes to this project are documented in this file.

@@ -8,10 +8,10 @@
     "validate": "nx run catalog:validate",
     "lint:md": "markdownlint-cli2",
     "lint:md:fix": "markdownlint-cli2 --fix",
-    "release": "nx release && pnpm run publish:dotnet && git push --follow-tags",
-    "release:first": "nx release --first-release && pnpm run publish:dotnet && git push --follow-tags",
-    "release:dry": "nx release --dry-run",
-    "publish:dotnet": "VERSION=$(node -p \"require('./apps/cli-npx/package.json').version\") && dotnet pack apps/cli-dotnet/AiSkills.slnx -c Release -p:Version=\"$VERSION\" -o apps/cli-dotnet/dist && dotnet nuget push \"apps/cli-dotnet/dist/*.nupkg\" -s https://api.nuget.org/v3/index.json -k \"$NUGET_API_KEY\" --skip-duplicate"
+    "release:version": "nx release --skip-publish",
+    "release:dry": "nx release --dry-run --skip-publish",
+    "publish:npm": "bash scripts/publish-npm.sh",
+    "publish:nuget": "bash scripts/publish-nuget.sh"
   },
   "devDependencies": {
     "@nx/js": "^20.3.0",
