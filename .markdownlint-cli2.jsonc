@@ -14,7 +14,8 @@
     "skills/**/*.md",
     "prompts/**/*.md",
     "openspec/specs/**/*.md",
-    "CLAUDE.md"
+    "CLAUDE.md",
+    "README.md"
   ],
   // Vendored content, historical records, and build output.
   "ignores": [
