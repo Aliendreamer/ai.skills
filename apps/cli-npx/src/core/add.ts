@@ -32,6 +32,25 @@ export function resolveAddTargets(
   return targets;
 }
 
+/** The agents the CLI can install into. */
+export const AGENTS = ['claude', 'codex', 'copilot', 'cursor', 'gemini'] as const;
+
+/** Resolve target agents from flags: --all-agents, or a comma-separated --agent list. */
+export function resolveAgents(flags: { agent?: string; allAgents?: boolean }): string[] {
+  if (flags.allAgents) return [...AGENTS];
+  if (!flags.agent) return [];
+
+  const names = flags.agent
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const unknown = names.filter((n) => !(AGENTS as readonly string[]).includes(n));
+  if (unknown.length > 0) {
+    throw new Error(`Unknown agent(s): ${unknown.join(', ')}`);
+  }
+  return [...new Set(names)];
+}
+
 /** Resolve install scope from flags, rejecting contradictory flags. */
 export function resolveScope(flags: { project?: boolean; global?: boolean }): Scope {
   if (flags.project && flags.global) {
@@ -41,14 +60,16 @@ export function resolveScope(flags: { project?: boolean; global?: boolean }): Sc
 }
 
 /** Enforce that --yes is given enough to run non-interactively. */
-export function requireYesFlags(flags: { agent?: string; yes?: boolean }): void {
-  if (flags.yes && !flags.agent) {
-    throw new Error('--agent is required with --yes');
+/** Enforce that --yes is given enough to run non-interactively. */
+export function requireYesFlags(flags: { agents: string[]; yes?: boolean }): void {
+  if (flags.yes && flags.agents.length === 0) {
+    throw new Error('an agent is required with --yes (use --agent or --all-agents)');
   }
 }
 
 export interface AddResult {
   id: string;
+  agent: string;
   status: 'installed' | 'failed';
   dest?: string;
   message?: string;
@@ -58,7 +79,7 @@ export interface AddDeps {
   owner: string;
   repo: string;
   ref: string;
-  agent: string;
+  agents: string[];
   scope: Scope;
   bases: Bases;
   fetchItem?: typeof realFetchItem;
@@ -68,6 +89,7 @@ export interface AddDeps {
 }
 
 /** Install skill and prompt targets; one item's failure does not abort the batch. */
+/** Install each target to every selected agent; one (item, agent) failure does not abort the batch. */
 export async function addItems(targets: CatalogEntry[], deps: AddDeps): Promise<AddResult[]> {
   const fetchItem = deps.fetchItem ?? realFetchItem;
   const installSkill = deps.installSkill ?? realInstallSkill;
@@ -76,16 +98,27 @@ export async function addItems(targets: CatalogEntry[], deps: AddDeps): Promise<
 
   const results: AddResult[] = [];
   for (const entry of targets) {
+    let tmp: string;
     try {
-      const tmp = await makeTmp();
+      tmp = await makeTmp();
       await fetchItem(deps.owner, deps.repo, deps.ref, entry.path, tmp);
-      const dest =
-        entry.type === 'prompt'
-          ? await installPrompt(tmp, deps.agent, deps.scope, entry.id, entry.description, deps.bases)
-          : await installSkill(tmp, deps.agent, deps.scope, entry.id, deps.bases);
-      results.push({ id: entry.id, status: 'installed', dest });
     } catch (err) {
-      results.push({ id: entry.id, status: 'failed', message: (err as Error).message });
+      for (const agent of deps.agents) {
+        results.push({ id: entry.id, agent, status: 'failed', message: (err as Error).message });
+      }
+      continue;
+    }
+
+    for (const agent of deps.agents) {
+      try {
+        const dest =
+          entry.type === 'prompt'
+            ? await installPrompt(tmp, agent, deps.scope, entry.id, entry.description, deps.bases)
+            : await installSkill(tmp, agent, deps.scope, entry.id, deps.bases);
+        results.push({ id: entry.id, agent, status: 'installed', dest });
+      } catch (err) {
+        results.push({ id: entry.id, agent, status: 'failed', message: (err as Error).message });
+      }
     }
   }
   return results;

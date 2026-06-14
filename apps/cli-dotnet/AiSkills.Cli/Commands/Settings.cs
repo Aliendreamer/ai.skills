@@ -57,9 +57,13 @@ public sealed class AddSettings : StoreSettings
     [Description("Add every item")]
     public bool All { get; init; }
 
-    [CommandOption("--agent <AGENT>")]
-    [Description("Target agent: claude, codex, copilot, cursor, gemini")]
+    [CommandOption("--agent <AGENTS>")]
+    [Description("Target agent(s), comma-separated: claude, codex, copilot, cursor, gemini")]
     public string? Agent { get; init; }
+
+    [CommandOption("--all-agents")]
+    [Description("Install into every supported agent")]
+    public bool AllAgents { get; init; }
 
     [CommandOption("--project")]
     [Description("Install into the current project (./)")]

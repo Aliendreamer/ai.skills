@@ -7,11 +7,10 @@ namespace AiSkills.Cli.Commands;
 
 public sealed class AddCommand : AsyncCommand<AddSettings>
 {
-    private static readonly string[] Agents = ["claude", "codex", "copilot", "cursor", "gemini"];
-
     protected override async Task<int> ExecuteAsync(CommandContext context, AddSettings settings, CancellationToken cancellationToken)
     {
-        Options.RequireYesFlags(settings.Agent, settings.Yes);
+        var flagAgents = AddService.ResolveAgents(settings.Agent, settings.AllAgents);
+        Options.RequireYesFlags(flagAgents, settings.Yes);
         if (settings.Yes && !settings.All && settings.Ids.Length == 0)
         {
             throw new ArgumentException("With --yes, specify item id(s) or --all");
@@ -32,16 +31,36 @@ public sealed class AddCommand : AsyncCommand<AddSettings>
         }
         else
         {
+            var type = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("What to install?")
+                    .AddChoices("Skills", "Prompts", "Everything"));
+            var pool = type switch
+            {
+                "Skills" => catalog.Entries.Where(e => e.Type == "skill"),
+                "Prompts" => catalog.Entries.Where(e => e.Type == "prompt"),
+                _ => catalog.Entries,
+            };
             var chosen = AnsiConsole.Prompt(
                 new MultiSelectionPrompt<string>()
                     .Title("Select items to add")
                     .NotRequired()
-                    .AddChoices(catalog.Entries.Select(e => e.Id)));
+                    .AddChoices(pool.Select(e => e.Id)));
             targets = AddService.ResolveTargets(catalog, chosen);
         }
 
-        var agent = settings.Agent ?? AnsiConsole.Prompt(
-            new SelectionPrompt<string>().Title("Target agent").AddChoices(Agents));
+        var agents = flagAgents;
+        if (agents.Count == 0)
+        {
+            agents = AnsiConsole.Prompt(
+                new MultiSelectionPrompt<string>()
+                    .Title("Select agents")
+                    .AddChoices(AddService.Agents));
+            if (agents.Count == 0)
+            {
+                throw new ArgumentException("No agents selected");
+            }
+        }
 
         Scope scope;
         if (settings.Project || settings.Global)
@@ -65,7 +84,7 @@ public sealed class AddCommand : AsyncCommand<AddSettings>
             Environment.GetFolderPath(Environment.SpecialFolder.UserProfile));
 
         var results = await AddService.AddItemsAsync(
-            targets, repo, agent, scope, bases,
+            targets, repo, agents, scope, bases,
             new HttpItemFetcher(http), new FileSkillInstaller(), new FilePromptInstaller(),
             () => Directory.CreateTempSubdirectory("ai-skills-add-").FullName);
 
@@ -73,11 +92,11 @@ public sealed class AddCommand : AsyncCommand<AddSettings>
         {
             if (r.Status == "installed")
             {
-                AnsiConsole.MarkupLineInterpolated($"[green]✓ {r.Id} → {r.Dest}[/]");
+                AnsiConsole.MarkupLineInterpolated($"[green]✓ {r.Id} → {r.Agent} ({r.Dest})[/]");
             }
             else
             {
-                AnsiConsole.MarkupLineInterpolated($"[red]✗ {r.Id}: {r.Message}[/]");
+                AnsiConsole.MarkupLineInterpolated($"[red]✗ {r.Id} → {r.Agent}: {r.Message}[/]");
             }
         }
 

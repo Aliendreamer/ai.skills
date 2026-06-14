@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { resolveAddTargets, addItems, resolveScope, requireYesFlags } from './add.js';
+import {
+  resolveAddTargets,
+  resolveAgents,
+  addItems,
+  resolveScope,
+  requireYesFlags,
+  AGENTS,
+} from './add.js';
 import type { Catalog } from '@ai-skills/catalog';
 
 const catalog: Catalog = {
@@ -47,6 +54,28 @@ describe('resolveAddTargets', () => {
   });
 });
 
+describe('resolveAgents', () => {
+  it('returns [] when neither --agent nor --all-agents is given', () => {
+    expect(resolveAgents({})).toEqual([]);
+  });
+
+  it('parses a comma-separated --agent list', () => {
+    expect(resolveAgents({ agent: 'claude,cursor' })).toEqual(['claude', 'cursor']);
+  });
+
+  it('trims whitespace and dedupes', () => {
+    expect(resolveAgents({ agent: ' claude , cursor , claude ' })).toEqual(['claude', 'cursor']);
+  });
+
+  it('expands --all-agents to every supported agent', () => {
+    expect(resolveAgents({ allAgents: true })).toEqual([...AGENTS]);
+  });
+
+  it('throws on an unknown agent', () => {
+    expect(() => resolveAgents({ agent: 'claude,bogus' })).toThrow(/bogus/);
+  });
+});
+
 describe('resolveScope / requireYesFlags', () => {
   it('defaults scope to project', () => {
     expect(resolveScope({})).toBe('project');
@@ -57,11 +86,11 @@ describe('resolveScope / requireYesFlags', () => {
   it('rejects both --project and --global', () => {
     expect(() => resolveScope({ project: true, global: true })).toThrow();
   });
-  it('requires --agent with --yes', () => {
-    expect(() => requireYesFlags({ yes: true })).toThrow(/agent/i);
+  it('requires at least one agent with --yes', () => {
+    expect(() => requireYesFlags({ yes: true, agents: [] })).toThrow(/agent/i);
   });
-  it('accepts --yes when --agent is present', () => {
-    expect(() => requireYesFlags({ yes: true, agent: 'claude' })).not.toThrow();
+  it('accepts --yes when agents are present', () => {
+    expect(() => requireYesFlags({ yes: true, agents: ['claude'] })).not.toThrow();
   });
 });
 
@@ -73,28 +102,28 @@ describe('addItems', () => {
     };
     const installSkill = async (
       _src: string,
-      _agent: string,
+      agent: string,
       _scope: string,
       id: string,
     ): Promise<string> => {
-      calls.push(`skill:${id}`);
-      return `/dest/${id}`;
+      calls.push(`skill:${id}:${agent}`);
+      return `/dest/${agent}/${id}`;
     };
     const installPrompt = async (
       _src: string,
-      _agent: string,
+      agent: string,
       _scope: string,
       id: string,
     ): Promise<string> => {
-      calls.push(`prompt:${id}`);
-      return `/dest/${id}`;
+      calls.push(`prompt:${id}:${agent}`);
+      return `/dest/${agent}/${id}`;
     };
 
     const results = await addItems(resolveAddTargets(catalog, [], { all: true }), {
       owner: 'o',
       repo: 'r',
       ref: 'main',
-      agent: 'claude',
+      agents: ['claude'],
       scope: 'project',
       bases: { project: '/p', home: '/h' },
       fetchItem,
@@ -104,24 +133,63 @@ describe('addItems', () => {
     });
 
     expect(results).toEqual([
-      { id: 'a-skill', status: 'installed', dest: '/dest/a-skill' },
-      { id: 'b-prompt', status: 'installed', dest: '/dest/b-prompt' },
+      { id: 'a-skill', agent: 'claude', status: 'installed', dest: '/dest/claude/a-skill' },
+      { id: 'b-prompt', agent: 'claude', status: 'installed', dest: '/dest/claude/b-prompt' },
     ]);
-    expect(calls).toContain('skill:a-skill');
-    expect(calls).toContain('prompt:b-prompt');
+    expect(calls).toContain('skill:a-skill:claude');
+    expect(calls).toContain('prompt:b-prompt:claude');
   });
 
-  it('reports a per-item failure without aborting the batch', async () => {
-    const installSkill = async () => {
-      throw new Error('boom');
+  it('installs each item to every selected agent, fetching once per item', async () => {
+    let fetches = 0;
+    const fetchItem = async () => {
+      fetches += 1;
     };
-    const installPrompt = async () => '/dest/b-prompt';
+    const installSkill = async (
+      _src: string,
+      agent: string,
+      _scope: string,
+      id: string,
+    ): Promise<string> => `/dest/${agent}/${id}`;
+    const installPrompt = async (
+      _src: string,
+      agent: string,
+      _scope: string,
+      id: string,
+    ): Promise<string> => `/dest/${agent}/${id}`;
 
-    const results = await addItems(resolveAddTargets(catalog, [], { all: true }), {
+    const results = await addItems(resolveAddTargets(catalog, ['a-skill']), {
       owner: 'o',
       repo: 'r',
       ref: 'main',
-      agent: 'claude',
+      agents: ['claude', 'cursor'],
+      scope: 'project',
+      bases: { project: '/p', home: '/h' },
+      fetchItem,
+      installSkill,
+      installPrompt,
+      mkdtemp: async () => '/tmp/x',
+    });
+
+    expect(fetches).toBe(1);
+    expect(results).toEqual([
+      { id: 'a-skill', agent: 'claude', status: 'installed', dest: '/dest/claude/a-skill' },
+      { id: 'a-skill', agent: 'cursor', status: 'installed', dest: '/dest/cursor/a-skill' },
+    ]);
+  });
+
+  it('reports a per-item-per-agent failure without aborting the batch', async () => {
+    const installSkill = async (_src: string, agent: string): Promise<string> => {
+      if (agent === 'cursor') throw new Error('boom');
+      return '/dest/claude/a-skill';
+    };
+    const installPrompt = async () => '/dest/b-prompt';
+
+    const results = await addItems(resolveAddTargets(catalog, ['a-skill']), {
+      owner: 'o',
+      repo: 'r',
+      ref: 'main',
+      agents: ['claude', 'cursor'],
       scope: 'project',
       bases: { project: '/p', home: '/h' },
       fetchItem: async () => {},
@@ -130,8 +198,8 @@ describe('addItems', () => {
       mkdtemp: async () => '/tmp/x',
     });
 
-    expect(results[0].status).toBe('failed');
-    expect(results[0].message).toContain('boom');
-    expect(results[1].status).toBe('installed');
+    expect(results[0]).toMatchObject({ id: 'a-skill', agent: 'claude', status: 'installed' });
+    expect(results[1]).toMatchObject({ id: 'a-skill', agent: 'cursor', status: 'failed' });
+    expect(results[1].message).toContain('boom');
   });
 });

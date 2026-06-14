@@ -1,5 +1,4 @@
 using AiSkills.Cli.Core;
-using Xunit;
 
 namespace AiSkills.Cli.Tests;
 
@@ -34,13 +33,24 @@ public class AddServiceTests
     }
 
     [Fact]
+    public void ResolveAgents_FlagsAndValidation()
+    {
+        Assert.Empty(AddService.ResolveAgents(null, false));
+        Assert.Equal(new[] { "claude", "cursor" }, AddService.ResolveAgents("claude,cursor", false));
+        Assert.Equal(new[] { "claude", "cursor" }, AddService.ResolveAgents(" claude , cursor , claude ", false));
+        Assert.Equal(AddService.Agents, AddService.ResolveAgents(null, true).ToArray());
+        var ex = Assert.ThrowsAny<Exception>(() => AddService.ResolveAgents("claude,bogus", false));
+        Assert.Contains("bogus", ex.Message);
+    }
+
+    [Fact]
     public void Options_ScopeAndYes()
     {
         Assert.Equal(Scope.Project, Options.ResolveScope(false, false));
         Assert.Equal(Scope.Global, Options.ResolveScope(false, true));
         Assert.ThrowsAny<Exception>(() => Options.ResolveScope(true, true));
-        Assert.ThrowsAny<Exception>(() => Options.RequireYesFlags(null, yes: true));
-        Options.RequireYesFlags("claude", yes: true); // no throw
+        Assert.ThrowsAny<Exception>(() => Options.RequireYesFlags(Array.Empty<string>(), yes: true));
+        Options.RequireYesFlags(new[] { "claude" }, yes: true); // no throw
     }
 
     private sealed class FakeFetcher : IItemFetcher
@@ -58,8 +68,8 @@ public class AddServiceTests
         public List<string> Installed { get; } = new();
         public Task<string> InstallAsync(string sourceDir, string agent, Scope scope, string id, Bases bases)
         {
-            Installed.Add(id);
-            return Task.FromResult($"/dest/{id}");
+            Installed.Add($"{id}:{agent}");
+            return Task.FromResult($"/dest/{agent}/{id}");
         }
     }
 
@@ -68,15 +78,17 @@ public class AddServiceTests
         public List<string> Installed { get; } = new();
         public Task<string> InstallAsync(string sourceDir, string agent, Scope scope, string id, string description, Bases bases)
         {
-            Installed.Add(id);
-            return Task.FromResult($"/dest/{id}");
+            Installed.Add($"{id}:{agent}");
+            return Task.FromResult($"/dest/{agent}/{id}");
         }
     }
 
-    private sealed class ThrowingSkillInstaller : ISkillInstaller
+    private sealed class FailCursorSkillInstaller : ISkillInstaller
     {
         public Task<string> InstallAsync(string sourceDir, string agent, Scope scope, string id, Bases bases) =>
-            throw new InvalidOperationException("boom");
+            agent == "cursor"
+                ? throw new InvalidOperationException("boom")
+                : Task.FromResult($"/dest/{agent}/{id}");
     }
 
     [Fact]
@@ -86,26 +98,43 @@ public class AddServiceTests
         var prompt = new FakePromptInstaller();
         var results = await AddService.AddItemsAsync(
             AddService.ResolveTargets(Sample(), Array.Empty<string>(), all: true),
-            new RepoRef("o", "r", "main"), "claude", Scope.Project, new Bases("/p", "/h"),
+            new RepoRef("o", "r", "main"), new[] { "claude" }, Scope.Project, new Bases("/p", "/h"),
             new FakeFetcher(), skill, prompt, () => "/tmp/x");
 
         Assert.Collection(results,
-            r => { Assert.Equal("a-skill", r.Id); Assert.Equal("installed", r.Status); },
-            r => { Assert.Equal("b-prompt", r.Id); Assert.Equal("installed", r.Status); });
-        Assert.Contains("a-skill", skill.Installed);
-        Assert.Contains("b-prompt", prompt.Installed);
+            r => { Assert.Equal("a-skill", r.Id); Assert.Equal("claude", r.Agent); Assert.Equal("installed", r.Status); },
+            r => { Assert.Equal("b-prompt", r.Id); Assert.Equal("claude", r.Agent); Assert.Equal("installed", r.Status); });
+        Assert.Contains("a-skill:claude", skill.Installed);
+        Assert.Contains("b-prompt:claude", prompt.Installed);
     }
 
     [Fact]
-    public async Task AddItems_ReportsPerItemFailure()
+    public async Task AddItems_InstallsToEveryAgentFetchingOnce()
+    {
+        var fetcher = new FakeFetcher();
+        var results = await AddService.AddItemsAsync(
+            AddService.ResolveTargets(Sample(), new[] { "a-skill" }),
+            new RepoRef("o", "r", "main"), new[] { "claude", "cursor" }, Scope.Project, new Bases("/p", "/h"),
+            fetcher, new FakeSkillInstaller(), new FakePromptInstaller(), () => "/tmp/x");
+
+        Assert.Single(fetcher.Fetched);
+        Assert.Collection(results,
+            r => { Assert.Equal("a-skill", r.Id); Assert.Equal("claude", r.Agent); Assert.Equal("installed", r.Status); },
+            r => { Assert.Equal("a-skill", r.Id); Assert.Equal("cursor", r.Agent); Assert.Equal("installed", r.Status); });
+    }
+
+    [Fact]
+    public async Task AddItems_ReportsPerItemPerAgentFailure()
     {
         var results = await AddService.AddItemsAsync(
-            AddService.ResolveTargets(Sample(), Array.Empty<string>(), all: true),
-            new RepoRef("o", "r", "main"), "claude", Scope.Project, new Bases("/p", "/h"),
-            new FakeFetcher(), new ThrowingSkillInstaller(), new FakePromptInstaller(), () => "/tmp/x");
+            AddService.ResolveTargets(Sample(), new[] { "a-skill" }),
+            new RepoRef("o", "r", "main"), new[] { "claude", "cursor" }, Scope.Project, new Bases("/p", "/h"),
+            new FakeFetcher(), new FailCursorSkillInstaller(), new FakePromptInstaller(), () => "/tmp/x");
 
-        Assert.Equal("failed", results[0].Status);
-        Assert.Contains("boom", results[0].Message);
-        Assert.Equal("installed", results[1].Status);
+        Assert.Equal("installed", results[0].Status);
+        Assert.Equal("claude", results[0].Agent);
+        Assert.Equal("failed", results[1].Status);
+        Assert.Equal("cursor", results[1].Agent);
+        Assert.Contains("boom", results[1].Message);
     }
 }

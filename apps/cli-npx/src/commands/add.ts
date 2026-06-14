@@ -2,21 +2,28 @@ import { homedir } from 'node:os';
 import { checkbox, select } from '@inquirer/prompts';
 import pc from 'picocolors';
 import type { Scope } from '@ai-skills/install';
-import { addItems, requireYesFlags, resolveAddTargets, resolveScope } from '../core/add.js';
+import {
+  addItems,
+  AGENTS,
+  requireYesFlags,
+  resolveAddTargets,
+  resolveAgents,
+  resolveScope,
+} from '../core/add.js';
 import { getCatalog, type StoreOptions } from './shared.js';
-
-const AGENTS = ['claude', 'codex', 'copilot', 'cursor', 'gemini'];
 
 export interface AddOptions extends StoreOptions {
   all?: boolean;
   agent?: string;
+  allAgents?: boolean;
   project?: boolean;
   global?: boolean;
   yes?: boolean;
 }
 
 export async function addCommand(ids: string[], opts: AddOptions): Promise<void> {
-  requireYesFlags({ agent: opts.agent, yes: opts.yes });
+  const flagAgents = resolveAgents({ agent: opts.agent, allAgents: opts.allAgents });
+  requireYesFlags({ agents: flagAgents, yes: opts.yes });
   if (opts.yes && !opts.all && ids.length === 0) {
     throw new Error('With --yes, specify item id(s) or --all');
   }
@@ -29,19 +36,31 @@ export async function addCommand(ids: string[], opts: AddOptions): Promise<void>
   } else if (ids.length > 0) {
     targets = resolveAddTargets(catalog, ids);
   } else {
+    const type = await select({
+      message: 'What to install?',
+      choices: [
+        { name: 'Skills', value: 'skill' as const },
+        { name: 'Prompts', value: 'prompt' as const },
+        { name: 'Everything', value: 'all' as const },
+      ],
+    });
+    const pool =
+      type === 'all' ? catalog.entries : catalog.entries.filter((e) => e.type === type);
     const chosen = await checkbox({
       message: 'Select items to add',
-      choices: catalog.entries.map((e) => ({ name: `${e.id} (${e.type})`, value: e.id })),
+      choices: pool.map((e) => ({ name: `${e.id} (${e.type})`, value: e.id })),
     });
     targets = resolveAddTargets(catalog, chosen);
   }
 
-  const agent =
-    opts.agent ??
-    (await select({
-      message: 'Target agent',
+  let agents = flagAgents;
+  if (agents.length === 0) {
+    agents = await checkbox({
+      message: 'Select agents',
       choices: AGENTS.map((a) => ({ name: a, value: a })),
-    }));
+    });
+    if (agents.length === 0) throw new Error('No agents selected');
+  }
 
   let scope: Scope;
   if (opts.project || opts.global) scope = resolveScope(opts);
@@ -56,13 +75,13 @@ export async function addCommand(ids: string[], opts: AddOptions): Promise<void>
     });
 
   const bases = { project: process.cwd(), home: homedir() };
-  const results = await addItems(targets, { ...repoRef, agent, scope, bases });
+  const results = await addItems(targets, { ...repoRef, agents, scope, bases });
 
   for (const r of results) {
     if (r.status === 'installed') {
-      console.log(pc.green(`✓ ${r.id} → ${r.dest}`));
+      console.log(pc.green(`✓ ${r.id} → ${r.agent} (${r.dest})`));
     } else {
-      console.log(pc.red(`✗ ${r.id}: ${r.message}`));
+      console.log(pc.red(`✗ ${r.id} → ${r.agent}: ${r.message}`));
     }
   }
 }

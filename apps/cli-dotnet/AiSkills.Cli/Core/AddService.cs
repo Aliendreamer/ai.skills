@@ -1,6 +1,6 @@
 namespace AiSkills.Cli.Core;
 
-public record AddResult(string Id, string Status, string? Dest = null, string? Message = null);
+public record AddResult(string Id, string Agent, string Status, string? Dest = null, string? Message = null);
 
 public interface IItemFetcher
 {
@@ -29,17 +29,41 @@ public static class Options
         return global ? Scope.Global : Scope.Project;
     }
 
-    public static void RequireYesFlags(string? agent, bool yes)
+    public static void RequireYesFlags(IReadOnlyList<string> agents, bool yes)
     {
-        if (yes && string.IsNullOrEmpty(agent))
+        if (yes && agents.Count == 0)
         {
-            throw new ArgumentException("--agent is required with --yes");
+            throw new ArgumentException("an agent is required with --yes (use --agent or --all-agents)");
         }
     }
 }
 
 public static class AddService
 {
+    public static readonly string[] Agents = ["claude", "codex", "copilot", "cursor", "gemini"];
+
+    public static IReadOnlyList<string> ResolveAgents(string? agent, bool allAgents)
+    {
+        if (allAgents)
+        {
+            return Agents.ToList();
+        }
+
+        if (string.IsNullOrWhiteSpace(agent))
+        {
+            return Array.Empty<string>();
+        }
+
+        var names = agent.Split(',').Select(s => s.Trim()).Where(s => s.Length > 0).ToList();
+        var unknown = names.Where(n => !Agents.Contains(n)).ToList();
+        if (unknown.Count > 0)
+        {
+            throw new ArgumentException($"Unknown agent(s): {string.Join(", ", unknown)}");
+        }
+
+        return names.Distinct().ToList();
+    }
+
     public static IReadOnlyList<CatalogEntry> ResolveTargets(Catalog catalog, IReadOnlyList<string> ids, bool all = false)
     {
         if (all)
@@ -78,7 +102,7 @@ public static class AddService
     public static async Task<IReadOnlyList<AddResult>> AddItemsAsync(
         IReadOnlyList<CatalogEntry> targets,
         RepoRef repo,
-        string agent,
+        IReadOnlyList<string> agents,
         Scope scope,
         Bases bases,
         IItemFetcher fetcher,
@@ -89,18 +113,35 @@ public static class AddService
         var results = new List<AddResult>();
         foreach (var entry in targets)
         {
+            string tmp;
             try
             {
-                var tmp = makeTmp();
+                tmp = makeTmp();
                 await fetcher.FetchAsync(repo.Owner, repo.Repo, repo.Ref, entry.Path, tmp);
-                var dest = entry.Type == "prompt"
-                    ? await promptInstaller.InstallAsync(tmp, agent, scope, entry.Id, entry.Description, bases)
-                    : await skillInstaller.InstallAsync(tmp, agent, scope, entry.Id, bases);
-                results.Add(new AddResult(entry.Id, "installed", dest));
             }
             catch (Exception ex)
             {
-                results.Add(new AddResult(entry.Id, "failed", Message: ex.Message));
+                foreach (var agent in agents)
+                {
+                    results.Add(new AddResult(entry.Id, agent, "failed", Message: ex.Message));
+                }
+
+                continue;
+            }
+
+            foreach (var agent in agents)
+            {
+                try
+                {
+                    var dest = entry.Type == "prompt"
+                        ? await promptInstaller.InstallAsync(tmp, agent, scope, entry.Id, entry.Description, bases)
+                        : await skillInstaller.InstallAsync(tmp, agent, scope, entry.Id, bases);
+                    results.Add(new AddResult(entry.Id, agent, "installed", dest));
+                }
+                catch (Exception ex)
+                {
+                    results.Add(new AddResult(entry.Id, agent, "failed", Message: ex.Message));
+                }
             }
         }
 
