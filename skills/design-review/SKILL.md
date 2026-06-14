@@ -1,7 +1,7 @@
 ---
 name: design-review
 description:
-  "Review implemented UI changes against the reference app (../SmartTVApp) as a TV designer — visual consistency, focus
+  "Review implemented UI changes against the reference app (../<reference-app>) as a TV designer — visual consistency, focus
   styles, colors, fonts, spacing, and TV-specific UI conventions. Use after a bug fix or UI change."
 type: skill
 tags: [smarttv, design, ui, review, react]
@@ -12,7 +12,7 @@ author: Aliendreamer
 
 # TV Design Review
 
-Act as a TV UI designer reviewing the implementation against the reference SmartTVApp at `../SmartTVApp`.
+Act as a TV UI designer reviewing the implementation against the reference app at `../<reference-app>`.
 
 **Input**: File paths of changed components. If omitted, infer from recent git changes.
 
@@ -37,10 +37,10 @@ Act as a TV UI designer reviewing the implementation against the reference Smart
 2. **Find reference equivalents**
 
    For each changed file:
-   - Search `../SmartTVApp/src/` for components with matching or similar names
-   - Use Glob patterns like `../SmartTVApp/src/**/*Login*`, `../SmartTVApp/src/**/*Button*`, etc.
+   - Search `../<reference-app>/src/` for components with matching or similar names
+   - Use Glob patterns like `../<reference-app>/src/**/*Login*`, `../<reference-app>/src/**/*Button*`, etc.
    - Read both the implementation file and the best-matching reference file
-   - If no match found, check `../SmartTVApp/src/` for overall layout and palette conventions
+   - If no match found, check `../<reference-app>/src/` for overall layout and palette conventions
 
 3. **Visual comparison checklist**
 
@@ -127,7 +127,7 @@ Act as a TV UI designer reviewing the implementation against the reference Smart
 ## Guardrails
 
 - Compare visual/styling only — never change logic, data fetching, or navigation behavior
-- Reference app (`../SmartTVApp`) is a SPA — do NOT adopt its routing, state, or data patterns
+- Reference app (`../<reference-app>`) is a SPA — do NOT adopt its routing, state, or data patterns
 - Focus styles MUST follow project convention: red (`var(--hot-red)`), never white or browser default
 - VKB is always a bottom panel — flag any implementation that makes it full-screen
 - If reference has no matching component, apply general TV UI conventions and flag it

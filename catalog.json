@@ -132,7 +132,7 @@
     {
       "id": "design-review",
       "type": "skill",
-      "description": "Review implemented UI changes against the reference app (../SmartTVApp) as a TV designer — visual consistency, focus styles, colors, fonts, spacing, and TV-specific UI conventions. Use after a bug fix or UI change.",
+      "description": "Review implemented UI changes against the reference app (../<reference-app>) as a TV designer — visual consistency, focus styles, colors, fonts, spacing, and TV-specific UI conventions. Use after a bug fix or UI change.",
       "tags": [
         "smarttv",
         "design",
@@ -153,7 +153,7 @@
     {
       "id": "development-flow",
       "type": "skill",
-      "description": "Use when starting, implementing, or completing any feature/change/plugin in an Nx + .NET + TanStack Start project (e.g. PersonalCommandCenter) — at feature start, before writing code, and before claiming any change done or green.",
+      "description": "Use when starting, implementing, or completing any feature/change/plugin in an Nx + .NET + TanStack Start project — at feature start, before writing code, and before claiming any change done or green.",
       "tags": [
         "workflow",
         "tdd",

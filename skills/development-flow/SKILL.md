@@ -2,7 +2,7 @@
 name: development-flow
 description:
   "Use when starting, implementing, or completing any feature/change/plugin in an Nx + .NET + TanStack Start project
-  (e.g. PersonalCommandCenter) — at feature start, before writing code, and before claiming any change done or green."
+  — at feature start, before writing code, and before claiming any change done or green."
 type: skill
 tags: [workflow, tdd, openspec, nx]
 agents: [claude, codex, cursor, gemini, copilot]

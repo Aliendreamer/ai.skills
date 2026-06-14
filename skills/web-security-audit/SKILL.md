@@ -88,7 +88,7 @@ git check-ignore .env                        # PASS: prints .env
 git grep -nIE '(password|secret|api[_-]?key|token)[[:space:]]*[:=]'   # review each hit
 ```
 
-FLAG: a tracked `.env`, or a real credential in source. Dev/harness placeholders (`Test123!`, `pcc-dev-secret`, default
+FLAG: a tracked `.env`, or a real credential in source. Dev/harness placeholders (`Test123!`, `dev-secret`, default
 Postgres password) in clearly-local harness files are acceptable — confirm they're not reused as production values.
 
 ### 7. Build & supply-chain hardening
