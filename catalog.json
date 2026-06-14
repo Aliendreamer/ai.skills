@@ -20,6 +20,30 @@
       "path": "skills/conventional-commits"
     },
     {
+      "id": "cookie-auth-direct",
+      "type": "prompt",
+      "description": "Starter prompt to build a Direct BFF cookie-session auth stack — the browser calls a public .NET FastEndpoints API directly (same-site cookie across app./api. subdomains), with Keycloak and a Postgres session store in a dockerized *.localhost harness.",
+      "tags": [
+        "fullstack",
+        "dotnet",
+        "tanstack",
+        "keycloak",
+        "bff",
+        "auth",
+        "direct"
+      ],
+      "agents": [
+        "claude",
+        "codex",
+        "cursor",
+        "gemini",
+        "copilot"
+      ],
+      "version": "0.1.0",
+      "appPattern": "bff-cookie-auth",
+      "path": "prompts/cookie-auth-direct"
+    },
+    {
       "id": "cookie-auth-ssr",
       "type": "prompt",
       "description": "Starter prompt to build an SSR BFF cookie-session auth stack — TanStack Start SSR as the public BFF proxying OIDC to a private .NET FastEndpoints API, with Keycloak and a Postgres session store in a dockerized *.localhost harness.",
