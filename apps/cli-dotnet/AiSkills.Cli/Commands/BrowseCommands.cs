@@ -10,7 +10,8 @@ internal static class Render
     public static void Line(CatalogEntry e)
     {
         var tag = e.Type == "prompt" ? "[magenta]prompt[/]" : "[cyan]skill[/]";
-        AnsiConsole.MarkupLineInterpolated($"[bold]{e.Id}[/]  {tag}  [dim]{e.Description}[/]");
+        // Compose markup with escaped dynamic parts; MarkupLineInterpolated would escape the tag too.
+        AnsiConsole.MarkupLine($"[bold]{Markup.Escape(e.Id)}[/]  {tag}  [dim]{Markup.Escape(e.Description)}[/]");
     }
 }
 
