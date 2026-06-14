@@ -22,6 +22,26 @@
       "path": "skills/audit-tv-focus"
     },
     {
+      "id": "circular-check",
+      "type": "skill",
+      "description": "Detect circular imports in src/ and report any cycles with fix guidance. Use after a change session as a quality gate, when adding a module that imports several others, or when a dynamic import is used to break a cycle.",
+      "tags": [
+        "react-dev",
+        "quality",
+        "imports",
+        "architecture"
+      ],
+      "agents": [
+        "claude",
+        "codex",
+        "cursor",
+        "gemini",
+        "copilot"
+      ],
+      "version": "0.1.0",
+      "path": "skills/circular-check"
+    },
+    {
       "id": "compact-tv-check",
       "type": "skill",
       "description": "Check code for Chromium 70 and TV platform compatibility issues (CSS, JS, APIs). Use when the user wants to verify code will work on target TV platforms.",
@@ -234,6 +254,47 @@
       ],
       "version": "0.1.0",
       "path": "skills/scaffold-tv-screen"
+    },
+    {
+      "id": "semantic-html-audit",
+      "type": "skill",
+      "description": "Audit components for non-semantic interactive HTML. Flags div/span used as buttons, missing type=\"button\", and enforces native <button> for all clickable elements. Checks Chromium 70 CSS compatibility for button resets. Use after a change session as a quality gate.",
+      "tags": [
+        "react-dev",
+        "quality",
+        "html",
+        "accessibility",
+        "chromium"
+      ],
+      "agents": [
+        "claude",
+        "codex",
+        "cursor",
+        "gemini",
+        "copilot"
+      ],
+      "version": "0.1.0",
+      "path": "skills/semantic-html-audit"
+    },
+    {
+      "id": "use-effect-guard",
+      "type": "skill",
+      "description": "Audit useEffect calls in src/ and flag any that are not synchronizing with an external system. Use after a change session as a quality gate, or when adding/reviewing components that use useEffect.",
+      "tags": [
+        "react-dev",
+        "quality",
+        "hooks",
+        "react"
+      ],
+      "agents": [
+        "claude",
+        "codex",
+        "cursor",
+        "gemini",
+        "copilot"
+      ],
+      "version": "0.1.0",
+      "path": "skills/use-effect-guard"
     },
     {
       "id": "web-security-audit",
