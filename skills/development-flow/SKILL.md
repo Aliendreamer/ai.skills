@@ -2,60 +2,95 @@
 name: development-flow
 description:
   "Use when starting, implementing, or completing any feature, change, or fix in any software project — at feature
-  start, before writing code, and before claiming a change is done, fixed, working, or green. Stack- and
-  repo-agnostic: works for a single repo or a monorepo."
+  start, before writing code, and before claiming a change is done, fixed, working, or green. A strict ordered flow
+  with a gate per phase; stack-agnostic and repo-agnostic (OpenSpec optional, gates discovered)."
 type: skill
 tags: [workflow, tdd, quality, review]
 agents: [claude, codex, cursor, gemini, copilot]
-version: 0.2.0
+version: 0.3.0
 author: Aliendreamer
 ---
 
 # Dev Flow
 
+## Always use semantic code tools
+
+**Use semantic, symbol-aware tools for ALL code search and edits — avoid raw grep/text editing for code where
+a semantic tool applies.** This holds in every phase below: finding symbols, reading code, and making edits go
+through them (e.g. Serena MCP — `find_symbol`, `get_symbols_overview`, `replace_symbol_body`, `search_for_pattern`,
+`find_referencing_symbols` — or your editor's LSP). Activate the project in the tool first if needed.
+
 ## Overview
 
-The repeatable cycle for building and changing a project, one unit of work at a time. Each change runs the same loop:
-**brainstorm → plan/propose → implement with TDD → review → verify all green → finalize.** **A change is not done until
-every quality gate and test that applies to it is green.**
+The end-to-end flow for any change. **Never skip steps, never reorder** — each phase has a gate before moving on.
+Nothing is "done" until the quality gates pass **and** the user has manually verified it works.
 
-This flow is stack- and repo-agnostic. It does **not** assume a language, framework, monorepo layout, or specific
-tooling — those are discovered per repo (see Quality Gates). The discipline is the same whether you ship a single-repo
-Python service, a Go CLI, or a multi-language monorepo.
+This flow is stack- and repo-agnostic. The discipline (order, gates, evidence) is fixed; the tooling is not —
+**OpenSpec is optional** (use it if your repo does), and the quality gates are **discovered per repo**, not
+assumed (see Quality Gates).
 
-**Core principle:** No change is "done" on assertion. Done = gates and tests run, output seen, all green. Evidence
-before claims.
+**Core principle:** No change is "done" on assertion. Done = gates run, output seen, all green, user verified.
+Evidence before claims.
 
 ## When to Use
 
 - Starting any new feature, module, or fix.
 - Before writing implementation code for a change.
 - Before claiming a change is "done", "fixed", "working", or "green".
-- Before committing, merging, or releasing.
+- Before archiving, committing, or merging.
 
-## The Cycle
+## The Flow (in order)
 
-1. **Brainstorm** (`superpowers:brainstorming` if available) — turn the idea into a short design before code. Get
-   explicit approval on the approach before implementing.
-2. **Plan / propose** — capture the work as a plan or change proposal (e.g. an OpenSpec change via `/opsx:propose`, an
-   issue, or a written plan) so scope and tasks are explicit before code.
-3. **Implement with TDD** (`superpowers:test-driven-development`) — for each task: write the failing test first, watch
-   it fail, write the minimal code to pass, watch it pass, refactor.
-4. **Edit with the best tool available** — prefer semantic/symbol-aware edits (e.g. Serena's `find_symbol`,
-   `replace_symbol_body`, `find_referencing_symbols`, or an LSP) over blind text replacement where it helps.
-5. **Add tests for every new behavior** — no behavior ships without a test that covers it. New endpoint, new function,
-   new component, new branch of logic → new test.
-6. **Verify all green** (Quality Gates below) — run the gates that apply to what you touched, read the output, confirm
-   green.
-7. **Review** (`superpowers:requesting-code-review` or your review command) before merge.
-8. **Finalize** — merge / release / archive the change once it is implemented and green.
+### 0. Ticket intake (optional) — `azure-devops-workflow`
+
+If the work comes from an Azure DevOps ticket (the user gives a ticket number / work-item URL), run the
+`azure-devops-workflow` skill first: it reads the ticket and seeds step 1 with a distilled brief (what + expected
+result). No ticket → skip straight to step 1; this step is never a blocker.
+
+### 1. Discuss & align — `superpowers:brainstorming`
+
+When the user raises something to implement, **start by discussing it** with `superpowers:brainstorming`. Explore
+intent, requirements, and design. Do **not** touch any file until there is explicit agreement on what to build.
+
+### 2. Document the change — a plan or proposal (OpenSpec optional)
+
+Once aligned, capture the change before coding so scope and tasks are explicit. If your repo uses **OpenSpec**, run
+`opsx:propose <change-name>` to create `openspec/changes/<name>/` (proposal, design, specs, tasks). Otherwise use
+whatever the repo uses — an issue, a design doc, or a written task list. Keep specs in **one** place; don't scatter
+ad-hoc spec files.
+
+### 3. Implement — TDD (+ OpenSpec apply if used)
+
+Implement from the task list with **TDD** (`superpowers:test-driven-development`): write the failing test first,
+watch it fail, write minimal code, watch it pass, refactor. If using OpenSpec, drive it with `opsx:apply
+<change-name>`. Add a test for every new behavior. Make all code edits with the semantic tools above.
+
+### 4. Review & simplify
+
+After implementing:
+
+- **Code review** — `superpowers:requesting-code-review` (or `/code-review`).
+- **Simplify** — `/simplify` (reuse, simplification, efficiency, altitude). Apply the fixes.
+
+### 5. Run the quality gates (ENFORCED — see below)
+
+Run **all** the gates the repo defines (discover them — see Quality Gates). Fix every issue found before
+reporting complete.
+
+### 6. Report to the user
+
+Summarize: **what is done**, **what passed**, **what still needs checking**. Do not archive or commit yet.
+
+### 7. User approval + manual verification
+
+Wait for the user to confirm they're OK with the change and to **manually verify it works**. Only after explicit
+approval: archive the change (`opsx:archive` if using OpenSpec), then commit.
 
 ## Quality Gates (must be GREEN before a change is done)
 
-**Discover the repo's gates — do not assume them.** Different repos have different stacks and commands. Find the
-authoritative list before running anything:
+**Discover the repo's gates — do not assume them.** Find the authoritative list before running anything:
 
-- **CI config is the source of truth** — read `.github/workflows/`, `.gitlab-ci.yml`, `azure-pipelines.yml`, etc. The
+- **CI config is the source of truth** — `.github/workflows/`, `.gitlab-ci.yml`, `azure-pipelines.yml`, etc. The
   checks CI runs are the gates the change must pass.
 - **Task runners / scripts** — `package.json` scripts, `Makefile`, `justfile`, `Taskfile.yml`, `nx.json` targets,
   `pyproject.toml`, `Cargo.toml`, `.csproj`/`*.sln`.
@@ -71,54 +106,50 @@ Map those to the usual gate categories and run the ones that apply to what you c
 | Tests | `vitest`/`jest`, `pytest`, `dotnet test`, `cargo test`, `go test` |
 | Typecheck | `tsc --noEmit`, `mypy`/`pyright` |
 
-**Scope to the change.** Run the gates for whatever the change touched. In a monorepo, prefer an `affected`/changed-
-scope target (e.g. `nx affected -t lint test build typecheck`) over running everything; in a single repo, run the
-repo's gate scripts. **When in doubt, run the full set CI would run.** If any command exits non-zero or any test is
-red, the change is **not done** — fix it.
+**Scope to the change.** In a monorepo, prefer an `affected`/changed-scope target (e.g. `nx affected -t lint test
+build typecheck`); in a single repo, run the repo's gate scripts. **When in doubt, run the full set CI would run.**
+If any command exits non-zero or any test is red, the change is **not done** — fix it.
 
 ## The Done Gate (non-negotiable)
 
 A change is done ONLY when ALL of these are true and you have **seen the output**:
 
 - [ ] Every new/changed behavior has a test covering it.
-- [ ] The repo's build gate is green.
-- [ ] The repo's format + lint + typecheck gates are green.
+- [ ] The repo's build + format + lint + typecheck gates are green.
 - [ ] The repo's test gate is green.
 - [ ] The plan/proposal tasks for the change are checked off.
+- [ ] The user has approved and manually verified the change.
 
 ## Red Flags — STOP, you are about to violate the flow
 
-- "It's a small change, I'll skip the test." → Small changes break. Write the test.
+- "It's a small change, I'll skip a step." → The flow is ordered and mandatory. Don't skip or reorder.
 - "I'll write the test after." → Tests-after prove nothing. Test first (TDD).
-- "It builds, so it's done." → Done = all gates + tests green, output seen.
+- "It builds, so it's done." → Done = all gates + tests green, output seen, user verified.
 - "I'm confident it passes." → Confidence is not evidence. Run the gate, read the output.
 - "I don't know this repo's gates, I'll just run the build." → Discover the gates from CI/scripts first.
-- "I'll just edit the text directly." → Use semantic/symbol-aware edits where they apply.
-- Claiming green without running the commands. → Run them. Observe the result.
+- "I'll grep and hand-edit this code." → Use semantic/symbol-aware tools.
+- "I'll archive/commit now." → Not before the user approves and manually verifies.
 
-All of these mean: stop, discover and run the gates, write the missing test, and confirm green before saying done.
+All of these mean: stop, follow the step, run the gates, and confirm green + approved before saying done.
 
 ## Releasing
 
-Releasing is driven by **Conventional Commits** (which this flow already produces) so a tool can derive the next
-version and changelog. The tool varies by repo — Nx Release, semantic-release, Changesets, release-please, or a manual
-tag — so use whatever the repo already configures.
+Releasing is driven by **Conventional Commits** so a tool can derive the next version and changelog. The tool
+varies by repo — Nx Release, semantic-release, Changesets, release-please, or a manual tag — so use whatever the
+repo configures.
 
-- **Preview first** — run the release tool's dry-run (e.g. `pnpm release:dry`, `semantic-release --dry-run`) to see the
-  next version + changelog without changing anything.
-- **Release** — bump versions, update the changelog, then commit (e.g. `chore(release): vX.Y.Z`) and tag `vX.Y.Z`.
-- **First release** — most tools have a baseline/first-release flag; check the tool's docs.
-
-Release after a meaningful batch of `feat`/`fix` commits is on the main branch and green. Publishing and pushing are
-separate steps — only do them if the repo is configured for them.
+- **Preview first** — run the tool's dry-run (e.g. `pnpm release:dry`, `semantic-release --dry-run`).
+- **Release** — bump versions, update the changelog, then commit (e.g. `chore(release): vX.Y.Z`) and tag.
+- Release after a meaningful batch of `feat`/`fix` commits is on the main branch and green. Publishing/pushing are
+  separate steps — only do them if the repo is configured for them.
 
 ## Common Mistakes
 
 | Mistake                                  | Fix                                                  |
 | ---------------------------------------- | ---------------------------------------------------- |
-| Coding before a design/proposal exists   | Brainstorm → plan/propose first.                     |
+| Coding before discuss/align              | Brainstorm → document the change first.              |
+| Skipping or reordering steps             | The flow is ordered and mandatory.                   |
 | Implementation before a failing test     | TDD: red, then green.                                |
 | Assuming gate commands                   | Discover them from CI config / task runners first.   |
-| Marking done with red/unknown gate state | Run gates, see green, then done.                     |
-| New behavior with no test                | Add the test as part of the same change.             |
-| Editing by blind text replace            | Use semantic/symbol-aware edits (`find_symbol`, LSP).|
+| Archiving/committing before approval     | Wait for user approval + manual verification.        |
+| Editing code by blind text replace       | Use semantic/symbol-aware tools (`find_symbol`, LSP).|

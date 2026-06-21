@@ -198,7 +198,7 @@
     {
       "id": "development-flow",
       "type": "skill",
-      "description": "Use when starting, implementing, or completing any feature, change, or fix in any software project — at feature start, before writing code, and before claiming a change is done, fixed, working, or green. Stack- and repo-agnostic: works for a single repo or a monorepo.",
+      "description": "Use when starting, implementing, or completing any feature, change, or fix in any software project — at feature start, before writing code, and before claiming a change is done, fixed, working, or green. A strict ordered flow with a gate per phase; stack-agnostic and repo-agnostic (OpenSpec optional, gates discovered).",
       "tags": [
         "workflow",
         "tdd",
@@ -212,7 +212,7 @@
         "gemini",
         "copilot"
       ],
-      "version": "0.2.0",
+      "version": "0.3.0",
       "path": "skills/development-flow"
     },
     {
