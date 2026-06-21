@@ -1,3 +1,15 @@
+## 0.6.0 (2026-06-21)
+
+### 🚀 Features
+
+- **skills:** add azure-devops-workflow and make development-flow stack-agnostic ([8dea9c0](https://github.com/Aliendreamer/ai.skills/commit/8dea9c0))
+- **skills:** add setup-flow skill ([f6dd086](https://github.com/Aliendreamer/ai.skills/commit/f6dd086))
+- **skills:** make development-flow a strict ordered flow, OpenSpec optional ([b624fe4](https://github.com/Aliendreamer/ai.skills/commit/b624fe4))
+
+### ❤️ Thank You
+
+- Aliendreamer @Aliendreamer
+
 ## 0.5.0 (2026-06-14)
 
 ### 🚀 Features
