@@ -41,11 +41,12 @@ Evidence before claims.
 
 ## The Flow (in order)
 
-### 0. Ticket intake (optional) — `azure-devops-workflow`
+### 0. Ticket intake (optional)
 
-If the work comes from an Azure DevOps ticket (the user gives a ticket number / work-item URL), run the
-`azure-devops-workflow` skill first: it reads the ticket and seeds step 1 with a distilled brief (what + expected
-result). No ticket → skip straight to step 1; this step is never a blocker.
+If the work comes from a tracked ticket / work item (Jira, GitHub issue, Azure DevOps, Linear, …) and you have an
+intake skill for that tracker, run it first: it reads the ticket and seeds step 1 with a distilled brief (what +
+expected result). For example, `azure-devops-workflow` handles Azure DevOps tickets. No ticket, or no intake skill
+→ skip straight to step 1; this step is never a blocker.
 
 ### 1. Discuss & align — `superpowers:brainstorming`
 
