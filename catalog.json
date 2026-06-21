@@ -363,6 +363,27 @@
       "path": "skills/semantic-html-audit"
     },
     {
+      "id": "setup-flow",
+      "type": "skill",
+      "description": "Use when onboarding a repository or agent to the standard development workflow — installs or updates a MANDATORY workflow block in the agent's instruction file (CLAUDE.md, AGENTS.md, GEMINI.md, Copilot or Cursor rules) that points at development-flow, semantic code tools, and post-task skill optimization. Use when setting up a new repo, switching agents, or refreshing the workflow rules.",
+      "tags": [
+        "setup",
+        "onboarding",
+        "workflow",
+        "agent-config",
+        "development-flow"
+      ],
+      "agents": [
+        "claude",
+        "codex",
+        "cursor",
+        "gemini",
+        "copilot"
+      ],
+      "version": "0.1.0",
+      "path": "skills/setup-flow"
+    },
+    {
       "id": "use-effect-guard",
       "type": "skill",
       "description": "Audit useEffect calls in src/ and flag any that are not synchronizing with an external system. Use after a change session as a quality gate, or when adding/reviewing components that use useEffect.",
