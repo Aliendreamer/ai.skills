@@ -64,10 +64,11 @@ startup and exports it as `PERSONAL_ACCESS_TOKEN`. **No token is stored in any c
    `user.email`) and `organization` is set (no default — the skill asks if it's missing). The PAT scope
    must match your `mode`: **Work Items (Read)** for `read`, **Work Items (Read & Write)** for `write`
    or `read-write`.
-2. Register the server (run from the repo root; uses an absolute path so cwd at launch doesn't matter):
+2. Register the server — idempotent, run from the repo root. Registers the launcher only if it isn't
+   already registered:
 
    ```bash
-   claude mcp remove azure-devops 2>/dev/null; claude mcp add azure-devops -- bash "$(pwd)/.claude/scripts/ado-mcp-start.sh"
+   bash .claude/scripts/ado-mcp-start.sh install
    ```
 
 3. **Restart Claude Code** — MCP tools only load on start.
@@ -134,13 +135,18 @@ ticket or user asks if the mode forbids it — surface the mode boundary instead
 6. **State guard.** If `System.State` is `Closed`, `Resolved`, `Removed`, or `Done`, STOP and tell the
    user the ticket looks already-completed (quote the state + any linked "Fixed in"/PR) and ask whether
    to proceed anyway, before doing any more work.
-7. **Download attachments.** For image/video attachments (relations with `rel: AttachedFile`),
-   `wit_get_work_item_attachment` saving into `.claude/tickets/<id>/` (gitignored). Reference saved file
-   paths in the brief. (Artifact links like PR/commit are not attachments — cite them as context.)
+7. **Attachments (optional — persist only if useful).** Image/video attachments live in `relations`
+   with `rel: AttachedFile`. Persisting is **your call** — pull them only when they add real signal to
+   the brief (e.g. a screenshot/video of a visual bug), otherwise skip. `wit_get_work_item_attachment`
+   returns the file as inline base64: fine for viewing a small image, but a multi-MB video overflows the
+   response, so don't fetch large files that way. To save, write into `.claude/tickets/<id>/`
+   (gitignored) — decode the inline result for small files, or download large ones straight from the
+   attachment URL via REST (with the PAT, in Option B). Reference saved paths in the brief. (Artifact
+   links like PR/commit are not attachments — cite them as context.)
 8. **Distill the brief** — concise, from the ticket only:
    - **What:** the change/bug in one or two sentences.
    - **Expected result:** the acceptance criteria / definition of done.
-   - **Repro / context:** steps, affected screens/areas, attachment paths.
+   - **Repro / context:** steps, affected screens/areas, attachment paths (if persisted).
 9. **Hand off.** Invoke `development-flow` starting at step 1 (`superpowers:brainstorming`), seeded with
    the brief. Quote the ticket id so the trail is clear.
 10. _(Writing back — modes `write`, `read-write`, only when the user asks)_ **Confirm intent.** Writing

@@ -15,6 +15,19 @@ set -euo pipefail
 # Resolve repo root from this script's location so cwd doesn't matter.
 cd "$(dirname "$0")/../.."
 
+# `ado-mcp-start.sh install` — one-time, idempotent registration with Claude Code: register this
+# launcher only if it isn't already registered, then prompt for a restart. With no argument the
+# script serves the MCP server (how `claude mcp` invokes it).
+if [ "${1:-}" = "install" ]; then
+  if claude mcp list 2>/dev/null | grep -q '^azure-devops'; then
+    echo "azure-devops already registered — nothing to do."
+  else
+    claude mcp add azure-devops -- bash "$(pwd)/.claude/scripts/ado-mcp-start.sh"
+    echo "Registered azure-devops. Restart Claude Code to load the tools."
+  fi
+  exit 0
+fi
+
 command -v jq >/dev/null 2>&1 || { echo "ado-mcp-start: 'jq' is required but not installed." >&2; exit 1; }
 
 SECRETS=${ADO_SECRETS:-.claude/secrets.json}
