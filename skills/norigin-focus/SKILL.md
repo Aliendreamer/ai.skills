@@ -4,6 +4,8 @@ description:
   "Audit Norigin useFocusable container calls for missing autoRestoreFocus, plus page-entry focus patterns,
   scroll-restoration timing, and StrictMode-safe guard refs in spatial-navigation TV apps."
 type: skill
+disable-model-invocation: false
+user-invocable: true
 tags: [smarttv, focus, norigin, react]
 agents: [claude, codex, cursor, gemini, copilot]
 version: 0.1.0

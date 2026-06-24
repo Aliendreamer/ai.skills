@@ -2,6 +2,8 @@
 name: azure-devops-workflow
 description: Use when work connects to an Azure DevOps work item — the user gives an ADO ticket number, pastes a work-item URL, says "start from ticket NNNN", or asks to update/comment on a ticket. Reads a ticket to seed development-flow and (when configured) writes progress back. Org/repo and read/write mode are configurable.
 type: skill
+disable-model-invocation: false
+user-invocable: true
 tags: [azure-devops, ado, ticket, work-item, intake, development-flow, mcp]
 agents: [claude, codex, cursor, gemini, copilot]
 version: 0.2.0

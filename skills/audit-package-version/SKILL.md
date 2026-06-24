@@ -2,6 +2,8 @@
 name: audit-package-version
 description: "Audit dependency manifests for non-exact versions — flag ^, ~, ranges, wildcards, and 'latest'; require exact pins (e.g. 9.17.0, not ^9.17.0). Covers npm (package.json) and .NET (.csproj)."
 type: skill
+disable-model-invocation: false
+user-invocable: true
 tags: [dependencies, versioning, quality, audit, npm, dotnet]
 agents: [claude, codex, cursor, gemini, copilot]
 version: 0.1.0

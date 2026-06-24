@@ -4,6 +4,8 @@ description:
   Write commit messages that follow the Conventional Commits specification so tooling can derive versions and
   changelogs.
 type: skill
+disable-model-invocation: false
+user-invocable: true
 tags: [git, commits, conventions]
 agents: [claude, codex, cursor, gemini, copilot]
 version: 0.1.0

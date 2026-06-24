@@ -4,6 +4,8 @@ description:
   "Audit .graphql operation files and flag any field, argument, query, or mutation marked @deprecated in the schema. Use
   after a .graphql operation changes, before adding query arguments, or when reviewing PRs that touch .graphql files."
 type: skill
+disable-model-invocation: false
+user-invocable: true
 tags: [smarttv, graphql, quality, schema]
 agents: [claude, codex, cursor, gemini, copilot]
 version: 0.1.0

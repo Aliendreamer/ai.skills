@@ -32,7 +32,9 @@
     "releaseTagPattern": "v{version}",
     "version": {
       "conventionalCommits": true,
-      "fallbackCurrentVersionResolver": "disk"
+      "generatorOptions": {
+        "fallbackCurrentVersionResolver": "disk"
+      }
     },
     "changelog": {
       "projectChangelogs": false,

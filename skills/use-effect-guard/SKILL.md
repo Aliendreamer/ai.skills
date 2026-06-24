@@ -4,6 +4,8 @@ description:
   "Audit useEffect calls in src/ and flag any that are not synchronizing with an external system. Use after a change
   session as a quality gate, or when adding/reviewing components that use useEffect."
 type: skill
+disable-model-invocation: false
+user-invocable: true
 tags: [react-dev, quality, hooks, react]
 agents: [claude, codex, cursor, gemini, copilot]
 version: 0.1.0

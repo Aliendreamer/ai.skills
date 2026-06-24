@@ -5,6 +5,8 @@ description:
   enforces native <button> for all clickable elements. Checks Chromium 70 CSS compatibility for button resets. Use after
   a change session as a quality gate.'
 type: skill
+disable-model-invocation: false
+user-invocable: true
 tags: [react-dev, quality, html, accessibility, chromium]
 agents: [claude, codex, cursor, gemini, copilot]
 version: 0.1.0

@@ -6,6 +6,8 @@ description:
   Cursor rules) that points at development-flow, semantic code tools, and post-task skill optimization.
   Use when setting up a new repo, switching agents, or refreshing the workflow rules."
 type: skill
+disable-model-invocation: false
+user-invocable: true
 tags: [setup, onboarding, workflow, agent-config, development-flow]
 agents: [claude, codex, cursor, gemini, copilot]
 version: 0.1.0

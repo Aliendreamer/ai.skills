@@ -4,6 +4,8 @@ description:
   "Scaffold a new TV screen with proper focus management, D-pad navigation, Magic Remote awareness, and RSC/client
   split. Use when the user wants to create a new screen or page for the TV app."
 type: skill
+disable-model-invocation: false
+user-invocable: true
 tags: [smarttv, scaffold, react, focus]
 agents: [claude, codex, cursor, gemini, copilot]
 version: 0.1.0

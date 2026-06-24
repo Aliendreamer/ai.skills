@@ -5,6 +5,8 @@ description:
   start, before writing code, and before claiming a change is done, fixed, working, or green. A strict ordered flow
   with a gate per phase; stack-agnostic and repo-agnostic (OpenSpec optional, gates discovered)."
 type: skill
+disable-model-invocation: false
+user-invocable: true
 tags: [workflow, tdd, quality, review]
 agents: [claude, codex, cursor, gemini, copilot]
 version: 0.3.0

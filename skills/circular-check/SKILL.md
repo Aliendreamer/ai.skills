@@ -4,6 +4,8 @@ description:
   "Detect circular imports in src/ and report any cycles with fix guidance. Use after a change session as a quality
   gate, when adding a module that imports several others, or when a dynamic import is used to break a cycle."
 type: skill
+disable-model-invocation: false
+user-invocable: true
 tags: [react-dev, quality, imports, architecture]
 agents: [claude, codex, cursor, gemini, copilot]
 version: 0.1.0

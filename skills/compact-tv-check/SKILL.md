@@ -4,6 +4,8 @@ description:
   "Check code for Chromium 70 and TV platform compatibility issues (CSS, JS, APIs). Use when the user wants to verify
   code will work on target TV platforms."
 type: skill
+disable-model-invocation: false
+user-invocable: true
 tags: [smarttv, compatibility, chromium, tizen, webos]
 agents: [claude, codex, cursor, gemini, copilot]
 version: 0.1.0

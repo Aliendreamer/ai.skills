@@ -6,6 +6,8 @@ description:
   committing config changes or onboarding a repo. This audits the agent harness, not the application; for
   application/infra security use web-security-audit."
 type: skill
+disable-model-invocation: false
+user-invocable: true
 tags: [security, audit, claude-code, configuration]
 agents: [claude, codex, cursor, gemini, copilot]
 version: 0.1.0

@@ -4,6 +4,8 @@ description:
   "Audit a component or screen for TV D-pad focus completeness, Magic Remote compatibility, and navigation correctness.
   Use when the user wants to verify a component is TV-ready."
 type: skill
+disable-model-invocation: false
+user-invocable: true
 tags: [smarttv, focus, audit, react, accessibility]
 agents: [claude, codex, cursor, gemini, copilot]
 version: 0.1.0

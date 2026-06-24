@@ -4,6 +4,8 @@ description:
   "Review implemented UI changes against the reference app (../<reference-app>) as a TV designer — visual consistency, focus
   styles, colors, fonts, spacing, and TV-specific UI conventions. Use after a bug fix or UI change."
 type: skill
+disable-model-invocation: false
+user-invocable: true
 tags: [smarttv, design, ui, review, react]
 agents: [claude, codex, cursor, gemini, copilot]
 version: 0.1.0

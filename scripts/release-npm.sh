@@ -39,8 +39,11 @@ if [ "$NO_BUMP" -eq 0 ]; then
   # Bump the single shared workspace version from its current value (nx's own commit-based
   # detection is per-project and misses store content in skills/ and prompts/, so we pass the
   # level explicitly). Default is a minor bump, e.g. 0.2.0 -> 0.3.0.
-  echo "→ bumping ${LEVEL} from the current version…"
+  OLD_VERSION="$(node -p "require('./apps/cli-npx/package.json').version")"
+  echo "→ bumping ${LEVEL} from ${OLD_VERSION}…"
   npx nx release "${LEVEL}" --skip-publish
+  NEW_VERSION="$(node -p "require('./apps/cli-npx/package.json').version")"
+  echo "→ bumped ${LEVEL}: ${OLD_VERSION} → ${NEW_VERSION}"
 fi
 
 echo "→ publishing to npm…"

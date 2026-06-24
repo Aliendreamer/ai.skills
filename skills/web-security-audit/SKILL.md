@@ -6,6 +6,8 @@ description:
   Built for BFF cookie-session apps (.NET + TanStack + Keycloak behind a proxy) but the checks generalize. For the
   Claude Code agent config itself (settings.json permissions/sandbox/hooks), use llm-setup-audit instead."
 type: skill
+disable-model-invocation: false
+user-invocable: true
 tags: [security, audit, web, dotnet]
 agents: [claude, codex, cursor, gemini, copilot]
 version: 0.1.0
