@@ -339,6 +339,22 @@ After writing `.claude/settings.json`, tell the user:
 - Plugins enabled/disabled: the final map
 - If merge: which keys already existed and were preserved
 
+### 2.7 Markdown lint detection (optional)
+
+Check whether the repo tracks `.md` files and has `markdownlint-cli2` configured:
+
+- `package.json` scripts contain `markdownlint-cli2` → **markdownlint present**.
+- OR `.markdownlint-cli2.jsonc` / `.markdownlintrc.json` exists at repo root → **markdownlint
+  present**.
+- Otherwise → **markdownlint absent**; skip this step and do not add lint:md scripts.
+
+When markdownlint is present, verify:
+
+1. `lint:md` and `lint:md:fix` scripts exist in `package.json` (add if missing).
+2. `.markdownlint-cli2.jsonc` exists and covers the right globs (use **md-files-audit** as the
+   reference for a correct baseline config).
+3. Run `pnpm lint:md` — if it exits non-zero, run `pnpm lint:md:fix` and re-check.
+
 ### Common mistakes (Phase 2)
 
 | Mistake | Fix |

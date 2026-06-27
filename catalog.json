@@ -302,6 +302,27 @@
       "path": "skills/llm-setup-audit"
     },
     {
+      "id": "md-files-audit",
+      "type": "skill",
+      "description": "Use when auditing markdown files for formatting and style compliance — after adding or editing .md files, when a lint gate fails, or when setting up markdownlint-cli2 in a new repo. Covers config setup, key rule explanations, running the linter, auto-fix, and per-violation guidance.",
+      "tags": [
+        "quality",
+        "audit",
+        "markdown",
+        "linting",
+        "documentation"
+      ],
+      "agents": [
+        "claude",
+        "codex",
+        "cursor",
+        "gemini",
+        "copilot"
+      ],
+      "version": "0.1.0",
+      "path": "skills/md-files-audit"
+    },
+    {
       "id": "norigin-focus",
       "type": "skill",
       "description": "Audit Norigin useFocusable container calls for missing autoRestoreFocus, plus page-entry focus patterns, scroll-restoration timing, and StrictMode-safe guard refs in spatial-navigation TV apps.",

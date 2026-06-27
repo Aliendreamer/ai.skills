@@ -108,6 +108,7 @@ Map those to the usual gate categories and run the ones that apply to what you c
 | Lint / static analysis | `eslint`, `ruff`, `clippy`, `golangci-lint`, analyzers |
 | Tests | `vitest`/`jest`, `pytest`, `dotnet test`, `cargo test`, `go test` |
 | Typecheck | `tsc --noEmit`, `mypy`/`pyright` |
+| Markdown _(optional)_ | `markdownlint-cli2` — run **md-files-audit** if the repo tracks `.md` files |
 
 **Scope to the change.** In a monorepo, prefer an `affected`/changed-scope target (e.g. `nx affected -t lint test
 build typecheck`); in a single repo, run the repo's gate scripts. **When in doubt, run the full set CI would run.**

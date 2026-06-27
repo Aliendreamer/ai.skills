@@ -36,6 +36,8 @@
       "mcp__plugin_serena_serena__read_memory"
     ],
     "deny": [
+      "Read(config.conf)",
+      "Bash(cat config.conf*)",
       "Bash(rm -rf*)",
       "Bash(git-crypt *)",
       "Bash(git push --force*)",
