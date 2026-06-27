@@ -1,3 +1,13 @@
+## 0.9.0 (2026-06-27)
+
+### 🚀 Features
+
+- **skills:** extend setup-flow with settings.json Phase 2 ([bce5392](https://github.com/Aliendreamer/ai.skills/commit/bce5392))
+
+### ❤️ Thank You
+
+- Aliendreamer @Aliendreamer
+
 ## 0.8.0 (2026-06-25)
 
 This was a version bump only, there were no code changes.
