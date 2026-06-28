@@ -1,6 +1,6 @@
 {
   "name": "@aliendreamer/ai-skills",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "Install AI agent skills and prompts from the ai.skills store",
   "type": "module",
   "bin": {

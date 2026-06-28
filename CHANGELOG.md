@@ -1,3 +1,13 @@
+## 0.10.0 (2026-06-28)
+
+### 🚀 Features
+
+- **skills:** add md-files-audit skill and harden config ([0778b88](https://github.com/Aliendreamer/ai.skills/commit/0778b88))
+
+### ❤️ Thank You
+
+- Aliendreamer @Aliendreamer
+
 ## 0.9.0 (2026-06-27)
 
 ### 🚀 Features
