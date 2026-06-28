@@ -284,7 +284,7 @@
     {
       "id": "llm-setup-audit",
       "type": "skill",
-      "description": "Use when reviewing or hardening the Claude Code agent configuration — .claude/settings.json (and settings.local.json): Bash/tool permissions, sandbox, hooks, MCP servers, plugins, and committed secrets — before committing config changes or onboarding a repo. This audits the agent harness, not the application; for application/infra security use web-security-audit.",
+      "description": "Use when reviewing or hardening Claude Code agent configuration (.claude/settings.json / settings.local.json) — before committing config changes or onboarding a repo. Covers permissions, sandbox, hooks, MCP servers, plugins, committed secrets, and secrets-file gitignore. For application/infra security use web-security-audit.",
       "tags": [
         "security",
         "audit",

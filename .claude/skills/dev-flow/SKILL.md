@@ -69,6 +69,12 @@ A change is done ONLY when ALL of these are true and you have **seen the output*
 - [ ] Frontend gates green (typecheck · lint · test · build · prettier).
 - [ ] OpenSpec tasks for the change are checked off.
 
+## Security (Non-Negotiable)
+
+**REQUIRED:** Follow `secrets-safety` for every bash command or script written in this flow.
+No credential reads, no secret echoing, no running credential-touching operations on the
+user's behalf. The user runs those. See `secrets-safety` for the full rule set.
+
 ## Red Flags — STOP, you are about to violate the flow
 
 - "It's a small change, I'll skip the test." → Small changes break. Write the test.

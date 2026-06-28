@@ -1,10 +1,9 @@
 ---
 name: llm-setup-audit
 description:
-  "Use when reviewing or hardening the Claude Code agent configuration — .claude/settings.json (and
-  settings.local.json): Bash/tool permissions, sandbox, hooks, MCP servers, plugins, and committed secrets — before
-  committing config changes or onboarding a repo. This audits the agent harness, not the application; for
-  application/infra security use web-security-audit."
+  "Use when reviewing or hardening Claude Code agent configuration (.claude/settings.json / settings.local.json) —
+  before committing config changes or onboarding a repo. Covers permissions, sandbox, hooks, MCP servers, plugins,
+  committed secrets, and secrets-file gitignore. For application/infra security use web-security-audit."
 type: skill
 disable-model-invocation: false
 user-invocable: true
@@ -78,6 +77,8 @@ git check-ignore .claude/settings.json    # PASS: NOT ignored → it's committed
 `settings.json` is git-tracked. FLAG: secrets in `.env`, in a hook `command`, or in `mcpServers` args. Real secrets
 belong in **`.claude/settings.local.json`** (which must be gitignored).
 
+For agent behavioral rules around reading and echoing secrets at runtime, see **`secrets-safety`**.
+
 ### 6. Hooks are safe (they run automatically = RCE surface)
 
 ```bash
@@ -117,9 +118,30 @@ jq -e . .claude/settings.json >/dev/null && echo PASS
 **Invalid JSON silently disables every setting in that file** — including your permission and hook config. Always
 validate after editing.
 
+### 10. Secrets source is gitignored
+
+The user's secrets may live as a single file, a folder, or a file pattern. Check whichever
+applies (ask the user if unsure):
+
+```bash
+# Single file (default: config.conf)
+git check-ignore -v config.conf
+
+# Folder
+git check-ignore -v secrets/
+
+# File pattern (e.g. .env.*)
+git ls-files --others --exclude-standard | grep -E '^\.env\.' | head -5
+# All matches should be untracked (gitignored); any tracked file is a FLAG
+```
+
+PASS: the secrets source is fully gitignored. FLAG: any file, folder, or pattern match that
+is **not** gitignored — it can be committed and leaked. The sandbox filesystem restriction is
+a runtime guardrail, not a substitute for keeping secrets out of version control.
+
 ## Report format
 
-List checks `1–9` as **PASS** / **FLAG** with the offending key for any FLAG and a one-line fix.
+List checks `1–10` as **PASS** / **FLAG** with the offending key for any FLAG and a one-line fix.
 
 ## Common mistakes
 
@@ -130,3 +152,4 @@ List checks `1–9` as **PASS** / **FLAG** with the offending key for any FLAG a
 | Secrets in `.claude/settings.json`            | It's committed — put secrets in gitignored `settings.local.json`    |
 | A broad hook with no `matcher`/path guard     | Fires on everything; perf cost + a standing execution surface       |
 | `enableAllProjectMcpServers: true` unreviewed | Auto-trusts arbitrary servers declared in `.mcp.json`               |
+| Secrets source (file/folder/`.env.*`) not gitignored | Sandbox blocks runtime reads; git doesn't — can be committed   |
