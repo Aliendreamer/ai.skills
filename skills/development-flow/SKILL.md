@@ -9,7 +9,7 @@ disable-model-invocation: false
 user-invocable: true
 tags: [workflow, tdd, quality, review]
 agents: [claude, codex, cursor, gemini, copilot]
-version: 0.3.0
+version: 0.4.0
 author: Aliendreamer
 ---
 
@@ -66,14 +66,15 @@ ad-hoc spec files.
 
 Implement from the task list with **TDD** (`superpowers:test-driven-development`): write the failing test first,
 watch it fail, write minimal code, watch it pass, refactor. If using OpenSpec, drive it with `opsx:apply
-<change-name>`. Add a test for every new behavior. Make all code edits with the semantic tools above.
+<change-name>`. Add a test for every new behavior. Make all code edits with the semantic tools above. If the
+change adds or modifies a web endpoint, create/update its `.http` file too (see Web Endpoints).
 
-### 4. Review & simplify
+### 4. Simplify & review
 
-After implementing:
+After implementing, in this order:
 
-- **Code review** — `superpowers:requesting-code-review` (or `/code-review`).
 - **Simplify** — `/simplify` (reuse, simplification, efficiency, altitude). Apply the fixes.
+- **Code review** — `superpowers:requesting-code-review` (or `/code-review`), after simplifying.
 
 ### 5. Run the quality gates (ENFORCED — see below)
 
@@ -88,6 +89,27 @@ Summarize: **what is done**, **what passed**, **what still needs checking**. Do 
 
 Wait for the user to confirm they're OK with the change and to **manually verify it works**. Only after explicit
 approval: archive the change (`opsx:archive` if using OpenSpec), then commit.
+
+## Web Endpoints → `.http` file
+
+If a change **adds or modifies a web endpoint** (HTTP route, controller action, or handler),
+create or update a matching `.http` file so the endpoint is exercisable by hand. `.http` files are
+read by VS Code REST Client, JetBrains IDEs, and Visual Studio.
+
+**Convention — one `.http` file per project/service:**
+
+- **Location & name:** `{ProjectName}.http` at the project root, beside its build manifest
+  (`.csproj`, `package.json`, etc.). One file per service — not a shared grab-bag.
+- **Environments:** keep hosts out of the file. Define them in a sibling `http-client.env.json`
+  (or the repo's equivalent) with a `hostAddress`; each file opens `@HostAddress = {{hostAddress}}`
+  and builds requests as `{{HostAddress}}/...`, so the same file runs local, docker, or CI.
+- **One block per endpoint:** separate requests with `###`, label each `# @name Verb_Route`, and
+  order them to mirror the routes. Include required headers (auth, `Content-Type`) and a
+  representative body. Reuse `@vars` for tokens and shared paths.
+
+**On change:** new endpoint → add its block; changed endpoint (path, verb, params, request or
+response shape) → update the existing block. No web-endpoint change → no `.http` change. The one
+predicate: *did the endpoint surface change?*
 
 ## Quality Gates (must be GREEN before a change is done)
 
@@ -108,7 +130,7 @@ Map those to the usual gate categories and run the ones that apply to what you c
 | Lint / static analysis | `eslint`, `ruff`, `clippy`, `golangci-lint`, analyzers |
 | Tests | `vitest`/`jest`, `pytest`, `dotnet test`, `cargo test`, `go test` |
 | Typecheck | `tsc --noEmit`, `mypy`/`pyright` |
-| Markdown _(optional)_ | `markdownlint-cli2` — run **md-files-audit** if the repo tracks `.md` files |
+| Markdown *(optional)* | `markdownlint-cli2` — run **md-files-audit** if the repo tracks `.md` files |
 
 **Scope to the change.** In a monorepo, prefer an `affected`/changed-scope target (e.g. `nx affected -t lint test
 build typecheck`); in a single repo, run the repo's gate scripts. **When in doubt, run the full set CI would run.**
@@ -119,6 +141,8 @@ If any command exits non-zero or any test is red, the change is **not done** —
 A change is done ONLY when ALL of these are true and you have **seen the output**:
 
 - [ ] Every new/changed behavior has a test covering it.
+- [ ] If a web endpoint was added or changed, its `.http` file is created/updated.
+- [ ] The change was simplified, then reviewed (simplify precedes review).
 - [ ] The repo's build + format + lint + typecheck gates are green.
 - [ ] The repo's test gate is green.
 - [ ] The plan/proposal tasks for the change are checked off.
@@ -132,6 +156,8 @@ A change is done ONLY when ALL of these are true and you have **seen the output*
 - "I'm confident it passes." → Confidence is not evidence. Run the gate, read the output.
 - "I don't know this repo's gates, I'll just run the build." → Discover the gates from CI/scripts first.
 - "I'll grep and hand-edit this code." → Use semantic/symbol-aware tools.
+- "Changed the endpoint, the `.http` file can wait." → It's part of this change. Update it now.
+- "I'll review it; simplifying is extra." → Simplify first, then review. Both, in that order.
 - "I'll archive/commit now." → Not before the user approves and manually verifies.
 
 All of these mean: stop, follow the step, run the gates, and confirm green + approved before saying done.
@@ -155,5 +181,7 @@ repo configures.
 | Skipping or reordering steps             | The flow is ordered and mandatory.                   |
 | Implementation before a failing test     | TDD: red, then green.                                |
 | Assuming gate commands                   | Discover them from CI config / task runners first.   |
+| Endpoint added/changed, `.http` untouched | Create/update the `.http` file in the same change.  |
+| Reviewing before simplifying             | Simplify first, then review.                         |
 | Archiving/committing before approval     | Wait for user approval + manual verification.        |
 | Editing code by blind text replace       | Use semantic/symbol-aware tools (`find_symbol`, LSP).|

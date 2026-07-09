@@ -9,8 +9,8 @@ description: Use when starting, implementing, or completing any feature/change/p
 
 The repeatable cycle for building and changing this project, one subsystem/plugin at a
 time. Each change runs the same loop: **brainstorm → OpenSpec propose → OpenSpec apply with
-TDD → review → verify all green → archive.** Navigation and edits use Serena's semantic
-tools. **A change is not done until every quality gate and test is green.**
+TDD → verify all green → simplify → review → archive.** Navigation and edits use Serena's
+semantic tools. **A change is not done until every quality gate and test is green.**
 
 **Core principle:** No change is "done" on assertion. Done = gates and tests run, output
 seen, all green. Evidence before claims.
@@ -33,9 +33,14 @@ seen, all green. Evidence before claims.
    `find_referencing_symbols`, etc.) for navigation/edits over raw text search where it helps.
 5. **Add tests for every new functionality** — no behavior ships without a test that covers
    it. New endpoint, new plugin, new widget, new branch of logic → new test.
-6. **Verify all green** (Quality Gates below) — run the gates, read the output, confirm green.
-7. **Review** (`superpowers:requesting-code-review` or `/code-review`) before merge.
-8. **Archive** (`/opsx:archive`) — finalize the OpenSpec change once implemented and green.
+6. **HTTP endpoints changed → update the `.http` file** — if the change adds or modifies a web
+   endpoint (controller action or minimal-API route), create or update the matching `.http`
+   file with a request that exercises it (method, path, headers, body). See Web Endpoints below.
+7. **Verify all green** (Quality Gates below) — run the gates, read the output, confirm green.
+8. **Simplify** (`/simplify` or the `code-simplifier` agent) — clean up the change for reuse,
+   simplification, and clarity. Quality only; it does not hunt for bugs. Re-run the gates after.
+9. **Review** (`superpowers:requesting-code-review` or `/code-review`) after simplify, before merge.
+10. **Archive** (`/opsx:archive`) — finalize the OpenSpec change once implemented and green.
 
 ## Quality Gates (must be GREEN before a change is done)
 
@@ -65,9 +70,35 @@ npx prettier --check .       # formatting
 A change is done ONLY when ALL of these are true and you have **seen the output**:
 
 - [ ] Every new/changed functionality has a test covering it.
+- [ ] If a web endpoint was added or changed, its `.http` file is created/updated.
 - [ ] `.NET` gates green (build · format · test).
 - [ ] Frontend gates green (typecheck · lint · test · build · prettier).
+- [ ] Change simplified, then reviewed (simplify precedes review).
 - [ ] OpenSpec tasks for the change are checked off.
+
+## Web Endpoints → `.http` file
+
+If a change **adds or modifies a web endpoint** (a controller action or minimal-API route),
+create or update the matching `.http` file so the endpoint is exercisable by hand.
+
+**Convention — one `.http` file per API project:**
+
+- **Location & name:** `{ProjectName}.http` at the project root, beside its `.csproj` — the
+  ASP.NET Core default. So `core-api/core-api.http`; a plugin module `Weather.Api` →
+  `Weather.Api/Weather.Api.http`. One file per project, never a shared grab-bag.
+- **Environments:** a single `http-client.env.json` at the solution root defines the shared
+  environments (`dev`, `docker`) with a `hostAddress`. Each `.http` file opens with
+  `@HostAddress = {{hostAddress}}` and builds requests as `{{HostAddress}}/api/...` — no
+  hard-coded hosts, so the same file runs against local and docker.
+- **One block per endpoint:** separate requests with `###`, label each `# @name Verb_Route`,
+  and order them to mirror the controller/route grouping. Include required headers (auth,
+  `Content-Type`) and a representative body. Reuse `@vars` for tokens and shared paths.
+
+**On change:** new endpoint → add its block; changed endpoint (path, verb, params,
+request/response shape) → update the existing block so it still reflects reality.
+
+No new/changed HTTP surface → no `.http` change needed. This is the one predicate: *did the
+web endpoint surface change?* If yes, the `.http` file is part of the same change.
 
 ## Security (Non-Negotiable)
 
@@ -83,6 +114,8 @@ user's behalf. The user runs those. See `secrets-safety` for the full rule set.
 - "I'm confident it passes." → Confidence is not evidence. Run the gate, read the output.
 - "I'll just edit the text directly." → Use Serena semantic tools where they apply.
 - Claiming green without running the commands. → Run them. Observe the result.
+- "Changed the endpoint, the `.http` file can wait." → It's part of this change. Update it now.
+- "I'll review it, simplifying is extra." → Simplify first, then review. Both, in that order.
 
 All of these mean: stop, run the gate, write the missing test, and confirm green before
 saying done.
@@ -117,4 +150,6 @@ published (private workspace); nothing is pushed (no remote yet).
 | Implementation before a failing test | TDD: red, then green. |
 | Marking done with red/unknown gate state | Run gates, see green, then done. |
 | New endpoint/widget with no test | Add the test as part of the same change. |
+| Endpoint added/changed, `.http` file untouched | Update the `.http` file in the same change. |
+| Reviewing before simplifying | Simplify first, then review. |
 | Editing by blind text replace | Use Serena `find_symbol` / `replace_symbol_body`. |
