@@ -13,3 +13,4 @@ obj/
 .claude/settings.local.json
 .remember/
 aiskillsrepokey
+.claude/worktrees

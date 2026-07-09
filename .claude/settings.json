@@ -20,6 +20,7 @@
       "Bash(git stash:*)",
       "Bash(git fetch:*)",
       "Bash(git rev-parse:*)",
+      "mcp__plugin_serena_serena_*",
       "mcp__plugin_serena_serena__read_file",
       "mcp__plugin_serena_serena__search_for_pattern",
       "mcp__plugin_serena_serena__activate_project",
@@ -77,7 +78,8 @@
         "*.nuget.org",
         "github.com",
         "codeload.github.com",
-        "*.githubusercontent.com"
+        "*.githubusercontent.com",
+        "www.google-analytics.com"
       ]
     },
     "filesystem": {
@@ -106,5 +108,16 @@
         "false"
       ]
     }
+  },
+  "extraKnownMarketplaces": {
+    "nx-claude-plugins": {
+      "source": {
+        "source": "github",
+        "repo": "nrwl/nx-ai-agents-config"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "nx@nx-claude-plugins": true
   }
 }
