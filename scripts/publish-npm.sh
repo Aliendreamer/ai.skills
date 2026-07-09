@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # Publish the bundled npx CLI (@aliendreamer/ai-skills) to npm.
 # Reads npm_token from config.conf (git-crypt keeps the working copy plaintext locally).
-# Run AFTER `pnpm release:version` has set the version + tag.
+# If the current version is already on npm, this bumps (minor) first, then publishes the new
+# version — so it never dead-ends on "already published". Leaves the release commit/tag local;
+# run `git push --follow-tags` after (or use `pnpm release:npm`, which also pushes).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -16,16 +18,18 @@ NPM_TOKEN="$(conf npm_token)"
 [ -n "$NPM_TOKEN" ] || { echo "✗ npm_token missing in config.conf" >&2; exit 1; }
 export NPM_TOKEN   # apps/cli-npx/.npmrc references ${NPM_TOKEN}
 
+# npm versions are immutable — if the current version is already published, bump (minor) first so
+# this run publishes a NEW version. Bump BEFORE build so the bundled artifact carries the new version.
+VERSION="$(node -p "require('./apps/cli-npx/package.json').version")"
+if npm view "@aliendreamer/ai-skills@${VERSION}" version >/dev/null 2>&1; then
+  echo "→ ${VERSION} already on npm — bumping (minor) first…"
+  npx nx release minor --skip-publish
+  VERSION="$(node -p "require('./apps/cli-npx/package.json').version")"
+  echo "→ bumped to ${VERSION}"
+fi
+
 echo "→ building bundled package…"
 npx nx run cli-npx:build
-
-VERSION="$(node -p "require('./apps/cli-npx/package.json').version")"
-
-# Guard: npm versions are immutable — refuse to re-publish an existing one.
-if npm view "@aliendreamer/ai-skills@${VERSION}" version >/dev/null 2>&1; then
-  echo "✗ @aliendreamer/ai-skills@${VERSION} is already published — bump first: pnpm release:version" >&2
-  exit 1
-fi
 
 echo "→ publishing @aliendreamer/ai-skills@${VERSION} to npm…"
 ( cd apps/cli-npx && npm publish )
