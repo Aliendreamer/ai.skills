@@ -1,3 +1,18 @@
+## 0.11.0 (2026-07-09)
+
+### 🚀 Features
+
+- **dev-flow:** add simplify→review step and .http endpoint convention ([5a416f7](https://github.com/Aliendreamer/ai.skills/commit/5a416f7))
+- **skills:** add secrets-safety skill and harden llm-setup-audit ([477bbc6](https://github.com/Aliendreamer/ai.skills/commit/477bbc6))
+
+### 🩹 Fixes
+
+- **release:** restrict nx release to cli-npx and make release:version bump minor ([dcde077](https://github.com/Aliendreamer/ai.skills/commit/dcde077))
+
+### ❤️ Thank You
+
+- Aliendreamer @Aliendreamer
+
 ## 0.10.0 (2026-06-28)
 
 ### 🚀 Features
