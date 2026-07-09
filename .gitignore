@@ -14,3 +14,27 @@ obj/
 .remember/
 aiskillsrepokey
 .claude/worktrees
+
+# Claude Code local runtime — machine-specific, not shared
+# (no trailing slashes: the sandbox mounts some of these as /dev/null char-devices, not dirs)
+.claude/agents
+.claude/hooks
+.claude/routines
+.claude/workflows
+.claude/launch.json
+.claude/scheduled_tasks.json
+.mcp.json
+.gitmodules
+
+# Editor / IDE
+.idea
+.vscode
+
+# Stray shell / home dotfiles that land in the repo dir (machine-local, not project files)
+.bash_profile
+.bashrc
+.profile
+.zprofile
+.zshrc
+.gitconfig
+.ripgreprc
