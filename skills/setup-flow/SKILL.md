@@ -1,16 +1,17 @@
 ---
 name: setup-flow
 description:
-  "Use when onboarding a repository or agent to the standard development workflow — installs or updates a
-  MANDATORY workflow block in the agent's instruction file (CLAUDE.md, AGENTS.md, GEMINI.md, Copilot or
-  Cursor rules) AND configures .claude/settings.json with Serena MCP, sandbox, permissions, hooks, and
-  plugins. Use when setting up a new repo, switching agents, or refreshing the workflow rules."
+  "Use when onboarding a repository or agent to the standard development workflow — installs the required
+  skills from the ai.skills store, installs or updates a MANDATORY workflow block in the agent's
+  instruction file (CLAUDE.md, AGENTS.md, GEMINI.md, Copilot or Cursor rules), AND configures
+  .claude/settings.json with Serena MCP, sandbox, permissions, hooks, and plugins. Use when setting up a
+  new repo, switching agents, or refreshing the workflow rules."
 type: skill
 disable-model-invocation: false
 user-invocable: true
 tags: [setup, onboarding, workflow, agent-config, development-flow, serena, settings]
 agents: [claude, codex, cursor, gemini, copilot]
-version: 0.2.0
+version: 0.4.0
 author: Aliendreamer
 ---
 
@@ -18,9 +19,12 @@ author: Aliendreamer
 
 ## Overview
 
-Seeds a repository's **agent instruction file** with a neutral, reusable **`## MANDATORY workflow`**
-block so every agent in that repo follows the same loop: `development-flow` for all changes, semantic
-code tools over raw text search, and post-task skill optimization when there's concrete feedback.
+Onboards a repository in three parts: **Phase 0** installs the required skills from the ai.skills store
+(so the workflow it wires up actually exists — no manual install); **Phase 1** seeds the **agent
+instruction file** with a neutral, reusable **`## MANDATORY workflow`** block so every agent in that
+repo follows the same loop (`development-flow` for all changes, semantic code tools over raw text
+search, post-task skill optimization when there's concrete feedback); **Phase 2** configures
+`.claude/settings.json`.
 
 **Core principle: idempotent.** The block is wrapped in markers and inserted-or-replaced — running this
 skill again updates the block in place, never duplicates it, and never disturbs the rest of the file.
@@ -49,6 +53,60 @@ if it doesn't exist.
 
 If the agent is unknown, default to `CLAUDE.md` (and `AGENTS.md` as a cross-agent fallback), or ask.
 
+## Phase 0 — Install the required skills
+
+**Runs first**, before injecting the workflow block. setup-flow provisions a mandatory skill set from
+the ai.skills store so the workflow it wires up actually exists — the user never installs skills by
+hand. Idempotent: re-running re-installs/updates each skill in place.
+
+### 0.1 Build the install list
+
+Always install:
+
+- `development-flow` — the canonical workflow skill the block and hook point at.
+- `web-security-audit`
+- `llm-setup-audit`
+- `md-files-audit` — also the baseline reference used by Phase 2.7.
+
+Conditionally install:
+
+- `audit-package-version` — only when the repo root has a `package.json` (JS / Node project).
+
+Optional (opt-in — install when detected, or when the user asks):
+
+- `azure-devops-workflow` — when the repo uses Azure DevOps: an `azure-pipelines.yml`, a
+  `.azuredevops/` directory, or a git remote on `dev.azure.com` / `*.visualstudio.com`.
+
+### 0.2 Resolve the target agent
+
+Use the same agent as the Target file table below (`--agent` value): `claude`, `codex`, `cursor`,
+`gemini`, or `copilot`. Default to `claude` if unknown.
+
+### 0.3 Install via the store CLI
+
+Run the installer non-interactively — it fetches from the store and drops each skill into the agent's
+skills dir (e.g. `.claude/skills/<id>/`):
+
+```bash
+npx -y @aliendreamer/ai-skills add development-flow web-security-audit llm-setup-audit \
+  md-files-audit [audit-package-version] [azure-devops-workflow] \
+  --agent <resolved-agent> --project --yes
+```
+
+- Include `audit-package-version` in the id list only when `package.json` was detected in 0.1.
+- Include `azure-devops-workflow` only when Azure DevOps was detected in 0.1, or the user opts in.
+- `--project` installs into the current repo; use `--global` (`~/`) instead only if the user wants the
+  skills available across all their repos.
+- `-y` / `--yes` skips prompts (it requires `--agent`). Re-running is safe and idempotent.
+
+### 0.4 Verify & report
+
+Confirm each expected skill folder now exists under the agent's skills dir, and report the list
+installed (and anything skipped — e.g. `audit-package-version` on a non-JS repo).
+
+**OpenSpec is not installed here.** `development-flow` treats OpenSpec as optional; if the repo wants
+it, set it up separately.
+
 ## The block to inject
 
 Insert this verbatim, including the marker comments. It is intentionally **neutral** — no project, org,
@@ -60,8 +118,9 @@ stack, or gate count baked in:
 
 **For ANY feature, change, or bugfix you MUST follow the `development-flow` skill.** Invoke it at the
 start of implementation work; do not skip or reorder its steps: brainstorm → plan/proposal →
-implement (TDD) → code review + simplify → run the repo's quality gates → report → user approval and
-manual verification before archive/commit.
+implement (TDD) → simplify → code review → run the repo's quality gates → report → user approval and
+manual verification before archive/commit. If a change adds or modifies a web endpoint, create or
+update its `.http` file as part of the same change.
 
 **Prefer semantic code tools for code search and edits** — e.g. Serena MCP or your editor's LSP
 (`find_symbol`, `replace_symbol_body`, `find_referencing_symbols`) — over raw text/grep where a
@@ -208,7 +267,8 @@ Assemble the settings object from all gathered inputs and write (or merge into) 
 }
 ```
 
-**`sandbox`** (root flags are always `true`/`false` as shown; domain/path lists come from 2.2):
+**`sandbox`** (defaults shown; the root flags are tunable per environment — see the flag guidance
+below. Domain/path lists come from 2.2):
 
 ```json
 {
@@ -220,9 +280,20 @@ Assemble the settings object from all gathered inputs and write (or merge into) 
 }
 ```
 
-> **Note:** `failIfUnavailable: true` prevents Claude Code from starting when sandbox is unavailable
-> (e.g. in CI, some WSL2 configurations, or platforms that don't support sandboxing). Set to `false`
-> if you need the agent to run in those environments.
+**Flag guidance — set these to fit the environment the agent runs in.** Ask the user where this repo
+runs (local dev, CI, WSL2) if it isn't obvious; default as shown and call out the exceptions:
+
+- **`enabled`** — keep `true`. Disabling removes the protection entirely; prefer widening the `2.2`
+  `network`/`filesystem` lists, or `allowUnsandboxedCommands`, over turning the sandbox off.
+- **`failIfUnavailable`** — `true` refuses to start Claude Code when the sandbox can't initialise, so
+  you never silently run unsandboxed. Keep `true` for local dev on a supported platform. Set
+  **`false`** where sandboxing is unavailable or flaky — **CI runners**, **some WSL2 configs**, and
+  platforms with no sandbox support — otherwise the agent won't start there.
+- **`allowUnsandboxedCommands`** — `false` blocks any command from escaping the sandbox. Keep `false`
+  by default. Set **`true`** only when specific tooling genuinely needs it (e.g. build tools that fail
+  under the sandbox — some Nx / `tsx` / native-toolchain invocations); the agent then runs such
+  commands unsandboxed on approval. Where the agent supports per-command overrides, narrow to the
+  offending commands instead of a blanket `true`.
 
 **`permissions`** (fixed baseline — always the same):
 
@@ -263,7 +334,7 @@ Assemble the settings object from all gathered inputs and write (or merge into) 
       "hooks": [
         {
           "type": "command",
-          "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"UserPromptSubmit\",\"additionalContext\":\"MANDATORY dev-flow for code work (.claude development-flow skill), ordered + gated: 1) align via superpowers:brainstorming before touching files; 2) document the change — OpenSpec /opsx:propose for non-trivial work (tiny fixes may skip); 3) implement with TDD (red-green-refactor); 4) /code-review then /simplify; 5) discover the repo gates from CI/scripts and run build+lint+typecheck+tests; 6) report done/passed/pending; 7) wait for user approval + manual verification before /opsx:archive and commit. Use Serena semantic tools (find_symbol, get_symbols_overview, replace_symbol_body, find_referencing_symbols, search_for_pattern) for ALL code search and edits — never raw grep or hand-editing. Done = gates green, output seen, user verified.\"}}'",
+          "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"UserPromptSubmit\",\"additionalContext\":\"MANDATORY dev-flow for code work (.claude development-flow skill), ordered + gated: 1) align via superpowers:brainstorming before touching files; 2) document the change — OpenSpec /opsx:propose for non-trivial work (tiny fixes may skip); 3) implement with TDD (red-green-refactor) — if a web endpoint was added or changed, create/update its .http file; 4) /simplify then /code-review; 5) discover the repo gates from CI/scripts and run build+lint+typecheck+tests; 6) report done/passed/pending; 7) wait for user approval + manual verification before /opsx:archive and commit. Use Serena semantic tools (find_symbol, get_symbols_overview, replace_symbol_body, find_referencing_symbols, search_for_pattern) for ALL code search and edits — never raw grep or hand-editing. Done = gates green, output seen, user verified.\"}}'",
           "statusMessage": "Loading development flow"
         }
       ]
@@ -361,6 +432,8 @@ When markdownlint is present, verify:
 |---|---|
 | Writing `PostToolUse` hook when prettier is absent | Check `package.json` first; skip the hook if not found |
 | Overwriting existing sandbox flags on merge | Only `set` a root flag if the key is absent |
+| Disabling the sandbox to unblock a command | Keep `enabled: true`; widen `network`/`filesystem` or use `allowUnsandboxedCommands` instead |
+| Setting `failIfUnavailable: false` everywhere | Keep `true` for local dev; only relax it for CI / WSL2 / unsupported platforms |
 | Assuming `.claude/settings.json` lives at repo root | It lives at `.claude/settings.json` relative to the repo |
 | Not deduplicating domain/path lists | Use a Set merge; sort the result |
 | Auto-enabling all detected plugins | Always ask the user; never auto-enable |
