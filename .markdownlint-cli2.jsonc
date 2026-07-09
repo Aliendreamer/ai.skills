@@ -15,6 +15,7 @@
     "prompts/**/*.md",
     "openspec/specs/**/*.md",
     "CLAUDE.md",
+    "AGENTS.md",
     "README.md"
   ],
   // Vendored content, historical records, and build output.
