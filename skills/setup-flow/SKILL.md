@@ -9,7 +9,7 @@ description:
 type: skill
 disable-model-invocation: false
 user-invocable: true
-tags: [setup, onboarding, workflow, agent-config, development-flow, serena, settings]
+tags: [setup, onboarding, workflow, agent-config, developer-flow, serena, settings]
 agents: [claude, codex, cursor, gemini, copilot]
 version: 0.4.0
 author: Aliendreamer
@@ -22,7 +22,7 @@ author: Aliendreamer
 Onboards a repository in three parts: **Phase 0** installs the required skills from the ai.skills store
 (so the workflow it wires up actually exists — no manual install); **Phase 1** seeds the **agent
 instruction file** with a neutral, reusable **`## MANDATORY workflow`** block so every agent in that
-repo follows the same loop (`development-flow` for all changes, semantic code tools over raw text
+repo follows the same loop (`developer-flow` for all changes, semantic code tools over raw text
 search, post-task skill optimization when there's concrete feedback); **Phase 2** configures
 `.claude/settings.json`.
 
@@ -33,7 +33,7 @@ skill again updates the block in place, never duplicates it, and never disturbs 
 
 - Onboarding a new repository, or starting work in a repo that has no workflow rules.
 - Switching to or adding a different agent (the rules need to live in that agent's file).
-- Refreshing the workflow block after `development-flow` or the conventions change.
+- Refreshing the workflow block after `developer-flow` or the conventions change.
 
 **When NOT to use:** for one-off project-specific rules (write those directly in the instruction file);
 this skill manages only the shared, neutral workflow block.
@@ -63,7 +63,7 @@ hand. Idempotent: re-running re-installs/updates each skill in place.
 
 Always install:
 
-- `development-flow` — the canonical workflow skill the block and hook point at.
+- `developer-flow` — the canonical workflow skill the block and hook point at.
 - `web-security-audit`
 - `llm-setup-audit`
 - `md-files-audit` — also the baseline reference used by Phase 2.7.
@@ -88,7 +88,7 @@ Run the installer non-interactively — it fetches from the store and drops each
 skills dir (e.g. `.claude/skills/<id>/`):
 
 ```bash
-npx -y @aliendreamer/ai-skills add development-flow web-security-audit llm-setup-audit \
+npx -y @aliendreamer/ai-skills add developer-flow web-security-audit llm-setup-audit \
   md-files-audit [audit-package-version] [azure-devops-workflow] \
   --agent <resolved-agent> --project --yes
 ```
@@ -104,7 +104,7 @@ npx -y @aliendreamer/ai-skills add development-flow web-security-audit llm-setup
 Confirm each expected skill folder now exists under the agent's skills dir, and report the list
 installed (and anything skipped — e.g. `audit-package-version` on a non-JS repo).
 
-**OpenSpec is not installed here.** `development-flow` treats OpenSpec as optional; if the repo wants
+**OpenSpec is not installed here.** `developer-flow` treats OpenSpec as optional; if the repo wants
 it, set it up separately.
 
 ## The block to inject
@@ -116,7 +116,7 @@ stack, or gate count baked in:
 <!-- setup-flow:start -->
 ## MANDATORY workflow
 
-**For ANY feature, change, or bugfix you MUST follow the `development-flow` skill.** Invoke it at the
+**For ANY feature, change, or bugfix you MUST follow the `developer-flow` skill.** Invoke it at the
 start of implementation work; do not skip or reorder its steps: brainstorm → plan/proposal →
 implement (TDD) → simplify → code review → run the repo's quality gates → report → user approval and
 manual verification before archive/commit. If a change adds or modifies a web endpoint, create or
@@ -152,7 +152,7 @@ one is available) before moving on. Only when the feedback is specific; skip it 
   their own details outside the markers.
 - **Writing to the wrong file.** Match the file to the active agent; don't put `CLAUDE.md` rules in a
   Gemini repo.
-- **Renaming the skill reference.** It points at `development-flow` — the canonical skill name.
+- **Renaming the skill reference.** It points at `developer-flow` — the canonical skill name.
 
 ---
 
@@ -334,7 +334,7 @@ runs (local dev, CI, WSL2) if it isn't obvious; default as shown and call out th
       "hooks": [
         {
           "type": "command",
-          "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"UserPromptSubmit\",\"additionalContext\":\"MANDATORY dev-flow for code work (.claude development-flow skill), ordered + gated: 1) align via superpowers:brainstorming before touching files; 2) document the change — OpenSpec /opsx:propose for non-trivial work (tiny fixes may skip); 3) implement with TDD (red-green-refactor) — if a web endpoint was added or changed, create/update its .http file; 4) /simplify then /code-review; 5) discover the repo gates from CI/scripts and run build+lint+typecheck+tests; 6) report done/passed/pending; 7) wait for user approval + manual verification before /opsx:archive and commit. Use Serena semantic tools (find_symbol, get_symbols_overview, replace_symbol_body, find_referencing_symbols, search_for_pattern) for ALL code search and edits — never raw grep or hand-editing. Done = gates green, output seen, user verified.\"}}'",
+          "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"UserPromptSubmit\",\"additionalContext\":\"MANDATORY dev-flow for code work (.claude developer-flow skill), ordered + gated: 1) align via superpowers:brainstorming before touching files; 2) document the change — OpenSpec /opsx:propose for non-trivial work (tiny fixes may skip); 3) implement with TDD (red-green-refactor) — if a web endpoint was added or changed, create/update its .http file; 4) /simplify then /code-review; 5) discover the repo gates from CI/scripts and run build+lint+typecheck+tests; 6) report done/passed/pending; 7) wait for user approval + manual verification before /opsx:archive and commit. Use Serena semantic tools (find_symbol, get_symbols_overview, replace_symbol_body, find_referencing_symbols, search_for_pattern) for ALL code search and edits — never raw grep or hand-editing. Done = gates green, output seen, user verified.\"}}'",
           "statusMessage": "Loading development flow"
         }
       ]

@@ -1,5 +1,5 @@
 ---
-name: development-flow
+name: developer-flow
 description:
   "Use when starting, implementing, or completing any feature, change, or fix in any software project — at feature
   start, before writing code, and before claiming a change is done, fixed, working, or green. A strict ordered flow

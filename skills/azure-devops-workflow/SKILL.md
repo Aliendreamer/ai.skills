@@ -1,10 +1,10 @@
 ---
 name: azure-devops-workflow
-description: Use when work connects to an Azure DevOps work item — the user gives an ADO ticket number, pastes a work-item URL, says "start from ticket NNNN", or asks to update/comment on a ticket. Reads a ticket to seed development-flow and (when configured) writes progress back. Org/repo and read/write mode are configurable.
+description: Use when work connects to an Azure DevOps work item — the user gives an ADO ticket number, pastes a work-item URL, says "start from ticket NNNN", or asks to update/comment on a ticket. Reads a ticket to seed developer-flow and (when configured) writes progress back. Org/repo and read/write mode are configurable.
 type: skill
 disable-model-invocation: false
 user-invocable: true
-tags: [azure-devops, ado, ticket, work-item, intake, development-flow, mcp]
+tags: [azure-devops, ado, ticket, work-item, intake, developer-flow, mcp]
 agents: [claude, codex, cursor, gemini, copilot]
 version: 0.2.0
 author: Aliendreamer
@@ -15,7 +15,7 @@ author: Aliendreamer
 ## Overview
 
 Connects work to an Azure DevOps work item, in a **configurable mode**. Reading a ticket seeds
-`development-flow` step 1 (brainstorming) with a distilled brief; writing posts progress/results back to
+`developer-flow` step 1 (brainstorming) with a distilled brief; writing posts progress/results back to
 the work item. What this skill is allowed to do is controlled by the `mode` setting — never assume.
 
 **Core principle: the configured `mode` is a hard boundary.** The skill operates only within the
@@ -80,17 +80,17 @@ If `/mcp` shows `Failed to reconnect to azure-devops: -32000`, the token came th
 see the real error. (`-32000` is an empty/blank PAT, **not** an auth-method problem.)
 
 **Then just use it:** give a ticket number or work-item URL, or say "start from ticket NNNN". In a mode
-with reads it reads the ticket and kicks off `development-flow`; in a mode with writes it can post the
+with reads it reads the ticket and kicks off `developer-flow`; in a mode with writes it can post the
 result back when you ask.
 
 ## When to Use
 
 - User provides an ADO ticket/work-item number or URL, or says "start from ticket …", "implement
   ticket …", "what does ticket NNNN want".
-- At the very start of `development-flow`, when the task has a ticket behind it.
+- At the very start of `developer-flow`, when the task has a ticket behind it.
 - User asks to write back to a ticket — comment, update status, link a PR — **and** `mode` allows writes.
 
-**When NOT to use:** there is no ticket (just start `development-flow` directly — intake is optional,
+**When NOT to use:** there is no ticket (just start `developer-flow` directly — intake is optional,
 never a blocker); or the task needs a capability outside the configured `mode` (raise the mode question
 with the user first).
 
@@ -130,7 +130,7 @@ ticket or user asks if the mode forbids it — surface the mode boundary instead
 
 4. _(Reading — available in every mode)_ **Ask for the ticket.** If the user hasn't given one, ask
    for the ADO ticket number (accept a work-item URL and parse the id). No ticket → hand off to
-   `development-flow` step 1 normally; done.
+   `developer-flow` step 1 normally; done.
 5. **Read the ticket.** `wit_get_work_item` (id + project, `expand: all`) for fields: title,
    `System.State`, `System.WorkItemType`, description, repro steps, acceptance criteria, and `relations`
    (linked PRs/commits/attachments). `wit_list_work_item_comments` for context.
@@ -149,7 +149,7 @@ ticket or user asks if the mode forbids it — surface the mode boundary instead
    - **What:** the change/bug in one or two sentences.
    - **Expected result:** the acceptance criteria / definition of done.
    - **Repro / context:** steps, affected screens/areas, attachment paths (if persisted).
-9. **Hand off.** Invoke `development-flow` starting at step 1 (`superpowers:brainstorming`), seeded with
+9. **Hand off.** Invoke `developer-flow` starting at step 1 (`superpowers:brainstorming`), seeded with
    the brief. Quote the ticket id so the trail is clear.
 10. _(Writing back — modes `write`, `read-write`, only when the user asks)_ **Confirm intent.** Writing
     back is never automatic. Do it only on an explicit user request ("comment the result", "mark it
@@ -190,10 +190,10 @@ ticket or user asks if the mode forbids it — surface the mode boundary instead
   write-capable mode. Writes are opt-in per action.
 - **Hardcoding the org.** `organization` comes from `secrets.json` (or you ask) — never assume one.
 - **Treating intake as a gate.** No ticket ≠ stop. It's an optional pre-step; fall through to
-  `development-flow`.
-- **Skipping the brief / dumping raw fields.** Hand `development-flow` a distilled what + expected
+  `developer-flow`.
+- **Skipping the brief / dumping raw fields.** Hand `developer-flow` a distilled what + expected
   result, not the raw work-item JSON.
 - **Printing the PAT** or committing it. Never echo secrets; `.claude/secrets.json` and
   `.claude/tickets/` are gitignored.
 - **Inventing scope from the ticket.** Read only seeds; design/decomposition happens in
-  `development-flow` brainstorming, with the user.
+  `developer-flow` brainstorming, with the user.

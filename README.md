@@ -94,7 +94,7 @@ General:
 
 - `audit-package-version` — enforce exact dependency versions (no `^`/`~`) in npm + .NET.
 - `conventional-commits` — write Conventional Commits messages.
-- `development-flow` — the brainstorm → OpenSpec → TDD → verify → archive build cycle.
+- `developer-flow` — the brainstorm → OpenSpec → TDD → verify → archive build cycle.
 - `llm-setup-audit` — harden Claude Code config (permissions, sandbox, hooks, secrets).
 - `web-security-audit` — app-security regression checks (auth, cookies, CORS, OIDC, secrets).
 
