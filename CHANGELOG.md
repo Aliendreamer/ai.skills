@@ -1,3 +1,13 @@
+## 0.13.0 (2026-09-21)
+
+### 🩹 Fixes
+
+- **release:** unblock pnpm installs and stop publish scripts failing silently ([412b34f](https://github.com/Aliendreamer/ai.skills/commit/412b34f))
+
+### ❤️ Thank You
+
+- Teodor
+
 ## 0.12.0 (2026-09-21)
 
 ### 🚀 Features
