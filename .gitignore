@@ -23,6 +23,9 @@ aiskillsrepokey
 .claude/workflows
 .claude/launch.json
 .claude/scheduled_tasks.json
+.claude/loop.md
+.claude/output-styles
+
 .mcp.json
 .gitmodules
 
