@@ -8,7 +8,7 @@ type: skill
 disable-model-invocation: false
 user-invocable: true
 tags: [azure-devops, ado, task, activity, time-log, daily, original-estimate, sprint, feature]
-agents: [claude, codex, cursor, copilot]
+agents: [claude, codex, cursor, gemini, copilot]
 version: 0.1.0
 author: Aliendreamer
 ---

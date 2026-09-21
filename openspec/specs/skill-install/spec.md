@@ -11,13 +11,18 @@ CLIs build on this contract.
 ### Requirement: Agent skill destination resolution
 
 The system SHALL resolve the on-disk destination for a skill given an agent, a scope, the skill id, and the scope base
-directories. Supported skill agents are `claude`, `codex`, `copilot`, and `cursor`. Scope is `project` or `global`,
+directories. Supported skill agents are `claude`, `codex`, `copilot`, `gemini`, and `cursor`. Scope is `project` or
+`global`,
 resolved against injected bases (`{ project, home }`). Destinations:
 
 - `claude` → `<base>/.claude/skills/<id>`
 - `codex` → `<base>/.agents/skills/<id>`
 - `copilot` → project `<project>/.github/skills/<id>`, global `<home>/.copilot/skills/<id>`
+- `gemini` → `<base>/.gemini/skills/<id>`
 - `cursor` → `<project>/.cursor/rules/<id>.mdc` (project scope only)
+
+`gemini` SHALL resolve to `.gemini/skills/` and not to the `.agents/skills/` alias Gemini CLI also honours, because
+that alias is `codex`'s destination — sharing it would let one agent's install shadow the other's.
 
 #### Scenario: Resolve a claude project skill path
 
@@ -34,9 +39,14 @@ resolved against injected bases (`{ project, home }`). Destinations:
 - **WHEN** resolving `cursor` with scope `global`
 - **THEN** the system raises an error stating cursor supports project scope only
 
+#### Scenario: Resolve a gemini workspace skill path
+
+- **WHEN** resolving `gemini`, scope `project`, id `my-skill`, bases `{ project: /repo, home: /home/u }`
+- **THEN** the destination is `/repo/.gemini/skills/my-skill`, distinct from the `codex` destination
+
 #### Scenario: Unsupported agent rejected
 
-- **WHEN** resolving an agent with no skill adapter (e.g. `gemini`)
+- **WHEN** resolving an agent with no skill adapter
 - **THEN** the system raises an error stating the agent does not support skills
 
 ### Requirement: Fetch an item from the store via GitHub tarball
@@ -60,8 +70,8 @@ the leading `<repo>-<ref>/` prefix.
 ### Requirement: Install a skill into an agent directory
 
 The system SHALL install a fetched skill from a source directory into the resolved agent destination. For `claude`,
-`codex`, and `copilot` the whole skill folder SHALL be copied. For `cursor` the skill's `SKILL.md` SHALL be copied to a
-single `<id>.mdc` file at the destination.
+`codex`, `copilot`, and `gemini` the whole skill folder SHALL be copied. For `cursor` the skill's `SKILL.md` SHALL be
+copied to a single `<id>.mdc` file at the destination.
 
 Copying the whole folder SHALL include auxiliary files at any depth, and SHALL preserve each file's mode so that an
 executable script remains executable in the installed copy. Because the `cursor` destination is a single rendered file,

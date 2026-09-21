@@ -10,7 +10,7 @@ type: skill
 disable-model-invocation: false
 user-invocable: true
 tags: [skills, optimization, benchmarking, activation, regressions, prompt-engineering]
-agents: [claude, codex, copilot]
+agents: [claude, codex, gemini, copilot]
 version: 0.1.0
 author: Matteo Collina
 ---

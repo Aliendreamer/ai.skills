@@ -9,7 +9,7 @@ type: skill
 disable-model-invocation: false
 user-invocable: true
 tags: [hooks, context, tokens, claude-code, settings, setup, performance]
-agents: [claude, codex, copilot, cursor]
+agents: [claude, codex, cursor, gemini, copilot]
 version: 0.1.0
 author: Aliendreamer
 ---

@@ -8,7 +8,7 @@ type: skill
 disable-model-invocation: false
 user-invocable: true
 tags: [security, audit, claude-code, configuration]
-agents: [claude, codex, cursor, copilot]
+agents: [claude, codex, cursor, gemini, copilot]
 version: 0.1.0
 ---
 

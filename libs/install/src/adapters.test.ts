@@ -41,8 +41,25 @@ describe('resolveSkillDestination', () => {
     expect(() => resolveSkillDestination('cursor', 'global', 'my-skill', bases)).toThrow(/project/i);
   });
 
+  it('resolves gemini into .gemini/skills', () => {
+    expect(resolveSkillDestination('gemini', 'project', 'my-skill', bases)).toBe(
+      '/repo/.gemini/skills/my-skill',
+    );
+    expect(resolveSkillDestination('gemini', 'global', 'my-skill', bases)).toBe(
+      '/home/u/.gemini/skills/my-skill',
+    );
+  });
+
+  it('keeps gemini and codex destinations distinct', () => {
+    // Gemini CLI also honours an `.agents/skills/` alias, which is codex's destination.
+    // Writing gemini there would let one agent's install shadow the other's.
+    expect(resolveSkillDestination('gemini', 'project', 'my-skill', bases)).not.toBe(
+      resolveSkillDestination('codex', 'project', 'my-skill', bases),
+    );
+  });
+
   it('rejects an agent without a skill adapter', () => {
-    expect(() => resolveSkillDestination('gemini', 'project', 'my-skill', bases)).toThrow(
+    expect(() => resolveSkillDestination('windsurf', 'project', 'my-skill', bases)).toThrow(
       /skill/i,
     );
   });

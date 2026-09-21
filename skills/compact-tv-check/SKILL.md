@@ -7,7 +7,7 @@ type: skill
 disable-model-invocation: false
 user-invocable: true
 tags: [smarttv, compatibility, chromium, tizen, webos]
-agents: [claude, codex, cursor, copilot]
+agents: [claude, codex, cursor, gemini, copilot]
 version: 0.1.0
 author: Aliendreamer
 ---

@@ -5,7 +5,7 @@ type: skill
 disable-model-invocation: false
 user-invocable: true
 tags: [azure-devops, ado, ticket, work-item, intake, developer-flow, mcp]
-agents: [claude, codex, cursor, copilot]
+agents: [claude, codex, cursor, gemini, copilot]
 version: 0.2.0
 author: Aliendreamer
 ---

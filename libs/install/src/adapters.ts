@@ -32,6 +32,14 @@ const SKILL_ADAPTERS: Record<string, SkillAdapter> = {
         ? join(b.project, '.github', 'skills', id)
         : join(b.home, '.copilot', 'skills', id),
   },
+  gemini: {
+    scopes: ['project', 'global'],
+    // Gemini CLI discovers workspace skills in `.gemini/skills/` and user skills in
+    // `~/.gemini/skills/`. It also honours an `.agents/skills/` alias that takes precedence, but
+    // that is `codex`'s destination here — writing there would make one agent's install shadow the
+    // other's, so this stays on the `.gemini` path.
+    dest: (scope, id, b) => join(scope === 'project' ? b.project : b.home, '.gemini', 'skills', id),
+  },
   cursor: {
     scopes: ['project'],
     dest: (_scope, id, b) => join(b.project, '.cursor', 'rules', `${id}.mdc`),

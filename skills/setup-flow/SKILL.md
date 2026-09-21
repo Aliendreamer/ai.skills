@@ -13,7 +13,7 @@ type: skill
 disable-model-invocation: false
 user-invocable: true
 tags: [setup, onboarding, workflow, agent-config, developer-flow, serena, settings]
-agents: [claude, codex, cursor, copilot]
+agents: [claude, codex, cursor, gemini, copilot]
 version: 0.6.0
 author: Aliendreamer
 ---

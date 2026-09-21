@@ -16,6 +16,7 @@
         "claude",
         "codex",
         "cursor",
+        "gemini",
         "copilot"
       ],
       "version": "0.1.0",
@@ -36,6 +37,7 @@
         "claude",
         "codex",
         "cursor",
+        "gemini",
         "copilot"
       ],
       "version": "0.1.0",
@@ -58,6 +60,7 @@
         "claude",
         "codex",
         "cursor",
+        "gemini",
         "copilot"
       ],
       "version": "0.2.0",
@@ -77,6 +80,7 @@
         "claude",
         "codex",
         "cursor",
+        "gemini",
         "copilot"
       ],
       "version": "0.1.0",
@@ -97,6 +101,7 @@
         "claude",
         "codex",
         "cursor",
+        "gemini",
         "copilot"
       ],
       "version": "0.1.0",
@@ -120,6 +125,7 @@
         "claude",
         "codex",
         "cursor",
+        "gemini",
         "copilot"
       ],
       "version": "0.1.0",
@@ -141,8 +147,9 @@
       "agents": [
         "claude",
         "codex",
-        "copilot",
-        "cursor"
+        "cursor",
+        "gemini",
+        "copilot"
       ],
       "version": "0.1.0",
       "path": "skills/context-hooks"
@@ -160,6 +167,7 @@
         "claude",
         "codex",
         "cursor",
+        "gemini",
         "copilot"
       ],
       "version": "0.1.0",
@@ -184,6 +192,7 @@
         "claude",
         "codex",
         "cursor",
+        "gemini",
         "copilot"
       ],
       "version": "0.1.0",
@@ -208,6 +217,7 @@
         "claude",
         "codex",
         "cursor",
+        "gemini",
         "copilot"
       ],
       "version": "0.1.0",
@@ -228,6 +238,7 @@
         "claude",
         "codex",
         "cursor",
+        "gemini",
         "copilot"
       ],
       "version": "0.1.0",
@@ -247,6 +258,7 @@
         "claude",
         "codex",
         "cursor",
+        "gemini",
         "copilot"
       ],
       "version": "0.4.0",
@@ -312,6 +324,7 @@
         "claude",
         "codex",
         "cursor",
+        "gemini",
         "copilot"
       ],
       "version": "0.1.0",
@@ -331,6 +344,7 @@
         "claude",
         "codex",
         "cursor",
+        "gemini",
         "copilot"
       ],
       "version": "0.1.0",
@@ -351,6 +365,7 @@
         "claude",
         "codex",
         "cursor",
+        "gemini",
         "copilot"
       ],
       "version": "0.1.0",
@@ -374,6 +389,7 @@
         "claude",
         "codex",
         "cursor",
+        "gemini",
         "copilot"
       ],
       "version": "0.1.0",
@@ -393,6 +409,7 @@
         "claude",
         "codex",
         "cursor",
+        "gemini",
         "copilot"
       ],
       "version": "0.1.0",
@@ -436,6 +453,7 @@
         "claude",
         "codex",
         "cursor",
+        "gemini",
         "copilot"
       ],
       "version": "0.1.0",
@@ -456,6 +474,7 @@
         "claude",
         "codex",
         "cursor",
+        "gemini",
         "copilot"
       ],
       "version": "0.1.0",
@@ -478,6 +497,7 @@
         "claude",
         "codex",
         "cursor",
+        "gemini",
         "copilot"
       ],
       "version": "0.6.0",
@@ -498,6 +518,7 @@
       "agents": [
         "claude",
         "codex",
+        "gemini",
         "copilot"
       ],
       "version": "0.1.0",
@@ -517,6 +538,7 @@
         "claude",
         "codex",
         "cursor",
+        "gemini",
         "copilot"
       ],
       "version": "0.1.0",
@@ -536,6 +558,7 @@
         "claude",
         "codex",
         "cursor",
+        "gemini",
         "copilot"
       ],
       "version": "0.1.0",
