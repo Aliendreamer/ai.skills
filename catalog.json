@@ -108,6 +108,30 @@
       "path": "skills/compact-tv-check"
     },
     {
+      "id": "complexity-sizing",
+      "type": "skill",
+      "description": "Use when sizing or checking an Azure DevOps work item — Story Points must be derived from the Complexity field, never estimated freehand. Fires on \"size this ticket\", \"what SP\", \"is the SP right\", \"check complexity\", \"backfill story points\", or whenever a ticket's Complexity/SP pair is read. Org and project come from configuration.",
+      "tags": [
+        "azure-devops",
+        "ado",
+        "complexity",
+        "story-points",
+        "sizing",
+        "estimate",
+        "velocity",
+        "work-item"
+      ],
+      "agents": [
+        "claude",
+        "codex",
+        "cursor",
+        "gemini",
+        "copilot"
+      ],
+      "version": "0.1.0",
+      "path": "skills/complexity-sizing"
+    },
+    {
       "id": "conventional-commits",
       "type": "skill",
       "description": "Write commit messages that follow the Conventional Commits specification so tooling can derive versions and changelogs.",
@@ -175,6 +199,56 @@
       "path": "prompts/cookie-auth-ssr"
     },
     {
+      "id": "daily-activity-log",
+      "type": "skill",
+      "description": "Use at end of day to file the Azure DevOps time-log Tasks — one closed Task per Activity worked that day, Original Estimate in decimal hours, parented to the current sprint's Feature. Fires on \"log my day\", \"fill my tasks\", \"close my daily tasks\", \"I had 2h meetings and 4h development\". Org and project come from configuration.",
+      "tags": [
+        "azure-devops",
+        "ado",
+        "task",
+        "activity",
+        "time-log",
+        "daily",
+        "original-estimate",
+        "sprint",
+        "feature"
+      ],
+      "agents": [
+        "claude",
+        "codex",
+        "cursor",
+        "gemini",
+        "copilot"
+      ],
+      "version": "0.1.0",
+      "path": "skills/daily-activity-log"
+    },
+    {
+      "id": "daily-log-check",
+      "type": "skill",
+      "description": "Use to check whether everyone on duty filed their Azure DevOps time-log Tasks for a given day, per platform — reports tickets, hours and activities per person against the headcount you give. Fires on \"did everyone log yesterday\", \"check web 4 mobile 3\", \"who is missing for 8.09\", \"daily log check\". Read-only. Org and project come from configuration.",
+      "tags": [
+        "azure-devops",
+        "ado",
+        "task",
+        "activity",
+        "time-log",
+        "daily",
+        "compliance",
+        "check",
+        "audit"
+      ],
+      "agents": [
+        "claude",
+        "codex",
+        "cursor",
+        "gemini",
+        "copilot"
+      ],
+      "version": "0.1.0",
+      "path": "skills/daily-log-check"
+    },
+    {
       "id": "design-review",
       "type": "skill",
       "description": "Review implemented UI changes against the reference app (../<reference-app>) as a TV designer — visual consistency, focus styles, colors, fonts, spacing, and TV-specific UI conventions. Use after a bug fix or UI change.",
@@ -212,7 +286,7 @@
         "gemini",
         "copilot"
       ],
-      "version": "0.3.0",
+      "version": "0.4.0",
       "path": "skills/developer-flow"
     },
     {
@@ -386,7 +460,7 @@
     {
       "id": "setup-flow",
       "type": "skill",
-      "description": "Use when onboarding a repository or agent to the standard development workflow — installs or updates a MANDATORY workflow block in the agent's instruction file (CLAUDE.md, AGENTS.md, GEMINI.md, Copilot or Cursor rules) AND configures .claude/settings.json with Serena MCP, sandbox, permissions, hooks, and plugins. Use when setting up a new repo, switching agents, or refreshing the workflow rules.",
+      "description": "Use when onboarding a repository or agent to the standard development workflow — installs the required skills from the ai.skills store, installs or updates a MANDATORY workflow block in the agent's instruction file (CLAUDE.md, AGENTS.md, GEMINI.md, Copilot or Cursor rules), AND configures .claude/settings.json with Serena MCP, sandbox, permissions, hooks, and plugins. Use when setting up a new repo, switching agents, or refreshing the workflow rules.",
       "tags": [
         "setup",
         "onboarding",
@@ -403,7 +477,7 @@
         "gemini",
         "copilot"
       ],
-      "version": "0.2.0",
+      "version": "0.4.0",
       "path": "skills/setup-flow"
     },
     {
