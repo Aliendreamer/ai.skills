@@ -464,7 +464,7 @@
     {
       "id": "setup-flow",
       "type": "skill",
-      "description": "Use when onboarding a repository or agent to the standard development workflow — installs the required skills from the ai.skills store, installs or updates a MANDATORY workflow block in the agent's instruction file (CLAUDE.md, AGENTS.md, GEMINI.md, Copilot or Cursor rules), AND configures .claude/settings.json with Serena MCP, sandbox, permissions, hooks, and plugins. Hooks are wired to the context-hooks kit, which speaks once per session instead of injecting text on every turn; re-running replaces earlier inline hooks rather than adding to them. Use when setting up a new repo, switching agents, or refreshing the workflow rules.",
+      "description": "Use when onboarding a repository or agent to the standard development workflow — installs the required skills from the ai.skills store, installs or updates a MANDATORY workflow block in the agent's instruction file (CLAUDE.md, AGENTS.md, GEMINI.md, Copilot or Cursor rules), AND configures .claude/settings.json with Serena MCP, sandbox, permissions, hooks, and plugins. Hooks are wired to the context-hooks kit, which speaks once per session instead of injecting text on every turn; re-running replaces earlier inline hooks rather than adding to them. Also writes .vscode/settings.json to hide the empty shell dotfiles an agent sandbox leaves in the repo root. Use when setting up a new repo, switching agents, or refreshing the workflow rules.",
       "tags": [
         "setup",
         "onboarding",
@@ -480,7 +480,7 @@
         "cursor",
         "copilot"
       ],
-      "version": "0.5.0",
+      "version": "0.6.0",
       "path": "skills/setup-flow"
     },
     {

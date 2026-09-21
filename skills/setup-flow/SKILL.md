@@ -6,14 +6,15 @@ description:
   instruction file (CLAUDE.md, AGENTS.md, GEMINI.md, Copilot or Cursor rules), AND configures
   .claude/settings.json with Serena MCP, sandbox, permissions, hooks, and plugins. Hooks are wired to the
   context-hooks kit, which speaks once per session instead of injecting text on every turn; re-running
-  replaces earlier inline hooks rather than adding to them. Use when setting up a new repo, switching
-  agents, or refreshing the workflow rules."
+  replaces earlier inline hooks rather than adding to them. Also writes .vscode/settings.json to hide the
+  empty shell dotfiles an agent sandbox leaves in the repo root. Use when setting up a new repo,
+  switching agents, or refreshing the workflow rules."
 type: skill
 disable-model-invocation: false
 user-invocable: true
 tags: [setup, onboarding, workflow, agent-config, developer-flow, serena, settings]
 agents: [claude, codex, cursor, copilot]
-version: 0.5.0
+version: 0.6.0
 author: Aliendreamer
 ---
 
@@ -477,6 +478,62 @@ When markdownlint is present, verify:
    reference for a correct baseline config).
 3. Run `pnpm lint:md` — if it exits non-zero, run `pnpm lint:md:fix` and re-check.
 
+### 2.8 Editor noise — `.vscode/settings.json`
+
+Running an agent in a sandbox leaves **empty shell dotfiles** in the repo root. They are artifacts,
+never project files, and they clutter the explorer and file-search for everyone who works in the
+repo. Hide them.
+
+Write `.vscode/settings.json` with this `files.exclude` block:
+
+```json
+{
+  "files.exclude": {
+    ".bashrc": true,
+    ".bash_profile": true,
+    ".profile": true,
+    ".zshrc": true,
+    ".zprofile": true,
+    ".gitconfig": true,
+    ".ripgreprc": true,
+    ".gitmodules": true,
+    ".idea": true
+  }
+}
+```
+
+**Merge, never overwrite.** If `.vscode/settings.json` exists, add only the missing keys inside
+`files.exclude` and leave every other setting — and every existing exclusion — untouched. A
+developer's editor config is theirs.
+
+**Do not change `.gitignore`.** Write the file whether or not `.vscode` is ignored, and leave the
+repo's ignore policy alone:
+
+- `.vscode` **ignored** → the exclusions are per-developer. Each person gets them when they run
+  setup-flow.
+- `.vscode` **tracked** → the exclusions are shared, which is usually right: the artifacts appear
+  for everyone using the agent, so hiding them once helps the whole team.
+
+Some teams deliberately share `.vscode`; others deliberately ignore it. Either is fine, and
+neither is setup-flow's call to make.
+
+Two entries in that list are **not** sandbox artifacts, and are included because they are ordinary
+editor noise:
+
+- `.idea` — JetBrains' project directory.
+- `.gitmodules` — a real git file. Hiding it is a display choice only; say so in the report, so
+  nobody debugging submodules concludes the file is missing.
+
+**Do not add `.mcp.json` to the list.** It is a real project MCP configuration in most repos;
+hiding it would conceal working config. It only looks like an artifact when a sandbox has masked
+it.
+
+**Never hide the repo's secrets file.** It is a file people legitimately open and edit, and making
+it invisible causes more confusion than the screenshare exposure it would prevent. `.gitignore` and
+the `permissions.deny` rules are the controls that matter there.
+
+Report which keys were added and which already existed.
+
 ### Common mistakes (Phase 2)
 
 | Mistake | Fix |
@@ -489,3 +546,6 @@ When markdownlint is present, verify:
 | Not deduplicating domain/path lists | Use a Set merge; sort the result |
 | Auto-enabling all detected plugins | Always ask the user; never auto-enable |
 | Writing the PAT or any secret into settings.json | `secrets.json` is the home for secrets; never touch them here |
+| Overwriting an existing `.vscode/settings.json` | Merge only the missing `files.exclude` keys; a developer's editor config is theirs |
+| Adding `.vscode` to `.gitignore` | Leave the repo's ignore policy alone — sharing or ignoring `.vscode` is a team decision |
+| Hiding `.mcp.json` or the secrets file | Both are real files people need; hiding them conceals working config |
