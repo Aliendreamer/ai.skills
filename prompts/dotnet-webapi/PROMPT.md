@@ -6,7 +6,7 @@ description:
 type: prompt
 tags: [dotnet, fastendpoints, efcore, keycloak, backend, auth]
 agents: [claude, codex, cursor, gemini, copilot]
-version: 0.1.0
+version: 0.2.0
 appPattern: dotnet-backend
 author: Aliendreamer
 ---
@@ -194,10 +194,34 @@ interval from config).
   `PostLogoutRedirectUri`, `AppBaseUrl`), `SessionCookies` (`Domain`, `SessionName`, `PkceName`), `SessionStore`
   (`CleanupInterval`), `AllowedCorsOrigins`, `ConnectionStrings:Postgres`.
 
+### Exposure — public API vs private behind an SSR BFF
+
+The C# is identical either way. Only configuration and exposure change, so decide this in STEP 0 and apply the
+right column.
+
+| | **Public API** (browser calls it directly) | **Private behind an SSR BFF** (recommended) |
+| --- | --- | --- |
+| `Keycloak:CallbackUri` | `http://api.<slug>.localhost/api/auth/callback` | `http://app.<slug>.localhost/api/auth/callback` — the callback lands on the **SSR proxy**, which forwards it inward |
+| `AppBaseUrl` / `PostLogoutRedirectUri` | the API origin | `http://app.<slug>.localhost` |
+| Realm client `redirectUris` / `webOrigins` | the API origin | `http://app.<slug>.localhost` |
+| Public route | a router/label exposing the API | **none** — reachable only as `<be-service>:8080` on the compose network |
+| CORS | the browser's front line; lock to the app origin | no longer the front line (the browser is same-origin to `app.`), but **still** lock `Web__Origins`/`AllowedCorsOrigins` to the app origin — never `*` |
+
+Cookies stay `Domain`-scoped at the API (`Domain=.<slug>.localhost`) in both modes; behind a BFF the proxy is what
+strips `Domain` and app-scopes them. A `Domain`-less API cookie also works — the proxy normalises either way — but
+leaving the API unchanged between modes is simpler.
+
+Everything else is unchanged: token resolver, session store and revocation, `/me`, claims transformation, EF model,
+cleanup service.
+
+> **Behind a BFF, pair this with `fe-ssr-tanstack`**, which owns the proxy route and cookie re-homing. Both apps drop
+> into the `nx-monorepo` workspace skeleton.
+
 ## Infrastructure to run it
 
 PostgreSQL + a Keycloak realm (confidential client `<slug>_api`). A minimal `docker-compose.yml` with Postgres +
-Keycloak + Traefik is enough to run and test the API locally.
+Keycloak + Traefik is enough to run and test the API locally. For a full workspace stack — Postgres, Redis, Keycloak
+with a seeded realm, and every app wired together — use the `nx-monorepo` skeleton instead of hand-rolling compose.
 
 ## Verify before claiming done
 

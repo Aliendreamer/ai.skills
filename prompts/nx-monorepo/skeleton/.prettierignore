@@ -1,0 +1,6 @@
+# Generated API artifacts — committed but never hand-formatted (keeps gen:api:check stable).
+apps/backend/openapi/openapi.json
+apps/frontend/src/lib/api/schema.d.ts
+
+# Backend appsettings — sensitive/secret-bearing config; never reformat (agent-off-limits).
+apps/backend/Config/

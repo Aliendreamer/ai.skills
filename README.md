@@ -115,9 +115,10 @@ React quality gates (`react-dev`):
 
 ### Prompts
 
-- `cookie-auth-direct` — Direct BFF cookie-session stack (browser → public .NET API).
-- `cookie-auth-ssr` — SSR BFF cookie-session stack (TanStack SSR → private API).
-- `dotnet-webapi` — build a .NET FastEndpoints backend (EF/Postgres, Keycloak, sessions).
+- `nx-monorepo` — the Nx + pnpm workspace the two app prompts drop into: task wiring, commit hygiene,
+  a docker-compose local-dev stack, cross-language test/coverage, and Nx Release across .NET and JS.
+- `dotnet-webapi` — build a .NET FastEndpoints backend (EF/Postgres, Keycloak, cookie sessions),
+  public or private behind an SSR BFF.
 - `fe-ssr-tanstack` — build the TanStack Start SSR BFF frontend half.
 
 ## Repository layout

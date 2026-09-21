@@ -166,54 +166,6 @@
       "path": "skills/conventional-commits"
     },
     {
-      "id": "cookie-auth-direct",
-      "type": "prompt",
-      "description": "Starter prompt to build a Direct BFF cookie-session auth stack — the browser calls a public .NET FastEndpoints API directly (same-site cookie across app./api. subdomains), with Keycloak and a Postgres session store in a dockerized *.localhost harness.",
-      "tags": [
-        "fullstack",
-        "dotnet",
-        "tanstack",
-        "keycloak",
-        "bff",
-        "auth",
-        "direct"
-      ],
-      "agents": [
-        "claude",
-        "codex",
-        "cursor",
-        "gemini",
-        "copilot"
-      ],
-      "version": "0.1.0",
-      "appPattern": "bff-cookie-auth",
-      "path": "prompts/cookie-auth-direct"
-    },
-    {
-      "id": "cookie-auth-ssr",
-      "type": "prompt",
-      "description": "Starter prompt to build an SSR BFF cookie-session auth stack — TanStack Start SSR as the public BFF proxying OIDC to a private .NET FastEndpoints API, with Keycloak and a Postgres session store in a dockerized *.localhost harness.",
-      "tags": [
-        "fullstack",
-        "dotnet",
-        "tanstack",
-        "keycloak",
-        "bff",
-        "auth",
-        "ssr"
-      ],
-      "agents": [
-        "claude",
-        "codex",
-        "cursor",
-        "gemini",
-        "copilot"
-      ],
-      "version": "0.1.0",
-      "appPattern": "bff-cookie-auth",
-      "path": "prompts/cookie-auth-ssr"
-    },
-    {
       "id": "daily-activity-log",
       "type": "skill",
       "description": "Use at end of day to file the Azure DevOps time-log Tasks — one closed Task per Activity worked that day, Original Estimate in decimal hours, parented to the current sprint's Feature. Fires on \"log my day\", \"fill my tasks\", \"close my daily tasks\", \"I had 2h meetings and 4h development\". Org and project come from configuration.",
@@ -319,7 +271,7 @@
         "gemini",
         "copilot"
       ],
-      "version": "0.1.0",
+      "version": "0.2.0",
       "appPattern": "dotnet-backend",
       "path": "prompts/dotnet-webapi"
     },
@@ -342,7 +294,7 @@
         "gemini",
         "copilot"
       ],
-      "version": "0.1.0",
+      "version": "0.2.0",
       "appPattern": "fe-ssr-tanstack",
       "path": "prompts/fe-ssr-tanstack"
     },
@@ -405,6 +357,29 @@
       "path": "skills/md-files-audit"
     },
     {
+      "id": "monorepo-hygiene",
+      "type": "skill",
+      "description": "Audit an existing Nx + pnpm monorepo against the nx-monorepo workspace skeleton and report what is missing — task wiring and caching, commit hygiene, local-dev stack, test and coverage runs, release automation, deployment. Use when a repo predates the skeleton, when CI is slower than it should be, when releases are manual, or when onboarding a repo someone else set up. Read-only until you approve each change. Covers workspace tooling only; setup-flow owns the agent instruction file and .claude/settings.json.",
+      "tags": [
+        "monorepo",
+        "nx",
+        "pnpm",
+        "audit",
+        "tooling",
+        "release",
+        "workspace",
+        "retrofit"
+      ],
+      "agents": [
+        "claude",
+        "codex",
+        "cursor",
+        "copilot"
+      ],
+      "version": "0.1.0",
+      "path": "skills/monorepo-hygiene"
+    },
+    {
       "id": "norigin-focus",
       "type": "skill",
       "description": "Audit Norigin useFocusable container calls for missing autoRestoreFocus, plus page-entry focus patterns, scroll-restoration timing, and StrictMode-safe guard refs in spatial-navigation TV apps.",
@@ -422,6 +397,30 @@
       ],
       "version": "0.1.0",
       "path": "skills/norigin-focus"
+    },
+    {
+      "id": "nx-monorepo",
+      "type": "prompt",
+      "description": "Scaffold the Nx + pnpm workspace that holds a .NET API, a TanStack Start SSR frontend and an nginx proxy — task wiring and caching, commit hygiene, a docker-compose local-dev stack with Postgres/Redis/Keycloak, cross-language test and coverage runs, and Nx Release that versions .csproj alongside package.json. Ships the config as real files in skeleton/ rather than describing them, so they arrive identical. Folder-based agents only.",
+      "tags": [
+        "monorepo",
+        "nx",
+        "pnpm",
+        "workspace",
+        "docker-compose",
+        "release",
+        "tooling",
+        "dotnet",
+        "tanstack"
+      ],
+      "agents": [
+        "claude",
+        "codex",
+        "copilot"
+      ],
+      "version": "0.1.0",
+      "appPattern": "nx-monorepo",
+      "path": "prompts/nx-monorepo"
     },
     {
       "id": "scaffold-tv-screen",

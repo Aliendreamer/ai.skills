@@ -7,7 +7,7 @@ description:
 type: prompt
 tags: [frontend, tanstack, ssr, bff, typescript, auth]
 agents: [claude, codex, cursor, gemini, copilot]
-version: 0.1.0
+version: 0.2.0
 appPattern: fe-ssr-tanstack
 author: Aliendreamer
 ---
@@ -19,8 +19,35 @@ BFF. The browser only ever talks to `app.<slug>.localhost`; this server proxies 
 fetches page data **server-to-server** via server functions. No API host, no token, no `VITE_API_URL` in the client
 bundle.
 
-Pairs with a cookie-session .NET API (see `dotnet-webapi.md` or the full `cookie-auth-ssr.md`). Follow this top to
-bottom.
+Pairs with a cookie-session .NET API — see `dotnet-webapi`, and build it in its
+**private behind an SSR BFF** mode. Both apps drop into the `nx-monorepo` workspace skeleton, which supplies the
+Nx wiring, the local-dev stack and the nginx proxy that fronts them in production. Follow this top to bottom.
+
+## Architecture — the organizing rule
+
+> **The always-on SSR server is the BFF. The browser has exactly one origin (`app.`). The .NET API still owns the
+> tokens but is unreachable from the internet — only the SSR server (same network) calls it.**
+
+```text
+                         app.<slug>.localhost  (the ONLY browser origin)
+Browser ──app-host cookie──► SSR server (TanStack Start) ──server-to-server──► .NET API ──► Keycloak
+   │                          │  • /api/auth/$ proxy (re-homes cookies)        (internal   (exchange +
+   │                          │  • server fns fetch data w/ forwarded cookie    only)        refresh)
+   └── login form ◄───────────┴──► keycloak.<slug>.localhost (302s relayed by the proxy)
+```
+
+- **Auth proxy**: `app./api/auth/{login,callback,logout}` → SSR route forwards to `API/api/auth/*` server-to-server,
+  **re-homes** each `Set-Cookie` (strip the API's `Domain`; app host-only; `__Host-`+`Secure` in prod) and relays
+  status + `Location`.
+- **Data**: route loaders call **server functions** (`createServerFn`) that run on the SSR server, re-attach the
+  session cookie, and fetch the internal API. Pages render **with data** (SSR-with-data).
+- **Gate**: an `_authenticated` pathless layout route's `beforeLoad` calls `getMe()` server-side and redirects
+  anonymous requests to the login proxy; `me` goes into router context for every child route. **No client `/me`
+  probe, no `AuthProvider`.**
+
+The cookie is **app-host-only** (not shared across subdomains), because the browser never needs to send it to the
+API — only to `app.`, which forwards it inward. That single origin with `Path=/` and no `Domain` is exactly what
+lets prod use the `__Host-` prefix.
 
 ## How Claude must work on this
 
@@ -252,6 +279,33 @@ browser→app-only invariant holds even on in-app navigation.
   SSR entry imports framework code at runtime). Pass `API_URL` (and `COOKIE_SECURE=true` in real prod) as **runtime**
   env, not build args. `.dockerignore` excludes `dist`/`.output`/`.nitro`/`.tanstack`/`node_modules`/`.git`/`.env*`.
 
+## Harness — `docker-compose.yml` + `harness/keycloak/<Realm>-realm.json`
+
+A standalone harness for running this FE against a real API and a real Keycloak. **If you are in an `nx-monorepo`
+workspace, use its `tools/localdev/` stack instead** — it already wires Postgres, Redis, Keycloak and every app
+together, and this section is redundant.
+
+Services; **only the proxy publishes a port**, and there is **no `api.` router**:
+
+- `proxy` (Traefik v3): `ports: ["80:80"]`. Routing via the provider you can negotiate with — **docker labels** if the
+  daemon allows, else the **file provider** (`harness/traefik/dynamic.yml`); see gotcha #8. Routes: `app.→<fe>:3000`,
+  `keycloak.→keycloak:8080`. **Define no `api.` route.**
+- `postgres` (17-alpine): healthcheck.
+- `keycloak` (26): `start-dev --import-realm`; `KC_HOSTNAME=http://keycloak.<slug>.localhost`,
+  `KC_HOSTNAME_STRICT=false`, `KC_HTTP_ENABLED=true`, `KC_PROXY_HEADERS=xforwarded`; mount `./harness/keycloak`.
+- `<be-service>` (build the BE — see `dotnet-webapi`): Authority
+  `http://keycloak.<slug>.localhost/realms/<Realm>`, ClientId `<slug>_api`, secret,
+  **`CallbackUri=http://app.<slug>.localhost/api/auth/callback`**, AppBaseUrl/PostLogout
+  `http://app.<slug>.localhost`, `SessionCookies__Domain=.<slug>.localhost`, Postgres conn;
+  **`extra_hosts: ["keycloak.<slug>.localhost:host-gateway"]`**. **No Traefik route** — internal only.
+- `<fe>` (build this app): env **`API_URL=http://<be-service>:8080`** (server-side), optionally `COOKIE_SECURE=true`
+  in real prod; Traefik route `Host(app.<slug>.localhost)` → :3000. `depends_on: <be-service>`.
+
+Realm import JSON: realm `<Realm>`; roles `Admin`,`User`; **confidential** client `<slug>_api` (`publicClient:false`,
+secret, **`redirectUris:[http://app.<slug>.localhost/api/auth/callback]`**, `attributes.post.logout.redirect.uris`
+`##`-separated = `http://app.<slug>.localhost`, `pkce.code.challenge.method:S256`); test user `testuser`/`Test123!`
+with realm roles `Admin`,`User`.
+
 ## CRITICAL gotchas (each cost real debugging — bake them in)
 
 1. **`server` route-option doesn't typecheck alone.** `createFileRoute(...).server` needs the TanStack Start type
@@ -268,9 +322,24 @@ browser→app-only invariant holds even on in-app navigation.
 5. **Re-home AND forward back.** Outbound: strip the API's `Domain`, app-scope, add `__Host-` in prod. Inbound: map the
    app cookie name back to the API name and forward **only** the auth cookies. Forget either half and the session
    silently never reaches the API.
-6. **Route guards do NOT protect server functions.** A `beforeLoad` gate is UX; the real boundary is the API's
-   `[Authorize]`. Server functions must forward the cookie and let the API decide.
-7. **`*.localhost` resolution**: browsers auto-resolve to loopback (RFC 6761) — no `/etc/hosts`. `curl` needs
+6. **Callback still redirects to the ABSOLUTE app URL** `{AppBaseUrl}{returnTo}`. The browser hits
+   `app./api/auth/callback`; the proxy forwards `?code&state` + the PKCE cookie inward; the BE exchanges and 302s to
+   `{AppBaseUrl}{returnTo}`, which the proxy relays. Keep `returnTo` sanitized (relative, single leading `/`) — no
+   open redirect.
+7. **Keycloak issuer must match from BOTH the browser and the BE container** or `iss` validation 401s.
+   `KC_HOSTNAME=http://keycloak.<slug>.localhost` **plus** the BE's
+   `extra_hosts: ["keycloak.<slug>.localhost:host-gateway"]`, so the same URL resolves inside the container.
+8. **Traefik provider negotiation.** If the docker daemon's min API version rejects Traefik's docker provider (e.g.
+   min API 1.40), the docker labels are inert — switch to the **file provider**
+   (`--providers.file.directory`, `harness/traefik/dynamic.yml`) and define routes there. Either way: **define no
+   `api.` route.**
+9. **Realm import**: post-logout redirects go in the client `attributes` as `post.logout.redirect.uris`
+   (`##`-separated); a top-level `postLogoutRedirectUris` aborts the Keycloak 26 import → discovery 404 → login 500.
+   Import only happens into a **fresh** Keycloak state (`--import-realm` skips existing realms) — recreate the
+   container after changing the realm JSON.
+10. **Route guards do NOT protect server functions.** A `beforeLoad` gate is UX; the real boundary is the API's
+    `[Authorize]`. Server functions must forward the cookie and let the API decide.
+11. **`*.localhost` resolution**: browsers auto-resolve to loopback (RFC 6761) — no `/etc/hosts`. `curl` needs
    `-H "Host: app.<slug>.localhost" http://127.0.0.1/`. Assert the API is internal-only with
    `curl -H "Host: api.<slug>.localhost" http://127.0.0.1/...` → **404/unreachable**.
 
