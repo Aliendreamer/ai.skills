@@ -1,39 +1,9 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 ## Status
 
-`ai.skills` is an **Nx monorepo** hosting a store of AI-agent skills and prompts, plus two CLIs
-(`apps/cli-dotnet`, `apps/cli-npx`) that build and validate the catalog. Nx drives every task —
-use the **`nx-workspace`** skill to explore projects/targets and **`nx-generate`** to scaffold
-new apps or libs (both are described in the Nx block below). Prefer `nx affected` on a change.
-
-## Tooling present
-
-- **Serena** (`.serena/`) — MCP-based code navigation/editing server. Project config lives in `.serena/project.yml`;
-  `languages: []` is unset, so populate it once a primary language is chosen. `.serena/memories/` holds on-demand
-  project memories.
-- **remember** (`.remember/`) — session-state skill. Logs live under `.remember/logs/`; write session handoffs to
-  `.remember/remember.md`.
-
-Both directories are tooling artifacts, not project source.
-
-## Commands
-
-Run tasks through Nx (prefix with `pnpm`); use `nx affected` to scope to what a change touched.
-
-- `pnpm nx run-many -t lint test build` — lint, test, and build every project.
-- `pnpm nx affected -t lint test build` — same, scoped to the current change.
-- `pnpm nx run cli-dotnet:test` / `pnpm nx run cli-dotnet:lint` — the .NET CLI gates.
-- `pnpm lint:md` (`pnpm lint:md:fix`) — markdownlint over authored docs.
-
-For scaffolding new apps or libs, invoke the `nx-generate` skill first (see the Nx block below).
-
-## Architecture
-
-_None yet._ Document the big-picture structure (the parts that require reading multiple files to understand) once code
-is added.
+`ai.skills` hosts a store of AI-agent skills and prompts, plus two CLIs that build and validate
+the catalog. Prefer `nx affected` on a change.
 
 <!-- markdownlint-disable MD013 MD012 -->
 <!-- nx configuration start-->
