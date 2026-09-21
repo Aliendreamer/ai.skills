@@ -96,8 +96,8 @@
 - [x] 7.1 Re-read the change's spec and confirm every requirement has an implementing or verifying
       task above
 - [x] 7.2 Run `openspec validate monorepo-skeleton --strict`
-- [ ] 7.3 Commit with a conventional-commit `!` and a `BREAKING CHANGE:` footer naming both removed
+- [x] 7.3 Commit with a conventional-commit `!` and a `BREAKING CHANGE:` footer naming both removed
       ids, so the generated changelog carries it; note in the body that the Direct BFF write-up
       remains in git history
-- [ ] 7.4 Report what changed, what was verified and how, and what remains environment-specific for
+- [x] 7.4 Report what changed, what was verified and how, and what remains environment-specific for
       an adopter to fill in
