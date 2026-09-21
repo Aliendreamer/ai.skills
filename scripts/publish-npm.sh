@@ -14,8 +14,15 @@ cd "$ROOT"
 # Read a KEY=VALUE from config.conf without executing the file.
 conf() { grep -E "^$1=" config.conf | head -1 | cut -d= -f2- | tr -d '\r'; }
 
-NPM_TOKEN="$(conf npm_token)"
-[ -n "$NPM_TOKEN" ] || { echo "✗ npm_token missing in config.conf" >&2; exit 1; }
+# `|| true` matters: conf() ends in a pipeline, and under `set -euo pipefail` a grep that matches
+# nothing makes the assignment fail, so the script would exit 1 with NO message and the guard below
+# would never run. That is exactly what a locked git-crypt looks like from here.
+NPM_TOKEN="$(conf npm_token || true)"
+[ -n "$NPM_TOKEN" ] || {
+  echo "✗ npm_token not found in config.conf." >&2
+  echo "  If config.conf is still git-crypt encrypted, unlock it first: git-crypt unlock" >&2
+  exit 1
+}
 export NPM_TOKEN   # apps/cli-npx/.npmrc references ${NPM_TOKEN}
 
 # npm versions are immutable — if the current version is already published, bump (minor) first so

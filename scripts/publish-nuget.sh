@@ -12,8 +12,15 @@ cd "$ROOT"
 
 conf() { grep -E "^$1=" config.conf | head -1 | cut -d= -f2- | tr -d '\r'; }
 
-NUGET_TOKEN="$(conf nuget_token)"
-[ -n "$NUGET_TOKEN" ] || { echo "✗ nuget_token missing in config.conf (add: nuget_token=...)" >&2; exit 1; }
+# `|| true` matters: conf() ends in a pipeline, and under `set -euo pipefail` a grep that matches
+# nothing makes the assignment fail, so the script would exit 1 with NO message and the guard below
+# would never run. That is exactly what a locked git-crypt looks like from here.
+NUGET_TOKEN="$(conf nuget_token || true)"
+[ -n "$NUGET_TOKEN" ] || {
+  echo "✗ nuget_token not found in config.conf (add: nuget_token=...)." >&2
+  echo "  If config.conf is still git-crypt encrypted, unlock it first: git-crypt unlock" >&2
+  exit 1
+}
 
 VERSION="$(node -p "require('./apps/cli-npx/package.json').version")"
 
