@@ -1,0 +1,8 @@
+# Store content, not workspace code.
+#
+# `prompts/nx-monorepo/skeleton/` ships real config files as a template, including
+# `apps/proxy/project.json`. Without this, Nx discovers that file and registers a live `proxy`
+# project whose targets shell out to paths that only exist in a repo built FROM the skeleton —
+# `nx run-many` and `nx release` then fail with `tools/deploy/build.sh: not found`.
+prompts
+skills
