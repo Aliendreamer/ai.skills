@@ -9,7 +9,7 @@ type: skill
 disable-model-invocation: false
 user-invocable: true
 tags: [azure-devops, ado, task, activity, time-log, daily, compliance, check, audit]
-agents: [claude, codex, cursor, gemini, copilot]
+agents: [claude, codex, cursor, copilot]
 version: 0.1.0
 author: Aliendreamer
 ---

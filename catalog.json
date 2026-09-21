@@ -16,7 +16,6 @@
         "claude",
         "codex",
         "cursor",
-        "gemini",
         "copilot"
       ],
       "version": "0.1.0",
@@ -37,7 +36,6 @@
         "claude",
         "codex",
         "cursor",
-        "gemini",
         "copilot"
       ],
       "version": "0.1.0",
@@ -60,7 +58,6 @@
         "claude",
         "codex",
         "cursor",
-        "gemini",
         "copilot"
       ],
       "version": "0.2.0",
@@ -80,7 +77,6 @@
         "claude",
         "codex",
         "cursor",
-        "gemini",
         "copilot"
       ],
       "version": "0.1.0",
@@ -101,7 +97,6 @@
         "claude",
         "codex",
         "cursor",
-        "gemini",
         "copilot"
       ],
       "version": "0.1.0",
@@ -125,11 +120,32 @@
         "claude",
         "codex",
         "cursor",
-        "gemini",
         "copilot"
       ],
       "version": "0.1.0",
       "path": "skills/complexity-sizing"
+    },
+    {
+      "id": "context-hooks",
+      "type": "skill",
+      "description": "Install Claude Code context-injection hooks that speak once per session instead of once per fire, so standing guidance stops accumulating in the conversation. Use when hooks are re-injecting the same text every turn, when token usage grows with session length, or when setting up a repo's hooks for the first time. Requires jq at runtime. Ships shell scripts, so it reaches folder-based agents only — cursor gets this guidance without the kit.",
+      "tags": [
+        "hooks",
+        "context",
+        "tokens",
+        "claude-code",
+        "settings",
+        "setup",
+        "performance"
+      ],
+      "agents": [
+        "claude",
+        "codex",
+        "copilot",
+        "cursor"
+      ],
+      "version": "0.1.0",
+      "path": "skills/context-hooks"
     },
     {
       "id": "conventional-commits",
@@ -144,7 +160,6 @@
         "claude",
         "codex",
         "cursor",
-        "gemini",
         "copilot"
       ],
       "version": "0.1.0",
@@ -217,7 +232,6 @@
         "claude",
         "codex",
         "cursor",
-        "gemini",
         "copilot"
       ],
       "version": "0.1.0",
@@ -242,7 +256,6 @@
         "claude",
         "codex",
         "cursor",
-        "gemini",
         "copilot"
       ],
       "version": "0.1.0",
@@ -263,7 +276,6 @@
         "claude",
         "codex",
         "cursor",
-        "gemini",
         "copilot"
       ],
       "version": "0.1.0",
@@ -283,7 +295,6 @@
         "claude",
         "codex",
         "cursor",
-        "gemini",
         "copilot"
       ],
       "version": "0.4.0",
@@ -349,7 +360,6 @@
         "claude",
         "codex",
         "cursor",
-        "gemini",
         "copilot"
       ],
       "version": "0.1.0",
@@ -369,7 +379,6 @@
         "claude",
         "codex",
         "cursor",
-        "gemini",
         "copilot"
       ],
       "version": "0.1.0",
@@ -390,7 +399,6 @@
         "claude",
         "codex",
         "cursor",
-        "gemini",
         "copilot"
       ],
       "version": "0.1.0",
@@ -410,7 +418,6 @@
         "claude",
         "codex",
         "cursor",
-        "gemini",
         "copilot"
       ],
       "version": "0.1.0",
@@ -430,7 +437,6 @@
         "claude",
         "codex",
         "cursor",
-        "gemini",
         "copilot"
       ],
       "version": "0.1.0",
@@ -451,7 +457,6 @@
         "claude",
         "codex",
         "cursor",
-        "gemini",
         "copilot"
       ],
       "version": "0.1.0",
@@ -460,7 +465,7 @@
     {
       "id": "setup-flow",
       "type": "skill",
-      "description": "Use when onboarding a repository or agent to the standard development workflow — installs the required skills from the ai.skills store, installs or updates a MANDATORY workflow block in the agent's instruction file (CLAUDE.md, AGENTS.md, GEMINI.md, Copilot or Cursor rules), AND configures .claude/settings.json with Serena MCP, sandbox, permissions, hooks, and plugins. Use when setting up a new repo, switching agents, or refreshing the workflow rules.",
+      "description": "Use when onboarding a repository or agent to the standard development workflow — installs the required skills from the ai.skills store, installs or updates a MANDATORY workflow block in the agent's instruction file (CLAUDE.md, AGENTS.md, GEMINI.md, Copilot or Cursor rules), AND configures .claude/settings.json with Serena MCP, sandbox, permissions, hooks, and plugins. Hooks are wired to the context-hooks kit, which speaks once per session instead of injecting text on every turn; re-running replaces earlier inline hooks rather than adding to them. Use when setting up a new repo, switching agents, or refreshing the workflow rules.",
       "tags": [
         "setup",
         "onboarding",
@@ -474,11 +479,30 @@
         "claude",
         "codex",
         "cursor",
-        "gemini",
         "copilot"
       ],
-      "version": "0.4.0",
+      "version": "0.5.0",
       "path": "skills/setup-flow"
+    },
+    {
+      "id": "skill-optimizer",
+      "type": "skill",
+      "description": "Optimizes AI skills for activation, clarity, and cross-model reliability. Use when creating or editing skill packs, diagnosing weak skill uptake, reducing regressions, tuning instruction salience, improving examples, shrinking context cost, or setting benchmark/release gates for skills. Trigger terms: skill optimization, activation gap, benchmark skill, with/without skill delta, regression, context budget, prompt salience. Third-party skill by Matteo Collina (MIT); depends on its rules/ files, so it reaches folder-based agents only.",
+      "tags": [
+        "skills",
+        "optimization",
+        "benchmarking",
+        "activation",
+        "regressions",
+        "prompt-engineering"
+      ],
+      "agents": [
+        "claude",
+        "codex",
+        "copilot"
+      ],
+      "version": "0.1.0",
+      "path": "skills/skill-optimizer"
     },
     {
       "id": "use-effect-guard",
@@ -494,7 +518,6 @@
         "claude",
         "codex",
         "cursor",
-        "gemini",
         "copilot"
       ],
       "version": "0.1.0",
@@ -514,7 +537,6 @@
         "claude",
         "codex",
         "cursor",
-        "gemini",
         "copilot"
       ],
       "version": "0.1.0",

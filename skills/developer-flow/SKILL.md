@@ -8,7 +8,7 @@ type: skill
 disable-model-invocation: false
 user-invocable: true
 tags: [workflow, tdd, quality, review]
-agents: [claude, codex, cursor, gemini, copilot]
+agents: [claude, codex, cursor, copilot]
 version: 0.4.0
 author: Aliendreamer
 ---

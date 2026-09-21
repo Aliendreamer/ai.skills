@@ -4,14 +4,16 @@ description:
   "Use when onboarding a repository or agent to the standard development workflow — installs the required
   skills from the ai.skills store, installs or updates a MANDATORY workflow block in the agent's
   instruction file (CLAUDE.md, AGENTS.md, GEMINI.md, Copilot or Cursor rules), AND configures
-  .claude/settings.json with Serena MCP, sandbox, permissions, hooks, and plugins. Use when setting up a
-  new repo, switching agents, or refreshing the workflow rules."
+  .claude/settings.json with Serena MCP, sandbox, permissions, hooks, and plugins. Hooks are wired to the
+  context-hooks kit, which speaks once per session instead of injecting text on every turn; re-running
+  replaces earlier inline hooks rather than adding to them. Use when setting up a new repo, switching
+  agents, or refreshing the workflow rules."
 type: skill
 disable-model-invocation: false
 user-invocable: true
 tags: [setup, onboarding, workflow, agent-config, developer-flow, serena, settings]
-agents: [claude, codex, cursor, gemini, copilot]
-version: 0.4.0
+agents: [claude, codex, cursor, copilot]
+version: 0.5.0
 author: Aliendreamer
 ---
 
@@ -64,6 +66,8 @@ hand. Idempotent: re-running re-installs/updates each skill in place.
 Always install:
 
 - `developer-flow` — the canonical workflow skill the block and hook point at.
+- `context-hooks` — supplies the hook kit Phase 2.5 wires up. Required: Phase 2.5 no longer embeds
+  hook text in `settings.json`, so without this skill there are no hook scripts to point at.
 - `web-security-audit`
 - `llm-setup-audit`
 - `md-files-audit` — also the baseline reference used by Phase 2.7.
@@ -324,6 +328,15 @@ runs (local dev, CI, WSL2) if it isn't obvious; default as shown and call out th
 
 **`hooks`** (always included):
 
+Hook text is NOT embedded here. A hook's `additionalContext` is injected on **every fire** and is
+never compacted away, so an inline string is re-paid on every prompt and every search — measured at
+roughly 4.8k tokens per session on a repo running the previous inline version of this block. The
+hooks below point at the `context-hooks` kit instead, which says each thing once per session and
+keeps the wording in project-owned text files.
+
+**Run Phase 2.5a (below) first** — it installs the kit. These entries are wiring only; they are
+inert until the scripts exist.
+
 > **Note:** `UserPromptSubmit` does not support a `matcher` field — the entry object contains only
 > `hooks`. Do not add a `matcher` key here (unlike `PreToolUse` and `PostToolUse` entries).
 
@@ -334,7 +347,7 @@ runs (local dev, CI, WSL2) if it isn't obvious; default as shown and call out th
       "hooks": [
         {
           "type": "command",
-          "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"UserPromptSubmit\",\"additionalContext\":\"MANDATORY dev-flow for code work (.claude developer-flow skill), ordered + gated: 1) align via superpowers:brainstorming before touching files; 2) document the change — OpenSpec /opsx:propose for non-trivial work (tiny fixes may skip); 3) implement with TDD (red-green-refactor) — if a web endpoint was added or changed, create/update its .http file; 4) /simplify then /code-review; 5) discover the repo gates from CI/scripts and run build+lint+typecheck+tests; 6) report done/passed/pending; 7) wait for user approval + manual verification before /opsx:archive and commit. Use Serena semantic tools (find_symbol, get_symbols_overview, replace_symbol_body, find_referencing_symbols, search_for_pattern) for ALL code search and edits — never raw grep or hand-editing. Done = gates green, output seen, user verified.\"}}'",
+          "command": "\"${CLAUDE_PROJECT_DIR:-.}/.claude/claude-hooks/dev-flow-reminder.sh\"",
           "statusMessage": "Loading development flow"
         }
       ]
@@ -346,7 +359,7 @@ runs (local dev, CI, WSL2) if it isn't obvious; default as shown and call out th
       "hooks": [
         {
           "type": "command",
-          "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"additionalContext\":\"Per CLAUDE.md, prefer Serena (search_for_pattern / find_symbol / find_referencing_symbols) for CODE search; raw grep is fine for configs and non-code.\"},\"suppressOutput\":true}'"
+          "command": "\"${CLAUDE_PROJECT_DIR:-.}/.claude/claude-hooks/prefer-serena.sh\""
         }
       ]
     },
@@ -355,13 +368,46 @@ runs (local dev, CI, WSL2) if it isn't obvious; default as shown and call out th
       "hooks": [
         {
           "type": "command",
-          "command": "c=$(jq -r '.tool_input.command // empty' 2>/dev/null); printf '%s' \"$c\" | grep -Eq '(^|[|&; ])(grep|egrep|fgrep|rg)( |$)' && echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"additionalContext\":\"Per CLAUDE.md, prefer Serena (search_for_pattern / find_symbol) for CODE search; raw grep/rg is fine for configs and non-code.\"},\"suppressOutput\":true}'; exit 0"
+          "command": "\"${CLAUDE_PROJECT_DIR:-.}/.claude/claude-hooks/prefer-serena.sh\""
         }
       ]
     }
   ]
 }
 ```
+
+### 2.5a Install the hook kit
+
+Invoke the `context-hooks` skill and follow it. In summary:
+
+1. Copy its `kit/` to `.claude/claude-hooks/` and ensure the `.sh` files are executable.
+2. `context/prefer-serena.txt` ships ready to use — keep it, unless the agent instruction file
+   already carries that guidance always-loaded, in which case delete it so the hook stays silent.
+3. `context/dev-flow.full.txt` is repo-specific. **Ask before producing it** — writing it means
+   scanning the repo's instruction file and authoring a file on the user's behalf:
+
+   > "Shall I scan `CLAUDE.md` and write `dev-flow.full.txt` — the workflow specifics it doesn't
+   > already carry? I'll show you the text first."
+
+   Declined is a valid outcome: leave the `.example` unrenamed, that hook stays silent, and the rest
+   of setup completes.
+
+4. Verify `jq` is on PATH. Without it the hooks exit 0 and stay silent by design — which is
+   indistinguishable from working, so check rather than assume.
+
+### 2.5b Replace old inline hooks — do not append
+
+The `hooks` row of the Merge rules table below is append-if-absent, keyed on event plus command
+string, and this step is what makes it safe. Earlier versions of
+this skill wrote hook commands that embed an `additionalContext` string inline. Those commands do
+not match the new ones, so appending would leave the repo running **both** generations — the
+every-turn hook and its replacement together, strictly worse than before setup ran.
+
+Before merging, scan the existing `hooks` for entries whose `command` contains
+`hookSpecificOutput` or `additionalContext` as literal text. Each one is a previous-generation
+inline hook: **replace it** with the corresponding entry above rather than adding alongside it.
+Leave any hook that does real work (formatters, linters, validators) untouched — this rule applies
+only to hooks whose whole purpose is injecting text.
 
 **PostToolUse prettier hook** (only if prettier detected in 2.3):
 
@@ -397,7 +443,7 @@ runs (local dev, CI, WSL2) if it isn't obvious; default as shown and call out th
 | `sandbox` root flags | Set only if the key is absent; never overwrite |
 | `permissions.allow` | Append entries not already present |
 | `permissions.deny` | Append entries not already present |
-| `hooks` | Add missing hook entries; skip duplicates — for entries with a `matcher`: match on event + matcher + command; for `UserPromptSubmit` (no matcher): match on event + command string |
+| `hooks` | **Replace, then add.** First apply 2.5b: any existing entry whose `command` contains literal `hookSpecificOutput` or `additionalContext` is a previous-generation inline hook — replace it with this version's entry for the same event/matcher. Then add remaining missing entries; skip true duplicates — for entries with a `matcher`: match on event + matcher + command; for `UserPromptSubmit` (no matcher): match on event + command string. Never append a text-injecting hook beside one it supersedes: both would fire |
 | `enabledPlugins` | Add new keys from detection; preserve existing values; only update values user explicitly chose |
 
 ### 2.6 Report
@@ -409,6 +455,11 @@ After writing `.claude/settings.json`, tell the user:
 - Prettier hook: included or skipped (reason)
 - Plugins enabled/disabled: the final map
 - If merge: which keys already existed and were preserved
+- **Hooks replaced (2.5b): one line per replaced entry, quoting the old command.** This rewrites
+  configuration the user may have hand-edited, so it must be visible here and reviewable in
+  `git diff` — never a silent swap. Say "no inline hooks found" when none were replaced.
+- Hook kit: whether `.claude/claude-hooks/` was installed, whether `dev-flow.full.txt` was authored
+  or declined, and whether `jq` was found
 
 ### 2.7 Markdown lint detection (optional)
 

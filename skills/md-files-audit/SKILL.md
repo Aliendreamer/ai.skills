@@ -7,7 +7,7 @@ type: skill
 disable-model-invocation: false
 user-invocable: true
 tags: [quality, audit, markdown, linting, documentation]
-agents: [claude, codex, cursor, gemini, copilot]
+agents: [claude, codex, cursor, copilot]
 version: 0.1.0
 ---
 
