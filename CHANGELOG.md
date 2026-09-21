@@ -1,3 +1,28 @@
+## 0.12.0 (2026-09-21)
+
+### 🚀 Features
+
+- **install:** support gemini skills, restore it on every skill ([d296bd1](https://github.com/Aliendreamer/ai.skills/commit/d296bd1))
+- ⚠️  **prompts:** add nx-monorepo skeleton, merge auth prompts, add monorepo-hygiene ([a6820ac](https://github.com/Aliendreamer/ai.skills/commit/a6820ac))
+- **setup-flow:** auto-install required skills, sync flow order, sandbox guidance ([06e79fe](https://github.com/Aliendreamer/ai.skills/commit/06e79fe))
+- **setup-flow:** hide sandbox stray dotfiles via .vscode/settings.json ([b8d224a](https://github.com/Aliendreamer/ai.skills/commit/b8d224a))
+- **skills:** port daily-activity-log, daily-log-check and complexity-sizing ([3c3119a](https://github.com/Aliendreamer/ai.skills/commit/3c3119a))
+- **skills:** add context-hooks kit, port skill-optimizer, fix agent lists ([1a4ab71](https://github.com/Aliendreamer/ai.skills/commit/1a4ab71))
+
+### 🩹 Fixes
+
+- **nx:** stop Nx registering the skeleton's template project ([64630c2](https://github.com/Aliendreamer/ai.skills/commit/64630c2))
+- **release:** auto-bump publish:npm when the current version is already on npm ([439e58a](https://github.com/Aliendreamer/ai.skills/commit/439e58a))
+
+### ⚠️  Breaking Changes
+
+- **prompts:** the prompts cookie-auth-direct and cookie-auth-ssr are
+
+### ❤️ Thank You
+
+- Aliendreamer @Aliendreamer
+- Teodor
+
 ## 0.11.0 (2026-07-09)
 
 ### 🚀 Features
