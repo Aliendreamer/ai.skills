@@ -175,25 +175,19 @@ services:
       Keycloak__PostLogoutRedirectUri: http://app.<app-name>.localhost
       Keycloak__AppBaseUrl: http://app.<app-name>.localhost
       SessionCookies__Domain: .<app-name>.localhost
-      SessionCookies__SessionName: mp_sid
-      SessionCookies__PkceName: mp_pkce
+      SessionCookies__SessionName: <app-name>_sid
+      SessionCookies__PkceName: <app-name>_pkce
       AllowedCorsOrigins__0: http://app.<app-name>.localhost
       AllowedCorsOrigins__1: http://localhost:3000
-      # Anchored regexes for the per-opco device hosts, whose numbering changes too often to list.
-      AllowedCorsOriginPatterns__0: ^https://[a-z0-9-]+\.(a1xploretv\.bg|a1xploretv\.hr|xploretv\.si|xploretv\.mk|xploretv\.rs)$
-      AllowedCorsOriginPatterns__1: ^https://(sdsottdev)?stv[0-9]{1,2}\.a1\.hr$
-      AllowedCorsOriginPatterns__2: ^https://(www\.)?xploretv\.at$
-      AllowedCorsOriginPatterns__3: ^https://www\.romeo\.a1\.net$
+      # Anchored regex for origins with too many subdomains to list one by one. Sample — replace or drop.
+      AllowedCorsOriginPatterns__0: ^https://[a-z0-9-]+\.example\.com$
       ConnectionStrings__Postgres: "Host=postgres;Port=5432;Database=<app-name>;Username=<app-name>;Password=<app-name>"
       ConnectionStrings__Redis: "redis:6379"
-      AppVersionStorage__RootPath: /data/app-versions
     volumes:
       - ../../apps/backend:/src
       # Keep host-built artifacts out of the container (and vice versa).
       - /src/bin
       - /src/obj
-      # Persist uploaded app-version artifacts across container restarts.
-      - appversions:/data/app-versions
     # The Keycloak issuer URL must resolve identically inside the container and in the browser.
     extra_hosts:
       - "keycloak.<app-name>.localhost:host-gateway"
@@ -244,7 +238,6 @@ volumes:
   pgdata:
   redisdata:
   redisinsight:
-  appversions:
 
 networks:
   default:

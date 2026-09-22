@@ -43,7 +43,13 @@ Collect these before writing anything, and stop for the answers:
 4. **Deploy target** — what reads the image tag (GitOps repo, Helm, `kubectl`, a platform API).
    You will *document* this, not implement it.
 5. **Keycloak realm name** — `<Realm>`, for the local stack and the backend's authority URL.
-6. **Kubernetes namespace(s)** — `<namespace>` and `<environment>`, if the proxy is included; the
+6. **Backing services** — what the system actually depends on. The skeleton's local stack ships
+   Postgres, Redis and Keycloak; a more complex system will need more (a message broker, object
+   storage, a search index, a mail catcher, a second database…) and a simpler one less. Get the full
+   list now, because every service lands in `docker-compose.yml`, its coverage twin, the backend's
+   connection settings and the `depends_on` graph. Drop what is not used — an unused Redis is a
+   container someone has to explain later.
+7. **Kubernetes namespace(s)** — `<namespace>` and `<environment>`, if the proxy is included; the
    proxy config uses fully-qualified cross-namespace service names.
 
 ## Outcome (what exists when done)
@@ -87,7 +93,9 @@ lint target, where it can be language-aware.
 
 `docker-compose.yml` brings up Postgres (built, not pulled — it needs `pg_cron` and `pg_partman`),
 Redis + RedisInsight, Keycloak with an init container that seeds the realm, and the three apps with
-their sources bind-mounted.
+their sources bind-mounted. That is a starting set, not the set: add the services from STEP 0 item 6
+with the same shape (healthcheck, named volume, `depends_on` with `condition: service_healthy`) and
+mirror each in `docker-compose.coverage.yml`; remove the ones the system does not use.
 
 `stack.sh` wraps it and is container-runtime agnostic — `docker compose`, `podman compose` or
 `docker-compose`, whichever exists:
@@ -133,17 +141,19 @@ One nginx container as the single public entrypoint: `/api/` to the backend, eve
 SSR frontend, `/hc` served locally as a 200 for readiness probes. This is what makes the SSR-BFF
 architecture coherent — without it, the browser needs to know two hosts.
 
-Three things in `nginx.conf` worth reading before editing:
+`nginx.conf` ships only the generic routes — `/hc`, `/api/` to the backend, `/` to the frontend.
+Every app has its own routing; per-endpoint overrides go above `/api/`, and a commented recipe in
+the file shows the shape. Three things worth reading before editing:
 
 - **Fully-qualified cross-namespace service names.** The proxy may not live in the app's namespace.
 - **`proxy_buffering off` on large responses.** Anything over the 256k of `proxy_buffers` spools to
-  disk on every request otherwise. Two example blocks show the pattern; delete them if you have no
-  oversized endpoints.
+  disk on every request otherwise.
 - **`proxy_request_buffering off` on large uploads**, with raised timeouts, so bodies stream
-  through instead of spooling.
+  through instead of spooling. Keep `client_max_body_size` equal to the backend's own limit so the
+  edge never refuses first.
 
-The base image is a placeholder. Swap it for a hardened nginx that runs non-root on port 8080 with
-writable runtime dirs — the `chmod` lines assume an arbitrary UID with GID 0.
+The image is plain official `nginx`; `nginx.conf` makes it listen on :8080. Swap the base only if your
+platform mandates a non-root image (e.g. `nginxinc/nginx-unprivileged`), and keep the port.
 
 ### Deploy — `tools/deploy/build.sh` only
 
@@ -178,8 +188,7 @@ the PR gate fast; make sure CI restores it.
 
 | Item | Where |
 | --- | --- |
-| Container registry + image namespace | `tools/deploy/build.sh`, `apps/proxy/Dockerfile` |
-| Proxy base image | `apps/proxy/Dockerfile` |
+| Container registry + image namespace | `tools/deploy/build.sh` |
 | Kubernetes namespaces | `apps/proxy/files/nginx.conf` |
 | Keycloak realm + issuer URL | `tools/localdev/docker-compose.yml` |
 | Deploy target | each app's `deploy` target |
