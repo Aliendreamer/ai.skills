@@ -89,7 +89,7 @@
     {
       "id": "clear-git",
       "type": "skill",
-      "description": "Use when the user wants to clean up, prune or delete old git branches, locally and on the remote. Asks which branches or glob patterns are never deleted, fetches the open pull requests (Azure DevOps MCP, gh or glab) into a keep file, and runs the bundled cleargit.sh as a dry run. Never deletes anything itself. Trigger terms - clear git, clean branches, prune branches, delete old branches, cleargit.",
+      "description": "Use when the user wants to clean up, prune or delete old git branches, locally and on the remote. Asks which branches or glob patterns are never deleted, fetches the open pull requests (gh, glab, az or the azure-devops MCP when available, else asks) into a keep file, and runs the bundled cleargit.sh as a dry run. Never deletes anything itself. Trigger terms - clear git, clean branches, prune branches, delete old branches, cleargit.",
       "tags": [
         "git",
         "branches",
