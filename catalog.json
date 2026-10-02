@@ -87,6 +87,30 @@
       "path": "skills/circular-check"
     },
     {
+      "id": "clear-git",
+      "type": "skill",
+      "description": "Use when the user wants to clean up, prune or delete old git branches, locally and on the remote. Asks which branches or glob patterns are never deleted, fetches the open pull requests (Azure DevOps MCP, gh or glab) into a keep file, and runs the bundled cleargit.sh as a dry run. Never deletes anything itself. Trigger terms - clear git, clean branches, prune branches, delete old branches, cleargit.",
+      "tags": [
+        "git",
+        "branches",
+        "cleanup",
+        "prune",
+        "pull-requests",
+        "azure-devops",
+        "github",
+        "gitlab"
+      ],
+      "agents": [
+        "claude",
+        "codex",
+        "cursor",
+        "gemini",
+        "copilot"
+      ],
+      "version": "0.1.0",
+      "path": "skills/clear-git"
+    },
+    {
       "id": "compact-tv-check",
       "type": "skill",
       "description": "Check code for Chromium 70 and TV platform compatibility issues (CSS, JS, APIs). Use when the user wants to verify code will work on target TV platforms.",
