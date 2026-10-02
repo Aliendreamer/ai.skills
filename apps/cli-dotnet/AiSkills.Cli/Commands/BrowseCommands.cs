@@ -9,7 +9,9 @@ internal static class Render
 {
     public static void Line(CatalogEntry e)
     {
-        var tag = e.Type == "prompt" ? "[magenta]prompt[/]" : "[cyan]skill[/]";
+        var tag = e.Type == "prompt"
+            ? "[magenta]prompt[/]"
+            : $"[cyan]skill/{Markup.Escape(e.Category ?? "-")}[/]";
         // Compose markup with escaped dynamic parts; MarkupLineInterpolated would escape the tag too.
         AnsiConsole.MarkupLine($"[bold]{Markup.Escape(e.Id)}[/]  {tag}  [dim]{Markup.Escape(e.Description)}[/]");
     }
@@ -21,7 +23,7 @@ public sealed class ListCommand : AsyncCommand<ListSettings>
     {
         using var http = new HttpClient();
         var catalog = await CatalogClient.FetchAsync(http, settings.Resolve());
-        var rows = Browse.Filter(catalog, settings.Type, settings.Agent);
+        var rows = Browse.Filter(catalog, settings.Type, settings.Agent, category: settings.Category);
         if (rows.Count == 0)
         {
             AnsiConsole.WriteLine("No matching items.");
@@ -74,6 +76,11 @@ public sealed class InfoCommand : AsyncCommand<InfoSettings>
 
         AnsiConsole.MarkupLineInterpolated($"[bold]{entry.Id}[/]");
         AnsiConsole.WriteLine($"  type:        {entry.Type}");
+        if (entry.Category is not null)
+        {
+            AnsiConsole.WriteLine($"  category:    {entry.Category}");
+        }
+
         AnsiConsole.WriteLine($"  description: {entry.Description}");
         AnsiConsole.WriteLine($"  tags:        {(entry.Tags.Count > 0 ? string.Join(", ", entry.Tags) : "-")}");
         AnsiConsole.WriteLine($"  agents:      {string.Join(", ", entry.Agents)}");

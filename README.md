@@ -53,7 +53,7 @@ Below, `ai-skills` is the installed dotnet tool command. With npx, replace it wi
 `npx @aliendreamer/ai-skills` (e.g. `npx @aliendreamer/ai-skills add web-security-audit`).
 
 ```sh
-ai-skills list [--type skill|prompt] [--agent <agent>]
+ai-skills list [--type skill|prompt] [--agent <agent>] [--category <category>]
 ai-skills search <query>
 ai-skills info <id>
 ai-skills add [ids...] [--all] [--agent <agents>] [--all-agents] [--project|--global] [--yes]
@@ -84,34 +84,53 @@ npx @aliendreamer/ai-skills add --all --all-agents                         # eve
 
 ## What's in the store
 
-Items live under `skills/<id>/SKILL.md` and `prompts/<id>/PROMPT.md`; related items share a tag,
+Items live under `skills/<category>/<id>/SKILL.md` and `prompts/<id>/PROMPT.md`; related items share a tag,
 so `ai-skills search <tag>` surfaces a whole set. The lists below are a snapshot — run
 `ai-skills list` for the live catalog.
 
 ### Skills
 
-General:
+Skills are grouped by category under `skills/<category>/<id>/`; `ai-skills list --category <name>`
+shows one group. Smart-TV skills also share the `smarttv` tag and React gates the `react-dev` tag.
 
-- `audit-package-version` — enforce exact dependency versions (no `^`/`~`) in npm + .NET.
-- `conventional-commits` — write Conventional Commits messages.
+`workflow` — how work gets done:
+
 - `developer-flow` — the brainstorm → OpenSpec → TDD → verify → archive build cycle.
-- `llm-setup-audit` — harden Claude Code config (permissions, sandbox, hooks, secrets).
-- `web-security-audit` — app-security regression checks (auth, cookies, CORS, OIDC, secrets).
+- `setup-flow` — onboard a repo or agent to that workflow: skills, instruction block, settings, hooks.
+- `azure-devops-workflow` — read an Azure DevOps ticket to seed developer-flow; optionally write back.
+- `complexity-sizing` — derive Story Points from an ADO work item's Complexity field.
+- `daily-activity-log` — file the day's ADO time-log Tasks, one per Activity.
+- `daily-log-check` — check who on duty filed their ADO time-log Tasks for a day.
+- `conventional-commits` — write Conventional Commits messages.
+- `clear-git` — prune local and remote branches, keeping protected patterns and open-PR branches.
 
-Smart-TV (`smarttv`):
+`frontend` — UI, TV and React:
 
 - `audit-tv-focus` — audit a component/screen for TV D-pad focus + Magic Remote correctness.
 - `compact-tv-check` — check code for Chromium 70 / TV-platform compatibility.
 - `design-review` — review UI changes against a reference TV app as a designer.
-- `graphql-audit` — flag `@deprecated` fields/args used in `.graphql` operations.
 - `norigin-focus` — audit Norigin `useFocusable` for missing `autoRestoreFocus`.
 - `scaffold-tv-screen` — scaffold a TV screen (focus, D-pad, Magic Remote, RSC/client split).
-
-React quality gates (`react-dev`):
-
-- `circular-check` — detect circular imports in `src/`.
 - `semantic-html-audit` — flag non-semantic clickables; enforce native `<button>`.
 - `use-effect-guard` — flag `useEffect` not syncing with an external system.
+
+`dependencies` — packages and workspace structure:
+
+- `audit-package-version` — enforce exact dependency versions (no `^`/`~`) in npm + .NET.
+- `circular-check` — detect circular imports in `src/`.
+- `monorepo-hygiene` — audit an Nx + pnpm monorepo against the nx-monorepo skeleton.
+
+`quality` — audits and lint gates:
+
+- `graphql-audit` — flag `@deprecated` fields/args used in `.graphql` operations.
+- `md-files-audit` — markdown formatting and markdownlint-cli2 setup.
+- `web-security-audit` — app-security regression checks (auth, cookies, CORS, OIDC, secrets).
+
+`agent-setup` — configuring the agents themselves:
+
+- `context-hooks` — Claude Code hooks that speak once per session instead of every turn.
+- `llm-setup-audit` — harden Claude Code config (permissions, sandbox, hooks, secrets).
+- `skill-optimizer` — tune skills for activation, clarity and cross-model reliability.
 
 ### Prompts
 
@@ -124,7 +143,7 @@ React quality gates (`react-dev`):
 ## Repository layout
 
 ```text
-skills/            store skills (one SKILL.md per folder)
+skills/            store skills, skills/<category>/<id>/SKILL.md
 prompts/           store prompts (one PROMPT.md per folder)
 catalog.json       generated index — do not hand-edit
 libs/catalog/      catalog types + generate / validate / load (TypeScript)
@@ -211,8 +230,8 @@ After cloning, unlock with your key (`git-crypt unlock <your-key>`); never commi
 
 ## Contributing
 
-1. Add a skill at `skills/<id>/SKILL.md` or a prompt at `prompts/<id>/PROMPT.md`, using the
-   frontmatter shown above (`name` must equal the folder).
+1. Add a skill at `skills/<category>/<id>/SKILL.md` (one of the categories above) or a prompt at
+   `prompts/<id>/PROMPT.md`, using the frontmatter shown above (`name` must equal the folder).
 2. Run `pnpm generate-catalog` and commit the updated `catalog.json`.
 3. Make the gates pass: `pnpm nx run-many -t lint test build typecheck`, `pnpm lint:md`,
    `pnpm validate`.

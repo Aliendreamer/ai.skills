@@ -20,7 +20,8 @@ const catalog: Catalog = {
       tags: [],
       agents: ['claude'],
       version: '0.1.0',
-      path: 'skills/a-skill',
+      category: 'workflow',
+      path: 'skills/workflow/a-skill',
     },
     {
       id: 'b-prompt',

@@ -1,7 +1,16 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import semver from 'semver';
-import { AGENTS, ITEM_TYPES, type Agent, type Catalog, type ItemType, type Violation } from './types.js';
+import {
+  AGENTS,
+  ITEM_TYPES,
+  SKILL_CATEGORIES,
+  type Agent,
+  type Catalog,
+  type ItemType,
+  type SkillCategory,
+  type Violation,
+} from './types.js';
 
 const KEBAB = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
@@ -11,7 +20,7 @@ const KEBAB = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
  */
 export function validateCatalog(catalog: Catalog, root?: string): Violation[] {
   const violations: Violation[] = [];
-  const seen = new Set<string>();
+  const seen = new Map<string, string>();
 
   for (const entry of catalog.entries) {
     const where = entry.path || entry.id || '<entry>';
@@ -21,8 +30,9 @@ export function validateCatalog(catalog: Catalog, root?: string): Violation[] {
     else if (!KEBAB.test(entry.id)) add(`id "${entry.id}" is not kebab-case`);
 
     if (entry.id) {
-      if (seen.has(entry.id)) add(`duplicate id "${entry.id}"`);
-      seen.add(entry.id);
+      const first = seen.get(entry.id);
+      if (first !== undefined) add(`duplicate id "${entry.id}" (also at ${first})`);
+      else seen.set(entry.id, where);
     }
 
     if (!ITEM_TYPES.includes(entry.type as ItemType)) add(`invalid type "${entry.type}"`);
@@ -40,6 +50,16 @@ export function validateCatalog(catalog: Catalog, root?: string): Violation[] {
     if (!semver.valid(entry.version)) add(`invalid version "${entry.version}"`);
 
     if (entry.type === 'prompt' && !entry.appPattern) add('prompt is missing appPattern');
+
+    if (entry.type === 'skill') {
+      if (!SKILL_CATEGORIES.includes(entry.category as SkillCategory)) {
+        add(`unknown category "${entry.category ?? ''}" (allowed: ${SKILL_CATEGORIES.join(', ')})`);
+      } else if (entry.path && entry.path.split('/')[1] !== entry.category) {
+        add(`category "${entry.category}" does not match path "${entry.path}"`);
+      }
+    } else if (entry.category !== undefined) {
+      add(`${entry.type} must not declare a category`);
+    }
 
     if (root && entry.path && !existsSync(join(root, entry.path))) {
       add(`path "${entry.path}" does not exist`);

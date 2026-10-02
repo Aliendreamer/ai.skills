@@ -14,7 +14,8 @@ const skill = (over: Partial<CatalogEntry> = {}): CatalogEntry => ({
   tags: ['x'],
   agents: ['claude'],
   version: '0.1.0',
-  path: 'skills/alpha-skill',
+  category: 'workflow',
+  path: 'skills/workflow/alpha-skill',
   ...over,
 });
 
@@ -26,6 +27,51 @@ describe('validateCatalog', () => {
   it('rejects duplicate ids', () => {
     const v = validateCatalog({ entries: [skill(), skill()] }, sampleRoot);
     expect(v.some((x) => /duplicate/i.test(x.message))).toBe(true);
+  });
+
+  it('rejects the same id in two categories and names both paths', () => {
+    const v = validateCatalog({
+      entries: [skill(), skill({ category: 'quality', path: 'skills/quality/alpha-skill' })],
+    });
+    const dup = v.find((x) => /duplicate/i.test(x.message));
+    expect(dup?.path).toBe('skills/quality/alpha-skill');
+    expect(dup?.message).toContain('skills/workflow/alpha-skill');
+  });
+
+  it('rejects a skill without a category', () => {
+    const v = validateCatalog({ entries: [skill({ category: undefined })] }, sampleRoot);
+    expect(v.some((x) => /category/i.test(x.message))).toBe(true);
+  });
+
+  it('rejects an unknown category', () => {
+    const v = validateCatalog(
+      {
+        entries: [
+          skill({
+            category: 'misc' as unknown as CatalogEntry['category'],
+            path: 'skills/misc/alpha-skill',
+          }),
+        ],
+      },
+    );
+    expect(v.some((x) => /unknown category "misc"/.test(x.message))).toBe(true);
+  });
+
+  it('rejects a category that disagrees with the path', () => {
+    const v = validateCatalog({ entries: [skill({ category: 'quality' })] }, sampleRoot);
+    expect(v.some((x) => /does not match path/.test(x.message))).toBe(true);
+  });
+
+  it('rejects a prompt that declares a category', () => {
+    const v = validateCatalog(
+      {
+        entries: [
+          skill({ type: 'prompt', appPattern: 'react-spa', category: 'workflow', path: 'prompts/beta-prompt' }),
+        ],
+      },
+      sampleRoot,
+    );
+    expect(v.some((x) => /must not declare a category/.test(x.message))).toBe(true);
   });
 
   it('rejects non-kebab-case ids', () => {
@@ -55,19 +101,19 @@ describe('validateCatalog', () => {
   });
 
   it('rejects a path that does not exist', () => {
-    const v = validateCatalog({ entries: [skill({ path: 'skills/missing' })] }, sampleRoot);
+    const v = validateCatalog({ entries: [skill({ path: 'skills/workflow/missing' })] }, sampleRoot);
     expect(v.some((x) => /path/i.test(x.message))).toBe(true);
   });
 
   it('rejects a prompt without appPattern', () => {
     const v = validateCatalog(
-      { entries: [skill({ type: 'prompt', path: 'prompts/beta-prompt' })] },
+      { entries: [skill({ type: 'prompt', category: undefined, path: 'prompts/beta-prompt' })] },
       sampleRoot,
     );
     expect(v.some((x) => /appPattern/i.test(x.message))).toBe(true);
   });
 
   it('skips path existence when no root is given', () => {
-    expect(validateCatalog({ entries: [skill({ path: 'skills/missing' })] })).toEqual([]);
+    expect(validateCatalog({ entries: [skill({ path: 'skills/workflow/missing' })] })).toEqual([]);
   });
 });

@@ -4,6 +4,10 @@ export type ItemType = (typeof ITEM_TYPES)[number];
 export const AGENTS = ['claude', 'codex', 'cursor', 'gemini', 'copilot'] as const;
 export type Agent = (typeof AGENTS)[number];
 
+/** Folders under `skills/` that group skill items. Prompts are not grouped. */
+export const SKILL_CATEGORIES = ['workflow', 'frontend', 'dependencies', 'quality', 'agent-setup'] as const;
+export type SkillCategory = (typeof SKILL_CATEGORIES)[number];
+
 /** A single store item (skill or prompt) as exposed in the catalog. */
 export interface CatalogEntry {
   /** Unique, kebab-case identifier (mirrors the item's `name` frontmatter). */
@@ -16,6 +20,8 @@ export interface CatalogEntry {
   version: string;
   /** App pattern slug — required for prompts, absent for skills. */
   appPattern?: string;
+  /** Category folder the skill lives in — required for skills, absent for prompts. */
+  category?: SkillCategory;
   /** POSIX-style path to the item folder, relative to the repo root. */
   path: string;
 }

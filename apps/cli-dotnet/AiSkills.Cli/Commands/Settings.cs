@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using AiSkills.Cli.Core;
+using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace AiSkills.Cli.Commands;
@@ -31,6 +32,16 @@ public sealed class ListSettings : StoreSettings
     [CommandOption("--agent <AGENT>")]
     [Description("Filter by supported agent")]
     public string? Agent { get; init; }
+
+    [CommandOption("--category <CATEGORY>")]
+    [Description("Filter skills by category: workflow, frontend, dependencies, quality, agent-setup")]
+    public string? Category { get; init; }
+
+    public override ValidationResult Validate() =>
+        Category is null || SkillCategories.IsKnown(Category)
+            ? ValidationResult.Success()
+            : ValidationResult.Error(
+                $"Unknown category \"{Category}\". Allowed: {string.Join(", ", SkillCategories.All)}");
 }
 
 public sealed class SearchSettings : StoreSettings

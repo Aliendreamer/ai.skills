@@ -6,7 +6,8 @@ public static class Browse
         Catalog catalog,
         string? type = null,
         string? agent = null,
-        string? query = null)
+        string? query = null,
+        string? category = null)
     {
         IEnumerable<CatalogEntry> q = catalog.Entries;
 
@@ -18,6 +19,11 @@ public static class Browse
         if (!string.IsNullOrEmpty(agent))
         {
             q = q.Where(e => e.Agents.Contains(agent));
+        }
+
+        if (!string.IsNullOrEmpty(category))
+        {
+            q = q.Where(e => e.Category == category);
         }
 
         if (!string.IsNullOrEmpty(query))

@@ -20,7 +20,8 @@
         "copilot"
       ],
       "version": "0.1.0",
-      "path": "skills/audit-package-version"
+      "category": "dependencies",
+      "path": "skills/dependencies/audit-package-version"
     },
     {
       "id": "audit-tv-focus",
@@ -41,7 +42,8 @@
         "copilot"
       ],
       "version": "0.1.0",
-      "path": "skills/audit-tv-focus"
+      "category": "frontend",
+      "path": "skills/frontend/audit-tv-focus"
     },
     {
       "id": "azure-devops-workflow",
@@ -64,7 +66,8 @@
         "copilot"
       ],
       "version": "0.2.0",
-      "path": "skills/azure-devops-workflow"
+      "category": "workflow",
+      "path": "skills/workflow/azure-devops-workflow"
     },
     {
       "id": "circular-check",
@@ -84,7 +87,8 @@
         "copilot"
       ],
       "version": "0.1.0",
-      "path": "skills/circular-check"
+      "category": "dependencies",
+      "path": "skills/dependencies/circular-check"
     },
     {
       "id": "clear-git",
@@ -108,7 +112,8 @@
         "copilot"
       ],
       "version": "0.1.0",
-      "path": "skills/clear-git"
+      "category": "workflow",
+      "path": "skills/workflow/clear-git"
     },
     {
       "id": "compact-tv-check",
@@ -129,7 +134,8 @@
         "copilot"
       ],
       "version": "0.1.0",
-      "path": "skills/compact-tv-check"
+      "category": "frontend",
+      "path": "skills/frontend/compact-tv-check"
     },
     {
       "id": "complexity-sizing",
@@ -153,7 +159,8 @@
         "copilot"
       ],
       "version": "0.1.0",
-      "path": "skills/complexity-sizing"
+      "category": "workflow",
+      "path": "skills/workflow/complexity-sizing"
     },
     {
       "id": "context-hooks",
@@ -176,7 +183,8 @@
         "copilot"
       ],
       "version": "0.1.0",
-      "path": "skills/context-hooks"
+      "category": "agent-setup",
+      "path": "skills/agent-setup/context-hooks"
     },
     {
       "id": "conventional-commits",
@@ -195,7 +203,8 @@
         "copilot"
       ],
       "version": "0.1.0",
-      "path": "skills/conventional-commits"
+      "category": "workflow",
+      "path": "skills/workflow/conventional-commits"
     },
     {
       "id": "daily-activity-log",
@@ -220,7 +229,8 @@
         "copilot"
       ],
       "version": "0.1.0",
-      "path": "skills/daily-activity-log"
+      "category": "workflow",
+      "path": "skills/workflow/daily-activity-log"
     },
     {
       "id": "daily-log-check",
@@ -245,7 +255,8 @@
         "copilot"
       ],
       "version": "0.1.0",
-      "path": "skills/daily-log-check"
+      "category": "workflow",
+      "path": "skills/workflow/daily-log-check"
     },
     {
       "id": "design-review",
@@ -266,7 +277,8 @@
         "copilot"
       ],
       "version": "0.1.0",
-      "path": "skills/design-review"
+      "category": "frontend",
+      "path": "skills/frontend/design-review"
     },
     {
       "id": "developer-flow",
@@ -286,7 +298,8 @@
         "copilot"
       ],
       "version": "0.4.0",
-      "path": "skills/developer-flow"
+      "category": "workflow",
+      "path": "skills/workflow/developer-flow"
     },
     {
       "id": "dotnet-webapi",
@@ -352,7 +365,8 @@
         "copilot"
       ],
       "version": "0.1.0",
-      "path": "skills/graphql-audit"
+      "category": "quality",
+      "path": "skills/quality/graphql-audit"
     },
     {
       "id": "llm-setup-audit",
@@ -372,7 +386,8 @@
         "copilot"
       ],
       "version": "0.1.0",
-      "path": "skills/llm-setup-audit"
+      "category": "agent-setup",
+      "path": "skills/agent-setup/llm-setup-audit"
     },
     {
       "id": "md-files-audit",
@@ -393,7 +408,8 @@
         "copilot"
       ],
       "version": "0.1.0",
-      "path": "skills/md-files-audit"
+      "category": "quality",
+      "path": "skills/quality/md-files-audit"
     },
     {
       "id": "monorepo-hygiene",
@@ -417,7 +433,8 @@
         "copilot"
       ],
       "version": "0.1.0",
-      "path": "skills/monorepo-hygiene"
+      "category": "dependencies",
+      "path": "skills/dependencies/monorepo-hygiene"
     },
     {
       "id": "norigin-focus",
@@ -437,7 +454,8 @@
         "copilot"
       ],
       "version": "0.1.0",
-      "path": "skills/norigin-focus"
+      "category": "frontend",
+      "path": "skills/frontend/norigin-focus"
     },
     {
       "id": "nx-monorepo",
@@ -481,7 +499,8 @@
         "copilot"
       ],
       "version": "0.1.0",
-      "path": "skills/scaffold-tv-screen"
+      "category": "frontend",
+      "path": "skills/frontend/scaffold-tv-screen"
     },
     {
       "id": "semantic-html-audit",
@@ -502,7 +521,8 @@
         "copilot"
       ],
       "version": "0.1.0",
-      "path": "skills/semantic-html-audit"
+      "category": "frontend",
+      "path": "skills/frontend/semantic-html-audit"
     },
     {
       "id": "setup-flow",
@@ -525,7 +545,8 @@
         "copilot"
       ],
       "version": "0.6.0",
-      "path": "skills/setup-flow"
+      "category": "workflow",
+      "path": "skills/workflow/setup-flow"
     },
     {
       "id": "skill-optimizer",
@@ -546,7 +567,8 @@
         "copilot"
       ],
       "version": "0.1.0",
-      "path": "skills/skill-optimizer"
+      "category": "agent-setup",
+      "path": "skills/agent-setup/skill-optimizer"
     },
     {
       "id": "use-effect-guard",
@@ -566,7 +588,8 @@
         "copilot"
       ],
       "version": "0.1.0",
-      "path": "skills/use-effect-guard"
+      "category": "frontend",
+      "path": "skills/frontend/use-effect-guard"
     },
     {
       "id": "web-security-audit",
@@ -586,7 +609,8 @@
         "copilot"
       ],
       "version": "0.1.0",
-      "path": "skills/web-security-audit"
+      "category": "quality",
+      "path": "skills/quality/web-security-audit"
     }
   ]
 }

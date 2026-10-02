@@ -6,7 +6,7 @@ public class AddServiceTests
 {
     private static Catalog Sample() => new(new List<CatalogEntry>
     {
-        new("a-skill", "skill", "d", Array.Empty<string>(), new[] { "claude" }, "0.1.0", "skills/a-skill"),
+        new("a-skill", "skill", "d", Array.Empty<string>(), new[] { "claude" }, "0.1.0", "skills/workflow/a-skill", Category: "workflow"),
         new("b-prompt", "prompt", "d", Array.Empty<string>(), new[] { "claude" }, "0.1.0", "prompts/b-prompt", "x"),
     });
 

@@ -7,7 +7,7 @@ public class BrowseStoreTests
 {
     private static Catalog Sample() => new(new List<CatalogEntry>
     {
-        new("a-skill", "skill", "commit helper", new[] { "git" }, new[] { "claude" }, "0.1.0", "skills/a-skill"),
+        new("a-skill", "skill", "commit helper", new[] { "git" }, new[] { "claude" }, "0.1.0", "skills/workflow/a-skill", Category: "workflow"),
         new("b-prompt", "prompt", "web api starter", new[] { "dotnet" }, new[] { "codex" }, "0.1.0", "prompts/b-prompt", "dotnet-webapi"),
     });
 
@@ -34,6 +34,24 @@ public class BrowseStoreTests
         Assert.Equal("b-prompt", Browse.Filter(Sample(), query: "web")[0].Id);
         Assert.Equal("b-prompt", Browse.Filter(Sample(), query: "b-prompt")[0].Id);
         Assert.Empty(Browse.Filter(Sample(), query: "zzz"));
+    }
+
+    [Fact]
+    public void Filter_ByCategory_ExcludesPrompts()
+    {
+        var rows = Browse.Filter(Sample(), category: "workflow");
+        Assert.Single(rows);
+        Assert.Equal("a-skill", rows[0].Id);
+        Assert.Empty(Browse.Filter(Sample(), category: "quality"));
+    }
+
+    [Fact]
+    public void ListSettings_RejectsUnknownCategory()
+    {
+        var result = new AiSkills.Cli.Commands.ListSettings { Category = "nope" }.Validate();
+        Assert.False(result.Successful);
+        Assert.Contains("Allowed: workflow, frontend", result.Message);
+        Assert.True(new AiSkills.Cli.Commands.ListSettings { Category = "quality" }.Validate().Successful);
     }
 
     [Fact]

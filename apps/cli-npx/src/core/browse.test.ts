@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { filterEntries, findEntry } from './browse.js';
+import { filterEntries, findEntry, parseCategory } from './browse.js';
 import type { Catalog } from '@ai-skills/catalog';
 
 const catalog: Catalog = {
@@ -11,7 +11,8 @@ const catalog: Catalog = {
       tags: ['git'],
       agents: ['claude'],
       version: '0.1.0',
-      path: 'skills/a-skill',
+      category: 'workflow',
+      path: 'skills/workflow/a-skill',
     },
     {
       id: 'b-prompt',
@@ -35,6 +36,11 @@ describe('filterEntries', () => {
     expect(filterEntries(catalog, { agent: 'codex' }).map((e) => e.id)).toEqual(['b-prompt']);
   });
 
+  it('filters by category and excludes prompts', () => {
+    expect(filterEntries(catalog, { category: 'workflow' }).map((e) => e.id)).toEqual(['a-skill']);
+    expect(filterEntries(catalog, { category: 'quality' })).toEqual([]);
+  });
+
   it('matches the query against id, description, and tags', () => {
     expect(filterEntries(catalog, { query: 'git' }).map((e) => e.id)).toEqual(['a-skill']);
     expect(filterEntries(catalog, { query: 'web' }).map((e) => e.id)).toEqual(['b-prompt']);
@@ -47,5 +53,15 @@ describe('findEntry', () => {
   it('finds a known entry and returns undefined otherwise', () => {
     expect(findEntry(catalog, 'a-skill')?.id).toBe('a-skill');
     expect(findEntry(catalog, 'nope')).toBeUndefined();
+  });
+});
+
+describe('parseCategory', () => {
+  it('accepts an allowed category', () => {
+    expect(parseCategory('quality')).toBe('quality');
+  });
+
+  it('rejects an unknown category and names the allowed ones', () => {
+    expect(() => parseCategory('nope')).toThrow(/Unknown category "nope".*workflow, frontend/);
   });
 });

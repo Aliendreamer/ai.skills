@@ -25,6 +25,16 @@ public class CatalogTests
         Assert.Equal("skill", catalog.Entries[0].Type);
         Assert.Equal("x", catalog.Entries[1].AppPattern);
         Assert.Null(catalog.Entries[0].AppPattern);
+        Assert.Null(catalog.Entries[0].Category);
+    }
+
+    [Fact]
+    public void Parse_ReadsCategory_WhenPresent()
+    {
+        var json = ValidJson.Replace("\"path\": \"skills/a-skill\"", "\"category\": \"workflow\", \"path\": \"skills/workflow/a-skill\"");
+        var catalog = CatalogParser.Parse(json);
+        Assert.Equal("workflow", catalog.Entries[0].Category);
+        Assert.Null(catalog.Entries[1].Category);
     }
 
     [Fact]

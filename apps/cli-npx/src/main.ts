@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
 import pc from 'picocolors';
+import { SKILL_CATEGORIES } from '@ai-skills/catalog';
 import { listCommand, searchCommand, infoCommand } from './commands/browse.js';
 import { addCommand } from './commands/add.js';
 
@@ -18,6 +19,7 @@ program
   .description('List items in the store')
   .option('--type <type>', 'filter by type: skill or prompt')
   .option('--agent <agent>', 'filter by supported agent')
+  .option('--category <category>', `filter skills by category: ${SKILL_CATEGORIES.join(', ')}`)
   .action((opts, cmd) => listCommand({ ...cmd.optsWithGlobals(), ...opts }));
 
 program

@@ -10,9 +10,19 @@ public record CatalogEntry(
     IReadOnlyList<string> Agents,
     string Version,
     string Path,
-    string? AppPattern = null);
+    string? AppPattern = null,
+    string? Category = null);
 
 public record Catalog(IReadOnlyList<CatalogEntry> Entries);
+
+/// <summary>Folders under <c>skills/</c> that group skill items (mirrors the TS SKILL_CATEGORIES).</summary>
+public static class SkillCategories
+{
+    public static readonly IReadOnlyList<string> All =
+        ["workflow", "frontend", "dependencies", "quality", "agent-setup"];
+
+    public static bool IsKnown(string name) => All.Contains(name);
+}
 
 /// <summary>Parses and structurally validates a catalog (mirrors the TS parseCatalog).</summary>
 public static class CatalogParser
