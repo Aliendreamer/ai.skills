@@ -8,7 +8,7 @@ and nothing tells you which one to run, in what order, or which steps need `sudo
 
 ## What Changes
 
-- New skill `skills/workflow/cleanup-local-machine/` that frees disk space on a local WSL dev machine using bundled
+- New skill `skills/workflow/cleanup-local-wsl/` that frees disk space on a local WSL dev machine using bundled
   scripts:
   - `clean-all.sh` — orchestrator: BuildStorageRepo `git gc` (or removal), project build output, dev tools, fstrim.
   - `clean-project-builds.sh` — `node_modules`, `.next`, and `bin`/`obj` beside a .NET project file.
@@ -31,7 +31,7 @@ and nothing tells you which one to run, in what order, or which steps need `sudo
 
 ### New Capabilities
 
-- `cleanup-local-machine`: what the local-machine cleanup skill measures, what it may delete on its own after
+- `cleanup-local-wsl`: what the local WSL cleanup skill measures, what it may delete on its own after
   confirmation, what it must always hand off to the user, and the dry-run-by-default contract of its bundled scripts.
 
 ### Modified Capabilities
@@ -40,7 +40,7 @@ and nothing tells you which one to run, in what order, or which steps need `sudo
 
 ## Impact
 
-- New files: `skills/workflow/cleanup-local-machine/SKILL.md` plus six bundled `*.sh` scripts.
+- New files: `skills/workflow/cleanup-local-wsl/SKILL.md` plus six bundled `*.sh` scripts.
 - `catalog.json` regenerated (one new entry); `README.md` skill list updated if it enumerates skills.
 - No change to the catalog library, either CLI, or the install flow. Bundled scripts reach agents the same way
   `clear-git`'s `cleargit.sh` does.

@@ -7,7 +7,7 @@ itself or on `PATH` (with or without `.sh`) and always finishes `--delete` with 
 
 `clear-git` is the precedent for a skill with a bundled script: the script lives beside `SKILL.md`, is called by its
 path (`<skill-dir>`), and the skill hands the destructive command to the user. Here the user chose a looser model:
-the agent deletes regenerable user-space data after confirmation (see `specs/cleanup-local-machine/spec.md`).
+the agent deletes regenerable user-space data after confirmation (see `specs/cleanup-local-wsl/spec.md`).
 
 ## Goals / Non-Goals
 
@@ -24,9 +24,9 @@ the agent deletes regenerable user-space data after confirmation (see `specs/cle
 
 ## Decisions
 
-**Category `workflow`, id `cleanup-local-machine`.** The category set is fixed in `skill-catalog`; `workflow` already
-holds `clear-git`, the other cleanup skill. A new `machine` category would mean a catalog spec change for one item.
-The id fixes the "Mashine" typo; the script names keep theirs.
+**Category `workflow`, id `cleanup-local-wsl`.** The category set is fixed in `skill-catalog`; `workflow` already
+holds `clear-git`, the other cleanup skill. A new `wsl` category would mean a catalog spec change for one item.
+The id names what the scripts actually target — a local WSL instance, not any machine; the script names stay as they are.
 
 **Agent runs component scripts through the orchestrator with `--no-trim`.** `clean-all.sh --delete --no-trim` covers
 BuildStorageRepo gc, project builds and dev tools in one call, with no `sudo`. Alternative — the agent calling

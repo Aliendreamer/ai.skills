@@ -1,7 +1,7 @@
 ## 1. Bundle the scripts
 
 - [ ] 1.1 Copy the six scripts from `SmartTV.Deploy/cleanupLocalMashine/` into
-  `skills/workflow/cleanup-local-machine/`, keeping names and the executable bit (skip the empty `.claude/` folder)
+  `skills/workflow/cleanup-local-wsl/`, keeping names and the executable bit (skip the empty `.claude/` folder)
 - [ ] 1.2 `clean-all.sh`: add `--no-trim` (skip the closing `sudo fstrim`, still print disk after) and
   `--buildstorage PATH` (default `~/projects/BuildStorageRepo`); update the header usage line
 - [ ] 1.3 `wsl-cleanup.sh`: dry run by default with `--delete` to apply; the dry run lists each command it would run
@@ -10,7 +10,7 @@
 
 ## 2. Write the skill
 
-- [ ] 2.1 `SKILL.md` frontmatter: `name: cleanup-local-machine`, a "Use when…" description that names the bundled
+- [ ] 2.1 `SKILL.md` frontmatter: `name: cleanup-local-wsl`, a "Use when…" description that names the bundled
   scripts and the hand-off of sudo/WSL-shutdown steps, trigger terms (clean up machine, free disk space, WSL disk
   full, node_modules, nvm), tags, agents, `version: 0.1.0`, author — matching `clear-git`'s shape
 - [ ] 2.2 Body: script table (what each removes, needs sudo or not, who runs it), and the steps — measure disk, ask
@@ -23,7 +23,7 @@
 
 ## 3. Catalog and docs
 
-- [ ] 3.1 Add `cleanup-local-machine` to the skill list in `README.md` beside `clear-git`
+- [ ] 3.1 Add `cleanup-local-wsl` to the skill list in `README.md` beside `clear-git`
 - [ ] 3.2 Regenerate `catalog.json` and run catalog validation (via the tsc-compiled JS if Nx is blocked in the sandbox)
 - [ ] 3.3 `markdownlint-cli2` and `cspell` pass on the new markdown
 

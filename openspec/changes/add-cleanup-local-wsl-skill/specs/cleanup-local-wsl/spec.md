@@ -1,6 +1,6 @@
 ## Purpose
 
-Defines how the local-machine cleanup skill frees disk space on a WSL dev machine: what it measures and reports,
+Defines how the local WSL cleanup skill frees disk space on a WSL dev machine: what it measures and reports,
 what it may delete itself after confirmation, what it must always hand to the user, and the dry-run contract of its
 bundled scripts.
 
