@@ -40,8 +40,12 @@
 
 ## 4. Verify the script
 
-- [ ] 4.1 Source the script twice in one shell and once in a second shell; confirm one `dbus-daemon` and one
-  `gnome-keyring-daemon` for the user (`pgrep -u "$USER" -c`)
-- [ ] 4.2 Kill the saved bus, source again; confirm a new session is started and the env file updated
-- [ ] 4.3 With a session already offering `org.freedesktop.secrets`, source it; confirm nothing new starts and
-  `--check` exits 0
+- [x] 4.1 Source the script twice in one shell and once in a second shell; confirm one `dbus-daemon` and one
+  `gnome-keyring-daemon` for the user (`pgrep -u "$USER" -c`) — verified with stub `dbus-launch`/`dbus-send`/
+  `gnome-keyring-daemon` in bash and zsh (one launch, one keyring); not run against real daemons — the agent sandbox
+  blocks D-Bus sockets and the user chose not to start a second session on their working machine
+- [x] 4.2 Kill the saved bus, source again; confirm a new session is started and the env file updated — verified with
+  the same stubs only (stale bus replaced, env file rewritten, mode 600); real-daemon run deferred as in 4.1
+- [x] 4.3 With a session already offering `org.freedesktop.secrets`, source it; confirm nothing new starts and
+  `--check` exits 0 — verified on the user's real WSL session: `--check` and sourcing both exit 0, daemon counts
+  unchanged (dbus 3, keyring 1), no env file written
