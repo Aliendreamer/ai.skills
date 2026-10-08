@@ -549,6 +549,35 @@
       "path": "skills/workflow/setup-flow"
     },
     {
+      "id": "setup-git-credentials",
+      "type": "skill",
+      "description": "Use when the user wants Git to stop using a PAT in the remote URL or a plain-text credential store, wants Git Credential Manager (GCM) with OAuth for GitHub, GitLab or Azure DevOps on Ubuntu/Debian or WSL2, or sees 'cannot persist Microsoft authentication token cache securely' / 'using plain-text fallback token cache'. Asks whether this is WSL, which Git hosts and which parts to set up, checks what is already done, sets git config itself after confirmation and hands every sudo or interactive step (apt, gpg, pass init, secret-tool, first sign-in) to the user. Bundles gcm-keyring-session.sh to start or reuse a D-Bus + GNOME Keyring session without systemd. Trigger terms - git credentials, PAT in URL, token in remote, git credential manager, gcm, github auth, gitlab auth, azure devops auth, pass, gpg store, secret service, gnome keyring, msal token cache, wsl git auth.",
+      "tags": [
+        "git",
+        "credentials",
+        "gcm",
+        "oauth",
+        "github",
+        "gitlab",
+        "azure-devops",
+        "gpg",
+        "pass",
+        "keyring",
+        "wsl",
+        "security"
+      ],
+      "agents": [
+        "claude",
+        "codex",
+        "cursor",
+        "gemini",
+        "copilot"
+      ],
+      "version": "0.1.0",
+      "category": "workflow",
+      "path": "skills/workflow/setup-git-credentials"
+    },
+    {
       "id": "skill-optimizer",
       "type": "skill",
       "description": "Optimizes AI skills for activation, clarity, and cross-model reliability. Use when creating or editing skill packs, diagnosing weak skill uptake, reducing regressions, tuning instruction salience, improving examples, shrinking context cost, or setting benchmark/release gates for skills. Trigger terms: skill optimization, activation gap, benchmark skill, with/without skill delta, regression, context budget, prompt salience. Third-party skill by Matteo Collina (MIT); depends on its rules/ files, so it reaches folder-based agents only.",

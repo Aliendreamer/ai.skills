@@ -22,8 +22,8 @@ leaves auto-start open.
 
 - Using the Windows Credential Manager / Windows-side GCM from WSL (the source deliberately avoids it).
 - Distros without `apt`, macOS, native Windows.
-- Hosts other than Azure DevOps beyond what GCM does by default — the store and cache steps apply to any host, but
-  only Azure Repos gets an explicit OAuth step.
+- Bitbucket-specific OAuth setup and other hosts' OAuth apps — they get GCM's prompt-and-store behaviour only.
+- Converting SSH remotes to HTTPS or the reverse.
 - Reading, migrating or deleting secrets from an old plain-text store for the user.
 
 ## Decisions
@@ -36,6 +36,26 @@ set in `skill-catalog` is fixed. Not named after WSL because native Ubuntu is a 
 branch point in the steps is not WSL itself but "is a Secret Service reachable on the session bus"; the WSL answer
 sets the expectation (usually not, no systemd) and the probe decides. Alternative — detection only, no question — was
 rejected: the user asked for the question, and WSL with `systemd=true` in `wsl.conf` behaves like native.
+
+**Hosts are a question of their own, pre-filled from remotes.** Hosts come from the redacted remote URLs (host part
+only). GCM detects the provider from the host for `dev.azure.com` / `*.visualstudio.com`, `github.com` and
+`gitlab.com`; per host the skill sets only what differs from GCM's default:
+
+- Azure DevOps: `credential.azreposCredentialType oauth` (the source's setting).
+- GitHub: GCM's default OAuth tries the browser; on WSL without one, `credential.https://github.com.gitHubAuthModes
+  device` gives a device code instead. Scoped to the host URL so other hosts are not affected.
+- GitLab.com: default browser OAuth; without a browser, `credential.https://gitlab.com.gitLabAuthModes pat` so GCM
+  prompts for a PAT once and stores it encrypted (GitLab has no device flow in GCM).
+- Self-hosted GitLab: `credential.<url>.provider gitlab` plus, with a user-registered OAuth app,
+  `credential.<url>.gitLabDevClientId` / `gitLabDevClientSecret` (the client secret is entered by the user, never
+  shown); without one, `gitLabAuthModes pat`.
+- Other hosts: nothing to set; GCM prompts and stores in the encrypted store.
+
+The MSAL token cache (part 4) is Microsoft-only: GitHub and GitLab tokens go into the credential store from part 3.
+So parts 4 and 5 are offered only when Azure DevOps is selected. Host-specific helpers set by `gh auth setup-git` or
+`glab` (`credential.https://github.com.helper` etc.) take precedence over the global GCM helper; the skill lists them
+from `git config --global --get-regexp '^credential\..+\.helper$'` (helper names, no secrets) and removes them only if
+the user wants GCM for that host.
 
 **Scope as a multi-select of five parts, ordered internally.** Install GCM → OAuth + clean remotes → GPG + `pass`
 store → token cache (Secret Service) → auto-start. The skill reorders the user's selection to that order and flags
@@ -96,7 +116,9 @@ its personal GPG key ID does not — the skill never contains a real key ID, onl
 - [Agent sandbox blocks `git config --global` writes to `~/.gitconfig`] → spec requires report-and-hand-off.
 - [GCM release asset naming changes again] → the lookup checks the asset exists before handing off a URL.
 
-## Open Questions
+## Resolved During Implementation
 
-- Whether a leftover MSAL plain-text cache file from before the fix should be located and removal handed off. Its path
-  needs confirming against GCM 2.9.1 docs during implementation; it does not change the steps or the agent/user split.
+- Leftover MSAL plain-text cache: GCM 2.9.1 keeps the MSAL cache under `~/.local/.IdentityService/` (the path string is
+  in the binary; `msal.cache` is the file there). With Secret Service the file is only a marker; under the plain-text
+  fallback it holds the tokens, and the format cannot be told without reading it. The skill therefore hands off its
+  removal once part 4 is verified — safe either way, at the cost of one extra sign-in.

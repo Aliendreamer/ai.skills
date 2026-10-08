@@ -1,36 +1,40 @@
 ## 1. Keyring session script
 
-- [ ] 1.1 Write `skills/workflow/setup-git-credentials/gcm-keyring-session.sh`: sourceable from bash and zsh,
+- [x] 1.1 Write `skills/workflow/setup-git-credentials/gcm-keyring-session.sh`: sourceable from bash and zsh,
   reuse → saved env → `dbus-launch` → `gnome-keyring-daemon --start --components=secrets`, env file mode 600, silent
   on success, `return` (never `exit`) on failure when sourced; executable bit set
-- [ ] 1.2 `--check` mode when executed directly: prints bus reachable yes/no and Secret Service owner yes/no, exit code
+- [x] 1.2 `--check` mode when executed directly: prints bus reachable yes/no and Secret Service owner yes/no, exit code
   0 only when both hold
-- [ ] 1.3 `bash -n`, `zsh -n` and `shellcheck` (if installed) pass
+- [x] 1.3 `bash -n`, `zsh -n` and `shellcheck` (if installed) pass
 
 ## 2. Write the skill
 
-- [ ] 2.1 `SKILL.md` frontmatter matching `clear-git`'s shape: `name: setup-git-credentials`, a "Use when…" description
+- [x] 2.1 `SKILL.md` frontmatter matching `clear-git`'s shape: `name: setup-git-credentials`, a "Use when…" description
   naming GCM, Azure DevOps OAuth, PAT in remote URL, GPG/`pass`, Secret Service/MSAL warning, WSL; trigger terms; tags;
   agents; `version: 0.1.0`; author
-- [ ] 2.2 Intro and parts table: each of the five parts, what it changes, who runs each command (agent / user), and
+- [x] 2.2 Intro and parts table: each of the five parts, what it changes, who runs each command (agent / user), and
   its prerequisite
-- [ ] 2.3 Steps: detect + ask WSL; checks (read-only, redacted); multi-select scope with done parts marked; walk
+- [x] 2.3 Steps: detect + ask WSL; checks (read-only, redacted); multi-select scope with done parts marked; walk
   selected parts in order with the confirm/hand-off split and the `.gpg-id` gate; script install hand-off; verification
-- [ ] 2.4 Guards from the spec: no `sudo`, never print or read secrets, redaction format, revoke-PAT reminder,
+- [x] 2.4 Guards from the spec: no `sudo`, never print or read secrets, redaction format, revoke-PAT reminder,
   report-and-hand-off on a failed change
-- [ ] 2.5 `pass init` key ID: an example `gpg --list-secret-keys --keyid-format LONG` listing with a made-up ID,
+- [x] 2.5 `pass init` key ID: an example `gpg --list-secret-keys --keyid-format LONG` listing with a made-up ID,
   showing that the ID after `/` on the `sec` line is the one to use and the `ssb` subkey line is not
-- [ ] 2.6 "Known pitfalls" section from the source draft: `.deb` asset name 404, `azreposUseMicrosoftSharedCache` is
+- [x] 2.6 "Known pitfalls" section from the source draft: `.deb` asset name 404, `azreposUseMicrosoftSharedCache` is
   not the fix, credential store vs MSAL cache are separate, don't paste the `eval` lines into `.zshrc`; no real key ID
   anywhere in the skill (grep the folder for the draft's ID before committing)
-- [ ] 2.7 Resolve the open question: confirm the MSAL plain-text cache location for GCM 2.9.1 and, if confirmed, add
+- [x] 2.7 Resolve the open question: confirm the MSAL plain-text cache location for GCM 2.9.1 and, if confirmed, add
   its detection (existence only) and hand-off removal
+
+- [x] 2.8 Multi-host: hosts question pre-filled from remotes; per-host sign-in settings for Azure DevOps, GitHub,
+  GitLab.com, self-hosted GitLab and other hosts; `gh`/`glab` helper override check; per-host PAT revoke locations;
+  parts 4–5 only with Azure DevOps; frontmatter description, tags and README line no longer Azure-only
 
 ## 3. Catalog and docs
 
-- [ ] 3.1 Add `setup-git-credentials` to the skill list in `README.md` beside `azure-devops-workflow`
-- [ ] 3.2 Regenerate `catalog.json` and run catalog validation (via the tsc-compiled JS if Nx is blocked in the sandbox)
-- [ ] 3.3 `markdownlint-cli2` and `cspell` pass on the new markdown (add words such as `azrepos`, `MSAL` to
+- [x] 3.1 Add `setup-git-credentials` to the skill list in `README.md` beside `azure-devops-workflow`
+- [x] 3.2 Regenerate `catalog.json` and run catalog validation (via the tsc-compiled JS if Nx is blocked in the sandbox)
+- [x] 3.3 `markdownlint-cli2` and `cspell` pass on the new markdown (add words such as `azrepos`, `MSAL` to
   `cspell.json` if needed)
 - [ ] 3.4 Ask the user whether to delete the root draft `gcm-ubuntu-wsl2-setup.md` now that the skill holds its content
 

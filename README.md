@@ -98,6 +98,8 @@ shows one group. Smart-TV skills also share the `smarttv` tag and React gates th
 - `developer-flow` — the brainstorm → OpenSpec → TDD → verify → archive build cycle.
 - `setup-flow` — onboard a repo or agent to that workflow: skills, instruction block, settings, hooks.
 - `azure-devops-workflow` — read an Azure DevOps ticket to seed developer-flow; optionally write back.
+- `setup-git-credentials` — Git Credential Manager sign-in for GitHub, GitLab and Azure DevOps, stored encrypted
+  (GPG + `pass`, keyring on WSL); no PAT in URLs.
 - `complexity-sizing` — derive Story Points from an ADO work item's Complexity field.
 - `daily-activity-log` — file the day's ADO time-log Tasks, one per Activity.
 - `daily-log-check` — check who on duty filed their ADO time-log Tasks for a day.

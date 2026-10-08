@@ -1,17 +1,30 @@
 ## Purpose
 
-Defines how the secure Git credentials skill sets up Git Credential Manager with encrypted credential storage and a
-secure Microsoft token cache on Ubuntu/Debian (WSL2 or native): what it asks, what it checks, what it may change
-itself, what it hands to the user, how it treats secrets, and the contract of its bundled keyring session script.
+Defines how the secure Git credentials skill sets up Git Credential Manager with per-host sign-in (Azure DevOps,
+GitHub, GitLab and others), encrypted credential storage and a secure Microsoft token cache on Ubuntu/Debian (WSL2 or
+native): what it asks, what it checks, what it may change itself, what it hands to the user, how it treats secrets,
+and the contract of its bundled keyring session script.
 
 ## ADDED Requirements
 
-### Requirement: Ask the environment and the scope before any step
+### Requirement: Ask the environment, the hosts and the scope before any step
 
 Before running or handing off any setup step, the skill SHALL ask the user whether the machine is WSL, presenting
-what it detected, and SHALL ask which parts to set up from: install Git Credential Manager; OAuth for Azure Repos
-with PAT-free remote URLs; encrypted Git credential store (GPG + `pass`); secure Microsoft token cache (Secret
-Service); auto-start of the keyring session in new shells. Parts already in place SHALL be shown as such.
+what it detected; which Git hosts are in use (Azure DevOps, GitHub, GitLab.com, self-hosted GitLab, other), pre-filled
+from the hosts of the remotes it found; and which parts to set up from: install Git Credential Manager; sign-in for
+the selected hosts with PAT-free remote URLs; encrypted Git credential store (GPG + `pass`); secure Microsoft token
+cache (Secret Service); auto-start of the keyring session in new shells. Parts already in place SHALL be shown as
+such. The token cache and auto-start parts SHALL be offered only when Azure DevOps is among the selected hosts.
+
+#### Scenario: Hosts pre-filled from remotes
+
+- **WHEN** the remotes it checked point at `github.com` and `dev.azure.com`
+- **THEN** the hosts question offers GitHub and Azure DevOps as selected and lets the user add or remove hosts
+
+#### Scenario: No Azure DevOps
+
+- **WHEN** the user's hosts are GitHub and GitLab only
+- **THEN** the scope question does not offer the Microsoft token cache or auto-start parts
 
 #### Scenario: WSL detected
 
@@ -48,6 +61,33 @@ place, the skill SHALL say so and ask whether to add it.
 - **WHEN** the user selects the token cache but GCM is not installed and was not selected
 - **THEN** the skill reports the missing prerequisite and asks whether to add the install step
 
+### Requirement: Sign-in is configured per selected host
+
+For each selected host the skill SHALL configure Git Credential Manager so that sign-in does not depend on a PAT in
+the URL: OAuth for Azure DevOps (`credential.azreposCredentialType` `oauth`); OAuth for GitHub (browser, or device
+code where no browser can open); OAuth for GitLab.com; for self-hosted GitLab, either a registered OAuth application
+the user supplies or a PAT entered at GCM's prompt; for other hosts, the credential entered at GCM's prompt. In every
+case the credential SHALL end up in the configured credential store, not in a remote URL or a plain-text file. When a
+host-specific helper (for example `gh auth git-credential` or `glab auth git-credential`) overrides GCM for a selected
+host, the skill SHALL report it and ask whether to keep it or hand that host to GCM.
+
+#### Scenario: GitHub without a browser
+
+- **WHEN** the user selects GitHub on WSL where no browser can be opened
+- **THEN** the skill configures device-code sign-in for GitHub and tells the user the first fetch will show a code to
+  enter on another device
+
+#### Scenario: Self-hosted GitLab
+
+- **WHEN** the user selects a self-hosted GitLab instance
+- **THEN** the skill asks whether an OAuth application is registered for GCM; with one, it configures that instance's
+  client ID and provider; without one, it configures PAT sign-in so GCM prompts for the PAT once and stores it
+
+#### Scenario: gh helper overrides GCM
+
+- **WHEN** `credential.https://github.com.helper` points at `gh auth git-credential`
+- **THEN** the skill reports it and, if the user wants GCM for GitHub, removes those entries after confirmation
+
 ### Requirement: Agent changes only user-level Git configuration, after confirmation
 
 The skill MAY run read-only checks at any time. After the user confirms each change, it MAY run `git config --global`
@@ -81,7 +121,12 @@ redacted, offer the clean URL or the removal command, and tell the user to revok
 
 - **WHEN** `git remote -v` shows a URL with a user-info part containing a password or token
 - **THEN** the skill shows the remote with the secret replaced by a placeholder, proposes the clean URL, and reminds
-  the user to revoke that PAT in Azure DevOps
+  the user to revoke that PAT, naming where for that host (Azure DevOps, GitHub or GitLab)
+
+#### Scenario: SSH remote
+
+- **WHEN** a remote uses SSH
+- **THEN** the skill leaves it unchanged and does not flag it
 
 #### Scenario: Plain-text credential file present
 
@@ -91,10 +136,16 @@ redacted, offer the clean URL or the removal command, and tell the user to revok
 ### Requirement: Setup ends with verification
 
 The skill SHALL finish by checking the configured parts: the expected `git config` values (`credential.credentialStore`
-`gpg`, `credential.azreposCredentialType` `oauth`, a GCM `credential.helper`), a Secret Service round-trip with a
-throwaway test secret that is cleared afterwards, and a `git fetch` the user runs that completes without the
+`gpg`, a GCM `credential.helper`, and the per-host settings it made), and for each selected host a `git fetch` the user
+runs that signs in and completes. When Azure DevOps is selected it SHALL also check a Secret Service round-trip with a
+throwaway test secret that is cleared afterwards, and that the Azure DevOps fetch completes without the
 `cannot persist Microsoft authentication token cache securely` warning. It SHALL report each check as passed or
 failed.
+
+#### Scenario: Second fetch needs no sign-in
+
+- **WHEN** the user runs a second `git fetch` against a host after signing in once
+- **THEN** it completes without a prompt, showing the credential was stored
 
 #### Scenario: Token-cache warning still appears
 

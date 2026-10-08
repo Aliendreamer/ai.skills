@@ -4,6 +4,7 @@
     "aliendreamer",
     "asyncRewake",
     "automations",
+    "azrepos",
     "capitalisation",
     "cdpath",
     "commitlint",
@@ -13,15 +14,21 @@
     "egrep",
     "fastendpoints",
     "fgrep",
+    "gks",
     "keycloak",
+    "keyid",
+    "libsecret",
     "lightningcss",
+    "msal",
     "nginx",
     "nitro",
     "npgsql",
+    "osrelease",
     "partman",
     "pgcron",
     "picklist",
     "podman",
+    "pushurl",
     "redisinsight",
     "rewake",
     "Rewake",
@@ -36,6 +43,7 @@
     "unrs",
     "vitest",
     "vsts",
-    "wiql"
+    "wiql",
+    "wslg"
   ]
 }
