@@ -36,7 +36,7 @@
 - [x] 3.2 Regenerate `catalog.json` and run catalog validation (via the tsc-compiled JS if Nx is blocked in the sandbox)
 - [x] 3.3 `markdownlint-cli2` and `cspell` pass on the new markdown (add words such as `azrepos`, `MSAL` to
   `cspell.json` if needed)
-- [ ] 3.4 Ask the user whether to delete the root draft `gcm-ubuntu-wsl2-setup.md` now that the skill holds its content
+- [x] 3.4 Ask the user whether to delete the root draft `gcm-ubuntu-wsl2-setup.md` now that the skill holds its content
 
 ## 4. Verify the script
 
