@@ -46,7 +46,9 @@ unmet prerequisites rather than failing midway.
 confirmation. `sudo`, `gpg --full-generate-key`, `pass init`, `secret-tool`, rc edits and the first `git fetch` (opens
 an OAuth browser/device-code flow the agent cannot complete) are handed off. `pass init` needs no `sudo` but is handed
 off because it binds the store to a key the user picks; the skill shows `gpg --list-secret-keys --keyid-format LONG`
-output (public key IDs only) and tells the user to use the **primary** key ID, not the encryption subkey.
+output (public key IDs only) and tells the user to use the **primary** key ID, not the encryption subkey. `SKILL.md`
+teaches how to recognize it with an example listing using a made-up ID: the ID after the `/` on the `sec` line is the
+primary key; the `ssb` line is the subkey and is not the one to pass.
 
 **`credentialStore gpg` only after `~/.password-store/.gpg-id` exists.** Setting it earlier makes every Git
 authentication fail. This check is the gate.
@@ -81,7 +83,7 @@ and appending `[ -f <path> ] && . <path>` to `~/.zshrc` or `~/.bashrc` (whicheve
 the line is not already there.
 
 **The source draft is folded in, not shipped.** Its pitfalls go into a short "Known pitfalls" section of `SKILL.md`;
-its personal GPG key ID does not.
+its personal GPG key ID does not — the skill never contains a real key ID, only the made-up example above.
 
 ## Risks / Trade-offs
 

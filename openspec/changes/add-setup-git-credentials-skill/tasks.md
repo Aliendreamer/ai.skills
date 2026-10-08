@@ -17,10 +17,13 @@
 - [ ] 2.3 Steps: detect + ask WSL; checks (read-only, redacted); multi-select scope with done parts marked; walk
   selected parts in order with the confirm/hand-off split and the `.gpg-id` gate; script install hand-off; verification
 - [ ] 2.4 Guards from the spec: no `sudo`, never print or read secrets, redaction format, revoke-PAT reminder,
-  report-and-hand-off on a failed change, primary-vs-subkey ID for `pass init`
-- [ ] 2.5 "Known pitfalls" section from the source draft: `.deb` asset name 404, `azreposUseMicrosoftSharedCache` is
-  not the fix, credential store vs MSAL cache are separate, don't paste the `eval` lines into `.zshrc`; no personal key ID
-- [ ] 2.6 Resolve the open question: confirm the MSAL plain-text cache location for GCM 2.9.1 and, if confirmed, add
+  report-and-hand-off on a failed change
+- [ ] 2.5 `pass init` key ID: an example `gpg --list-secret-keys --keyid-format LONG` listing with a made-up ID,
+  showing that the ID after `/` on the `sec` line is the one to use and the `ssb` subkey line is not
+- [ ] 2.6 "Known pitfalls" section from the source draft: `.deb` asset name 404, `azreposUseMicrosoftSharedCache` is
+  not the fix, credential store vs MSAL cache are separate, don't paste the `eval` lines into `.zshrc`; no real key ID
+  anywhere in the skill (grep the folder for the draft's ID before committing)
+- [ ] 2.7 Resolve the open question: confirm the MSAL plain-text cache location for GCM 2.9.1 and, if confirmed, add
   its detection (existence only) and hand-off removal
 
 ## 3. Catalog and docs
