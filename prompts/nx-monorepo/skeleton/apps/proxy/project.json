@@ -7,8 +7,9 @@
     "build": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "tools/deploy/build.sh proxy"
-      }
+        "command": "tools/deploy/build.sh proxy validate"
+      },
+      "inputs": ["default", "{workspaceRoot}/tools/deploy/build.sh"]
     },
     "push": {
       "executor": "nx:run-commands",
@@ -19,14 +20,12 @@
     "deploy": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "tools/deploy/build.sh proxy push | tools/deploy/update-deploy.sh proxy"
+        "command": "echo 'deploy not configured: replace this target with your deploy mechanism (see tools/deploy/README.md)' >&2; exit 1"
       }
     },
     "validate": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "tools/deploy/build.sh proxy validate"
-      }
+      "executor": "nx:noop",
+      "dependsOn": ["build"]
     }
   }
 }

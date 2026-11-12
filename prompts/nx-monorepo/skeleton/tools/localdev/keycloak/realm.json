@@ -1,0 +1,47 @@
+{
+  "realm": "<Realm>",
+  "enabled": true,
+  "sslRequired": "none",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "clients": [
+    {
+      "clientId": "<app-name>_api",
+      "name": "<AppName> BFF",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "<app-name>-dev-secret",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "redirectUris": ["http://app.<app-name>.localhost/api/auth/callback"],
+      "webOrigins": ["http://app.<app-name>.localhost"],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://app.<app-name>.localhost"
+      }
+    }
+  ],
+  "users": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "username": "testuser",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Test",
+      "lastName": "User",
+      "email": "testuser@<app-name>.localhost",
+      "credentials": [{ "type": "password", "value": "Test123!", "temporary": false }],
+      "realmRoles": ["Admin", "User"]
+    }
+  ],
+  "roles": {
+    "realm": [
+      { "name": "Admin", "description": "Full administrative access" },
+      { "name": "User", "description": "Regular signed-in user" }
+    ]
+  }
+}

@@ -7,10 +7,16 @@
 #
 # Everything is reachable on http://*.<app-name>.localhost (browsers auto-resolve *.localhost to
 # 127.0.0.1 — no /etc/hosts edits):
-#   app.<app-name>.localhost          → frontend (SSR BFF)
-#   api.<app-name>.localhost          → backend API (Scalar/Swagger, curl)
-#   keycloak.<app-name>.localhost     → Keycloak
-#   redisinsight.<app-name>.localhost → RedisInsight
+#   app.<app-name>.localhost                       → frontend (SSR BFF)
+#   app.<app-name>.localhost/api/                  → backend API (same origin, like the prod nginx proxy)
+#   app.<app-name>.localhost/auth/realms|resources → Keycloak OIDC (same origin as the app, like prod)
+#   api.<app-name>.localhost                       → backend API (Scalar/Swagger, curl; local only)
+#   keycloak.<app-name>.localhost/auth/admin       → Keycloak admin console (never on the app host)
+#   redisinsight.<app-name>.localhost              → RedisInsight
+#   localhost:8080                                 → Traefik dashboard
+#
+# Routing: every host/path rule is in traefik/dynamic.yml. Routes to an app that is not running
+# answer 502.
 #
 # Frontend + backend run with live reload: source is bind-mounted from apps/* and they run in watch
 # mode (Vite HMR / `dotnet watch`). First start is slow (in-container restore/install); later starts
@@ -18,38 +24,35 @@
 #
 # Paths below are relative to THIS file (tools/localdev/): repo-root assets use ../../.
 
+name: <app-name>
+
 services:
   proxy:
-    image: traefik:v3.3
+    image: traefik:v3.7
     command:
-      - --providers.docker=true
-      - --providers.docker.exposedbydefault=false
-      # File-provider fallback if the docker daemon's min API rejects the docker provider.
+      # All routes live in traefik/dynamic.yml (file provider): one source of truth, no docker socket.
       - --providers.file.directory=/etc/traefik/dynamic
       - --providers.file.watch=true
       - --entrypoints.web.address=:80
       # Dashboard for local debugging (which routers/services/providers are live).
-      # insecure => served on :8080 without auth; localhost-only, dev stack only.
+      # insecure => served on :8080 without auth; bound to 127.0.0.1 below, dev stack only.
       - --api.dashboard=true
       - --api.insecure=true
     ports:
-      - "80:80"
-      - "8080:8080"
+      # Loopback only, like Postgres: the dashboard is unauthenticated and Keycloak's admin is admin/admin.
+      - "127.0.0.1:80:80"
+      - "127.0.0.1:8080:8080"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./traefik:/etc/traefik/dynamic:ro
     networks:
       default:
+        # Containers resolve the public hostnames to Traefik too, so the backend reaches the Keycloak
+        # issuer on the app host at the same URL the browser uses.
         aliases:
           - app.<app-name>.localhost
           - api.<app-name>.localhost
           - keycloak.<app-name>.localhost
           - redisinsight.<app-name>.localhost
-    depends_on:
-      - frontend
-      - backend
-      - keycloak
-      - redisinsight
 
   postgres:
     # Built rather than pulled: the cluster's image is a Postgres 18 base plus pg_cron and pg_partman,
@@ -91,7 +94,7 @@ services:
       timeout: 5s
       retries: 10
     ports:
-      - "6379:6379"
+      - "127.0.0.1:6379:6379"
     volumes:
       - redisdata:/data
 
@@ -99,29 +102,26 @@ services:
     image: redis/redisinsight:2.70
     volumes:
       - redisinsight:/data
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.redisinsight.rule=Host(`redisinsight.<app-name>.localhost`)
-      - traefik.http.routers.redisinsight.entrypoints=web
-      - traefik.http.services.redisinsight.loadbalancer.server.port=5540
 
   keycloak:
-    image: quay.io/keycloak/keycloak:26.0
+    image: quay.io/keycloak/keycloak:26.8
     command: ["start-dev", "--import-realm"]
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
-      KC_HOSTNAME: http://keycloak.<app-name>.localhost
+      # Like production: served under /auth, hostname taken from the forwarded host, so the app host
+      # (OIDC) and the keycloak host (admin console) each get their own correct URLs.
+      KC_HTTP_RELATIVE_PATH: /auth
       KC_HOSTNAME_STRICT: "false"
       KC_HTTP_ENABLED: "true"
       KC_PROXY_HEADERS: xforwarded
     volumes:
       - ./keycloak:/opt/keycloak/data/import:ro
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.keycloak.rule=Host(`keycloak.<app-name>.localhost`)
-      - traefik.http.routers.keycloak.entrypoints=web
-      - traefik.http.services.keycloak.loadbalancer.server.port=8080
+      # Keycloak's own data (its dev database lives in data/h2), so users, sessions and console changes
+      # survive restarts. Mounted on data/, not data/h2: h2 does not exist in the image, so a volume there
+      # is created root-owned and Keycloak (uid 1000) cannot write it. The realm file is imported only into
+      # an empty Keycloak: after editing it, `stack.sh down -v` (drops this and pgdata).
+      - kcdata:/opt/keycloak/data
 
   # Grants the API's service account the realm-management roles it needs to manage users.
   #
@@ -136,7 +136,7 @@ services:
   # Runs once per `up` and exits; re-granting an existing role mapping is a no-op, so it is safe to
   # repeat. The backend waits for it to succeed.
   keycloak-init:
-    image: quay.io/keycloak/keycloak:26.0
+    image: quay.io/keycloak/keycloak:26.8
     depends_on:
       keycloak:
         condition: service_started
@@ -147,7 +147,7 @@ services:
         kcadm=/opt/keycloak/bin/kcadm.sh
         realm=<Realm>
         for i in $$(seq 1 60); do
-          "$$kcadm" config credentials --server http://keycloak:8080 --realm master \
+          "$$kcadm" config credentials --server http://keycloak:8080/auth --realm master \
             --user admin --password admin >/dev/null 2>&1 && break
           sleep 2
         done
@@ -167,14 +167,14 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_HTTP_PORTS: "8080"
-      Keycloak__Authority: http://keycloak.<app-name>.localhost/realms/<Realm>
+      # The issuer is on the app host, exactly as the browser sees it (see the proxy's network aliases).
+      Keycloak__Authority: http://app.<app-name>.localhost/auth/realms/<Realm>
       Keycloak__Audience: ""
       Keycloak__ClientId: <app-name>_api
       Keycloak__ClientSecret: <app-name>-dev-secret
       Keycloak__CallbackUri: http://app.<app-name>.localhost/api/auth/callback
       Keycloak__PostLogoutRedirectUri: http://app.<app-name>.localhost
       Keycloak__AppBaseUrl: http://app.<app-name>.localhost
-      SessionCookies__Domain: .<app-name>.localhost
       SessionCookies__SessionName: <app-name>_sid
       SessionCookies__PkceName: <app-name>_pkce
       AllowedCorsOrigins__0: http://app.<app-name>.localhost
@@ -188,9 +188,15 @@ services:
       # Keep host-built artifacts out of the container (and vice versa).
       - /src/bin
       - /src/obj
-    # The Keycloak issuer URL must resolve identically inside the container and in the browser.
-    extra_hosts:
-      - "keycloak.<app-name>.localhost:host-gateway"
+    healthcheck:
+      # The first start restores and builds inside the container, so give it time before counting failures.
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/api/health >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 180s
+    # No extra_hosts: the proxy's network alias resolves app.<app-name>.localhost to Traefik on this
+    # network, and Traefik's ports are loopback-only, so the host gateway could not reach them anyway.
     depends_on:
       postgres:
         condition: service_healthy
@@ -200,11 +206,6 @@ services:
         condition: service_started
       keycloak-init:
         condition: service_completed_successfully
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.api.rule=Host(`api.<app-name>.localhost`)
-      - traefik.http.routers.api.entrypoints=web
-      - traefik.http.services.api.loadbalancer.server.port=8080
 
   frontend:
     build:
@@ -213,9 +214,6 @@ services:
     environment:
       # Server-side only; never exposed to the client bundle. The SSR server is the BFF.
       API_URL: http://backend:8080
-      # IdP public origin, added to the CSP `form-action` so the logout form's redirect to
-      # Keycloak's end-session endpoint is not blocked (browsers enforce form-action across redirects).
-      KEYCLOAK_ORIGIN: http://keycloak.<app-name>.localhost
       DOCKER_DEV: "1"
     volumes:
       - ../../apps/frontend:/app/apps/frontend
@@ -228,16 +226,12 @@ services:
       - /app/apps/frontend/node_modules
     depends_on:
       - backend
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.app.rule=Host(`app.<app-name>.localhost`)
-      - traefik.http.routers.app.entrypoints=web
-      - traefik.http.services.app.loadbalancer.server.port=3000
 
 volumes:
   pgdata:
   redisdata:
   redisinsight:
+  kcdata:
 
 networks:
   default:

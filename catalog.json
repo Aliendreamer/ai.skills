@@ -320,14 +320,14 @@
         "gemini",
         "copilot"
       ],
-      "version": "0.2.0",
+      "version": "0.3.0",
       "appPattern": "dotnet-backend",
       "path": "prompts/dotnet-webapi"
     },
     {
       "id": "fe-ssr-tanstack",
       "type": "prompt",
-      "description": "Build a TanStack Start SSR frontend that acts as the BFF — proxies the OIDC/auth dance and fetches page data server-to-server from an internal API, so the browser only ever talks to the app origin (no API host or token in the client).",
+      "description": "Build a TanStack Start SSR frontend that acts as the BFF — fetches page data server-to-server from an internal API through server functions, while the edge routes auth straight to that API, so the browser only ever talks to the app origin (no API host or token in the client).",
       "tags": [
         "frontend",
         "tanstack",
@@ -343,7 +343,7 @@
         "gemini",
         "copilot"
       ],
-      "version": "0.2.0",
+      "version": "0.3.0",
       "appPattern": "fe-ssr-tanstack",
       "path": "prompts/fe-ssr-tanstack"
     },
@@ -477,7 +477,7 @@
         "codex",
         "copilot"
       ],
-      "version": "0.1.0",
+      "version": "0.2.0",
       "appPattern": "nx-monorepo",
       "path": "prompts/nx-monorepo"
     },

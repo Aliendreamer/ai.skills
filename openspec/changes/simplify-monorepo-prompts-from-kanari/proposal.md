@@ -39,7 +39,7 @@ company repo it was taken from. The next project built from the prompts should s
 **`nx-monorepo`: skeleton fixes and simplifications**
 
 - Ship what the compose files already mount: `tools/localdev/traefik/dynamic.yml` (the only routing definition) and a
-  placeholder realm file `tools/localdev/keycloak/<Realm>-realm.json`.
+  placeholder realm file `tools/localdev/keycloak/realm.json`.
 - Traefik uses the file provider only: no docker socket, no container labels. Ports are bound to `127.0.0.1`.
 - Keycloak is served under `/auth` (`KC_HTTP_RELATIVE_PATH`) on the app host for OIDC, and on `keycloak.` for the admin
   console only. Its data is kept in a `kcdata` volume, and the dev user's id is pinned in the realm file.
@@ -49,6 +49,7 @@ company repo it was taken from. The next project built from the prompts should s
 - Removed leftovers: the `update-deploy.sh` call in the proxy's `deploy` target (now an explicit "not configured"
   failure), the OneTv MSSQL OpenSSL override in `backend.dev.Dockerfile`, and the `--personal` flag in `test-all.sh`.
 - `pnpm-workspace.yaml` gains `minimumReleaseAgeExclude` for the core framework packages.
+- The root `.npmrc` the dev compose file mounts is shipped (`save-exact`, empty `save-prefix`).
 
 ## Capabilities
 

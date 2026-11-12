@@ -6,7 +6,7 @@ WORKDIR /src
 
 
 # Deliberately IDENTICAL to apps/backend/Dockerfile's runtime setup — same base family, same packages,
-# same env, same OpenSSL policy. The only intended difference between the two images is that this one runs
+# same env. The only intended difference between the two images is that this one runs
 # `dotnet watch` against bind-mounted source instead of a published build.
 #
 # All four are named even though the SDK base already ships tzdata + ICU and already defaults
@@ -14,21 +14,13 @@ WORKDIR /src
 # the day a base image drops one, dev keeps working and prod breaks — the exact failure this parity rules
 # out. apk is idempotent, so naming an already-present package costs nothing.
 #
-#   krb5-libs      libgssapi_krb5.so.2 — Npgsql probes GSSAPI at startup (password auth, not Kerberos),
-#                  and Microsoft.Data.SqlClient loads it for OneTv. NOTE: the Debian package is
-#                  libgssapi-krb5-2, which does NOT exist on Alpine.
-#   tzdata         Timezone database, for ENV TZ below and the scheduler's cron timezone.
-#   icu-libs +     Globalization data. Microsoft.Data.SqlClient REFUSES invariant mode and OneTv is SQL
-#   icu-data-full  Server, so ICU + INVARIANT=false is required, not cosmetic.
+#   krb5-libs      libgssapi_krb5.so.2 — Npgsql probes GSSAPI at startup (password auth, not Kerberos).
+#                  NOTE: the Debian package is libgssapi-krb5-2, which does NOT exist on Alpine.
+#   tzdata         Timezone database, for ENV TZ below.
+#   icu-libs +     Globalization data, since INVARIANT=false.
+#   icu-data-full
 RUN apk add --no-cache tzdata icu-libs icu-data-full krb5-libs
 
-# The legacy OneTv MSSQL server only offers old TLS/ciphers that OpenSSL 3.x (SECLEVEL 2, TLS 1.2
-# floor) rejects during the Microsoft.Data.SqlClient pre-login handshake ("SSL Provider, error: 31").
-# Lower the security level + TLS floor so that handshake succeeds. Mirrors apps/backend/Dockerfile.
-# Verified against Alpine's OpenSSL 3.5.8: [openssl_init] exists with no ssl_conf, so the insert lands
-# inside the existing section and the config still parses.
-RUN sed -i '/^\[openssl_init\]/a ssl_conf = ssl_sect' /etc/ssl/openssl.cnf \
-  && printf '\n[ssl_sect]\nsystem_default = system_default_sect\n\n[system_default_sect]\nCipherString = DEFAULT@SECLEVEL=0\nMinProtocol = TLSv1\nOptions = UnsafeLegacyRenegotiation\n' >> /etc/ssl/openssl.cnf
 
 # TZ and INVARIANT mirror the runtime image, so log timestamps and globalization behave identically here.
 # DOTNET_NOLOGO and the polling watcher are the only dev-specific settings — bind mounts do not raise
@@ -53,4 +45,4 @@ RUN for i in 1 2 3; do \
   done
 
 EXPOSE 8080
-CMD ["dotnet", "watch", "run", "--project", "<AppName>.Backend.csproj", "--urls", "http://0.0.0.0:8080", "--non-interactive"]
+CMD ["dotnet", "watch", "run", "--project", "<AppName>.Backend.csproj", "--urls", "http://+:8080", "--non-interactive"]

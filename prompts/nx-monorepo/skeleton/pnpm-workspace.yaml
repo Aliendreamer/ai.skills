@@ -3,6 +3,12 @@ packages:
 
 # Supply-chain guard: don't resolve package versions newer than 7 days (carried from frontend).
 minimumReleaseAge: 10080
+# Core framework packages take their newest release immediately (their fixes are often what an upgrade
+# is for); everything else waits out the cooldown. Edit the list to match the stack.
+minimumReleaseAgeExclude:
+  - "@tanstack/*"
+  - react
+  - react-dom
 # Network resilience so the minimumReleaseAge registry lookups + package fetches survive slow/flaky
 # networks (esp. fresh Docker image builds); the default 60s fetch timeout aborts the frontend build.
 fetchRetries: 5

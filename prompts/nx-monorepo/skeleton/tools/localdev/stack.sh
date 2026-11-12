@@ -34,9 +34,12 @@ case "$cmd" in
     compose up --build -d "$@"
     echo "Stack up via '${RUNTIME[*]}' →"
     echo "  frontend     http://app.<app-name>.localhost"
-    echo "  backend api  http://api.<app-name>.localhost"
-    echo "  keycloak     http://keycloak.<app-name>.localhost (admin/admin)"
+    echo "  backend api  http://api.<app-name>.localhost (also app.<app-name>.localhost/api/)"
+    echo "  keycloak     http://keycloak.<app-name>.localhost/auth/admin (admin/admin)"
+    echo "  oidc issuer  http://app.<app-name>.localhost/auth/realms/<Realm>"
     echo "  redisinsight http://redisinsight.<app-name>.localhost"
+    echo "  traefik      http://localhost:8080 (dashboard)"
+    echo "  postgres     127.0.0.1:5432 (<app-name>/<app-name>)"
     ;;
   down)    compose down "$@" ;;
   restart) compose restart "$@" ;;

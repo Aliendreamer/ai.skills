@@ -1,0 +1,62 @@
+# The ONLY routing definition for the local stacks (dev and coverage). Traefik reads it through the
+# file provider; there are no container labels and no docker socket, so routing does not depend on
+# the docker daemon's API version and no container gets control of the host's Docker.
+#
+# Mirrors the production nginx edge (apps/proxy/files/nginx.conf): on the app host, /api/ goes to the
+# backend, Keycloak's public OIDC paths (/auth/realms, /auth/resources) are served on the app origin,
+# and everything else goes to the SSR frontend. The admin console (/auth/admin) is reachable only on
+# keycloak.<app-name>.localhost. The more specific rules outrank the bare Host(app) router (Traefik
+# ranks routers by rule length). Routes to an app that is not running answer 502.
+#
+# api.<app-name>.localhost exists for local Scalar/curl only; production exposes only the app host.
+http:
+  routers:
+    app:
+      rule: "Host(`app.<app-name>.localhost`)"
+      entrypoints:
+        - web
+      service: app
+    app-api:
+      rule: "Host(`app.<app-name>.localhost`) && PathPrefix(`/api/`)"
+      entrypoints:
+        - web
+      service: backend
+    keycloak-app:
+      rule: "Host(`app.<app-name>.localhost`) && (PathPrefix(`/auth/realms/`) || PathPrefix(`/auth/resources/`))"
+      entrypoints:
+        - web
+      service: keycloak
+    keycloak:
+      rule: "Host(`keycloak.<app-name>.localhost`)"
+      entrypoints:
+        - web
+      service: keycloak
+    api:
+      rule: "Host(`api.<app-name>.localhost`)"
+      entrypoints:
+        - web
+      service: backend
+    # Drop with the redisinsight service if the system does not use Redis.
+    redisinsight:
+      rule: "Host(`redisinsight.<app-name>.localhost`)"
+      entrypoints:
+        - web
+      service: redisinsight
+
+  services:
+    app:
+      loadBalancer:
+        servers:
+          - url: "http://frontend:3000"
+    backend:
+      loadBalancer:
+        servers:
+          - url: "http://backend:8080"
+    keycloak:
+      loadBalancer:
+        servers:
+          - url: "http://keycloak:8080"
+    redisinsight:
+      loadBalancer:
+        servers:
+          - url: "http://redisinsight:5540"

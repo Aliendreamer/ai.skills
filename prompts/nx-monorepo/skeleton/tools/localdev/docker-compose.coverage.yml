@@ -4,27 +4,28 @@
 #
 #   tools/e2e-coverage.sh          # build + up + run Playwright + collect + report
 #
-# Uses the standalone *.<app-name>.localhost hosts and its own volumes (a distinct compose project
-# name), so it won't collide with the dev stack.
+# Uses the same *.<app-name>.localhost hosts but its own volumes and network (a distinct compose
+# project name). It binds the same host ports 80/8080, so stop the dev stack first.
+#
+# Routing comes from the same traefik/dynamic.yml as the dev stack (its redisinsight route answers 502
+# here: this stack runs no RedisInsight).
 
 name: <app-name>-coverage
 
 services:
   proxy:
-    image: traefik:v3.3
+    image: traefik:v3.7
     command:
-      - --providers.docker=true
-      - --providers.docker.exposedbydefault=false
       - --providers.file.directory=/etc/traefik/dynamic
       - --providers.file.watch=true
       - --entrypoints.web.address=:80
       - --api.dashboard=true
       - --api.insecure=true
     ports:
-      - "80:80"
-      - "8080:8080"
+      # Loopback only, like Postgres: the dashboard is unauthenticated and Keycloak's admin is admin/admin.
+      - "127.0.0.1:80:80"
+      - "127.0.0.1:8080:8080"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./traefik:/etc/traefik/dynamic:ro
     networks:
       default:
@@ -32,13 +33,18 @@ services:
           - app.<app-name>.localhost
           - api.<app-name>.localhost
           - keycloak.<app-name>.localhost
-    depends_on:
-      - frontend
-      - backend
-      - keycloak
 
   postgres:
-    image: postgres:18-alpine
+    # Same image and settings as the dev stack (pg_cron + pg_partman); see postgres.dev.Dockerfile.
+    build:
+      context: .
+      dockerfile: postgres.dev.Dockerfile
+    command:
+      - postgres
+      - -c
+      - shared_preload_libraries=pg_cron
+      - -c
+      - cron.database_name=<app-name>
     environment:
       POSTGRES_USER: <app-name>
       POSTGRES_PASSWORD: <app-name>
@@ -50,7 +56,6 @@ services:
       retries: 10
     volumes:
       - pgdata:/var/lib/postgresql
-      - ./postgres/init:/docker-entrypoint-initdb.d:ro
 
   redis:
     image: redis:7-alpine
@@ -63,22 +68,17 @@ services:
       - redisdata:/data
 
   keycloak:
-    image: quay.io/keycloak/keycloak:26.0
+    image: quay.io/keycloak/keycloak:26.8
     command: ["start-dev", "--import-realm"]
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
-      KC_HOSTNAME: http://keycloak.<app-name>.localhost
+      KC_HTTP_RELATIVE_PATH: /auth
       KC_HOSTNAME_STRICT: "false"
       KC_HTTP_ENABLED: "true"
       KC_PROXY_HEADERS: xforwarded
     volumes:
       - ./keycloak:/opt/keycloak/data/import:ro
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.keycloak.rule=Host(`keycloak.<app-name>.localhost`)
-      - traefik.http.routers.keycloak.entrypoints=web
-      - traefik.http.services.keycloak.loadbalancer.server.port=8080
 
   backend:
     build:
@@ -87,14 +87,13 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_HTTP_PORTS: "8080"
-      Keycloak__Authority: http://keycloak.<app-name>.localhost/realms/<AppName>
+      Keycloak__Authority: http://app.<app-name>.localhost/auth/realms/<Realm>
       Keycloak__Audience: ""
       Keycloak__ClientId: <app-name>_api
       Keycloak__ClientSecret: <app-name>-dev-secret
       Keycloak__CallbackUri: http://app.<app-name>.localhost/api/auth/callback
       Keycloak__PostLogoutRedirectUri: http://app.<app-name>.localhost
       Keycloak__AppBaseUrl: http://app.<app-name>.localhost
-      SessionCookies__Domain: .<app-name>.localhost
       SessionCookies__SessionName: <app-name>_sid
       SessionCookies__PkceName: <app-name>_pkce
       AllowedCorsOrigins__0: http://app.<app-name>.localhost
@@ -105,8 +104,6 @@ services:
       ConnectionStrings__Redis: "redis:6379"
     volumes:
       - ./coverage-e2e/backend:/cov
-    extra_hosts:
-      - "keycloak.<app-name>.localhost:host-gateway"
     # dotnet-coverage needs a moment to flush the report on SIGTERM; give it a longer stop grace.
     stop_grace_period: 40s
     depends_on:
@@ -116,11 +113,6 @@ services:
         condition: service_healthy
       keycloak:
         condition: service_started
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.api.rule=Host(`api.<app-name>.localhost`)
-      - traefik.http.routers.api.entrypoints=web
-      - traefik.http.services.api.loadbalancer.server.port=8080
 
   frontend:
     build:
@@ -128,8 +120,6 @@ services:
       dockerfile: tools/localdev/frontend.coverage.Dockerfile
     environment:
       API_URL: http://backend:8080
-      # IdP origin for the CSP form-action (logout redirect to Keycloak); see docker-compose.yml.
-      KEYCLOAK_ORIGIN: http://keycloak.<app-name>.localhost
     volumes:
       # Host-built SSR output (with sourcemaps) + source, so c8 maps coverage to src.
       - ../../apps/frontend/.output:/app/.output:ro
@@ -138,11 +128,6 @@ services:
     stop_grace_period: 40s
     depends_on:
       - backend
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.app.rule=Host(`app.<app-name>.localhost`)
-      - traefik.http.routers.app.entrypoints=web
-      - traefik.http.services.app.loadbalancer.server.port=3000
 
 volumes:
   pgdata:

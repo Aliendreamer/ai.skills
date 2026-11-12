@@ -1,7 +1,6 @@
 # Local Postgres for the <AppName> dev stack: the major version the cluster runs, plus the two
-# extensions the cluster image carries (pg_cron, pg_partman). Mirrors
-# <registry>/<image-namespace>/postgres:current, which is likewise a Postgres 18 base with these
-# extensions added.
+# extensions the cluster image carries (pg_cron, pg_partman): a Postgres 18 base with these extensions
+# added. If production runs a different database image, match its major version and extensions here.
 #
 # Debian-based rather than Alpine on purpose: there is no pg_partman package for Alpine, so the previous
 # postgres:18-alpine image cannot grow the extension. Switching base means an existing pgdata volume must
